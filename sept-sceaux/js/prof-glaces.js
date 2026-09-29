@@ -87,28 +87,73 @@
       return { p, pris };
     }
 
+    // Le décor est construit une fois ; le voyageur et les cristaux sont posés par-dessus,
+    // en position absolue, pour pouvoir glisser en continu d'une case à l'autre.
     const plan = el('div', { class: 'caverne', role: 'grid', 'aria-label': 'Caverne gelée' });
+    for (let i = 0; i < T * T; i++) {
+      const classe = rochers.has(i) ? 'roc' : i === sortie ? 'sortie' : 'glace';
+      plan.append(el('div', { class: 'case-glace ' + classe }, i === sortie ? el('span', { class: 'rune-sortie', text: 'ᛟ' }) : null));
+    }
+    const pos = (i) => ({ left: `${(i % T) * 100 / T}%`, top: `${Math.floor(i / T) * 100 / T}%` });
+    const jetonsCristaux = cristaux.map((c) => {
+      const j = el('div', { class: 'cristal-glace', 'aria-hidden': 'true' });
+      Object.assign(j.style, pos(c));
+      plan.append(j);
+      return j;
+    });
+    const voyageur = el('div', { class: 'voyageur-glace', 'aria-label': 'Le voyageur' }, el('span', { text: 'ᚱ' }));
+    plan.append(voyageur);
     const compteur = el('p', { class: 'compteur' });
     const msg = el('p', { class: 'message' });
+    let enMouvement = false;
 
+    // Sans animation (au départ, après « annuler » ou « recommencer »).
     function dessiner() {
       const { p, pris } = situation();
-      plan.replaceChildren();
-      for (let i = 0; i < T * T; i++) {
-        const classe = rochers.has(i) ? 'roc' : i === sortie ? 'sortie' : 'glace';
-        plan.append(el('div', { class: 'case-glace ' + classe + (i === p ? ' voyageur' : '') },
-          i === p ? '🧭' : rochers.has(i) ? '' : cristaux.includes(i) && !pris.has(i) ? '◆' : i === sortie ? '⛩' : ''));
-      }
-      compteur.textContent = `Glissades : ${historique.length} / ${limite} · Cristaux : ${pris.size} / ${CRISTAUX}`;
+      voyageur.style.transitionDuration = '0ms';
+      Object.assign(voyageur.style, pos(p));
+      void voyageur.offsetWidth;
+      jetonsCristaux.forEach((j, k) => j.classList.toggle('pris', pris.has(cristaux[k])));
+      majCompteur(pris.size);
+    }
+    function majCompteur(nbPris) {
+      compteur.textContent = `Glissades : ${historique.length} / ${limite} · Cristaux : ${nbPris} / ${CRISTAUX}`;
       compteur.classList.toggle('alerte', historique.length >= limite - 1);
     }
 
     function jouer(d) {
-      if (fini) return;
-      const { p } = situation();
-      if (glisser(rochers, p, DIRS[d]).arret === p) { msg.className = 'message'; msg.textContent = 'Un rocher, ou la paroi : impossible de glisser par là.'; return; }
+      if (fini || enMouvement) return;
+      const { p, pris } = situation();
+      const g = glisser(rochers, p, DIRS[d]);
+      if (g.arret === p) {
+        msg.className = 'message'; msg.textContent = 'Un rocher, ou la paroi : impossible de glisser par là.';
+        voyageur.classList.remove('bute'); void voyageur.offsetWidth; voyageur.classList.add('bute');
+        return;
+      }
       historique.push(d); memoriser(); msg.className = 'message'; msg.textContent = '';
-      dessiner();
+      // La glissade : durée selon la distance, freinage en fin de course, traînée de givre.
+      const duree = Math.max(220, g.chemin.length * 95);
+      enMouvement = true;
+      voyageur.classList.remove('arrive');
+      voyageur.classList.add('glisse', DIRS[d][0] ? 'vertical' : 'horizontal');
+      voyageur.style.transitionDuration = duree + 'ms';
+      Object.assign(voyageur.style, pos(g.arret));
+      let nbPris = pris.size;
+      g.chemin.forEach((x, k) => {
+        const idx = cristaux.indexOf(x);
+        if (idx < 0 || pris.has(x)) return;
+        setTimeout(() => { jetonsCristaux[idx].classList.add('pris', 'eclat'); nbPris++; majCompteur(nbPris); }, duree * Math.pow((k + 1) / g.chemin.length, 1.6) * 0.9);
+      });
+      majCompteur(nbPris);
+      setTimeout(() => {
+        enMouvement = false;
+        voyageur.classList.remove('glisse', 'vertical', 'horizontal');
+        voyageur.classList.add('arrive');
+        apres();
+      }, duree + 30);
+    }
+
+    function apres() {
       const s = situation();
       if (s.p === sortie && s.pris.size === CRISTAUX) {
         fini = true;
@@ -142,16 +187,16 @@
     zone.append(
       el('div', { class: 'panneau consigne-epreuve' },
         el('h3', { text: 'La règle' }),
-        el('p', { text: `Le col est une caverne entièrement gelée. Sur la glace, impossible de s’arrêter : le voyageur 🧭 glisse tout droit jusqu’à heurter un rocher ou la paroi.` }),
-        el('p', { text: `Ramasse les ${CRISTAUX} cristaux ◆ (il suffit de passer dessus), puis arrête-toi exactement sur la sortie ⛩. Tu disposes de ${limite} glissades au plus ; au-delà, tu retournes à l’entrée. Le chemin le plus court existe, et il est serré.` }),
+        el('p', { text: `Le col est une caverne entièrement gelée. Sur la glace, impossible de s’arrêter : le voyageur (le médaillon ᚱ) glisse tout droit jusqu’à heurter un rocher ou la paroi.` }),
+        el('p', { text: `Ramasse les ${CRISTAUX} cristaux violets (il suffit de passer dessus), puis arrête-toi exactement sur l’arche runique ᛟ, la sortie du col. Tu disposes de ${limite} glissades au plus ; au-delà, tu retournes à l’entrée. Le chemin le plus court existe, et il est serré.` }),
         el('p', { text: 'Glisse avec les flèches ci-dessous, les flèches du clavier, ou en balayant le plan du doigt. « Annuler » reprend la dernière glissade.' })),
       compteur,
       el('div', { class: 'cadre-caverne' }, plan),
       el('div', { class: 'croix-fleches' }, el('span'), fleche('haut', '↑'), el('span'), fleche('gauche', '←'), fleche('bas', '↓'), fleche('droite', '→')),
       msg,
       el('div', { class: 'actions' },
-        el('button', { type: 'button', class: 'discret', text: '↶ Annuler la dernière glissade', onclick: () => { if (fini || !historique.length) return; historique.pop(); memoriser(); msg.textContent = ''; dessiner(); } }),
-        el('button', { type: 'button', class: 'discret', text: '↺ Recommencer', onclick: () => { if (fini) return; historique = []; memoriser(); msg.textContent = ''; dessiner(); } })));
+        el('button', { type: 'button', class: 'discret', text: '↶ Annuler la dernière glissade', onclick: () => { if (fini || enMouvement || !historique.length) return; historique.pop(); memoriser(); msg.textContent = ''; dessiner(); } }),
+        el('button', { type: 'button', class: 'discret', text: '↺ Recommencer', onclick: () => { if (fini || enMouvement) return; historique = []; memoriser(); msg.textContent = ''; dessiner(); } })));
     dessiner();
 
     return {

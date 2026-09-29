@@ -603,13 +603,62 @@ select {
 .dalle.conflit { color: #ff6b6b; text-shadow: 0 0 8px #c0392b; }
 .dalle.point { color: var(--texte-doux); }
 
-/* ---------- Les Glaces du Col ---------- */
-.cadre-caverne { width: min(420px, 100%); margin: 8px auto; }
-.caverne { display: grid; grid-template-columns: repeat(9, 1fr); gap: 2px; touch-action: none; user-select: none; -webkit-user-select: none; }
-.case-glace { aspect-ratio: 1; display: grid; place-items: center; border-radius: 3px; font-size: 1.05rem; }
-.case-glace.glace { background: linear-gradient(135deg, #cfe3ee, #9fbfd1); color: #3b6f96; }
-.case-glace.roc { background: linear-gradient(#5e5448, #3a332b); box-shadow: inset 0 -3px 0 rgba(0,0,0,.35); }
-.case-glace.sortie { background: linear-gradient(135deg, #e8c275, #c9973f); color: #3a2a10; }
-.case-glace.voyageur { outline: 2px solid #1b1612; outline-offset: -2px; }
+/* ---------- Les Glaces du Col (col nain gelé, glissade animée) ---------- */
+.cadre-caverne {
+  width: min(440px, 100%); margin: 10px auto; padding: 10px; border-radius: 14px;
+  background: radial-gradient(ellipse at 50% 0%, #3a3128, #15110d 75%);
+  border: 1px solid #4a3e30; box-shadow: inset 0 0 30px rgba(0,0,0,.8), 0 8px 24px rgba(0,0,0,.5);
+}
+.caverne { position: relative; display: grid; grid-template-columns: repeat(9, 1fr); gap: 3px; touch-action: none; user-select: none; -webkit-user-select: none; }
+.case-glace { aspect-ratio: 1; border-radius: 4px; position: relative; overflow: hidden; }
+.case-glace.glace {
+  background:
+    linear-gradient(125deg, rgba(255,255,255,.55) 0%, rgba(255,255,255,0) 38%),
+    repeating-linear-gradient(60deg, rgba(255,255,255,.08) 0 2px, transparent 2px 9px),
+    linear-gradient(160deg, #cfe6f2, #86b3cc 70%, #6d9bb6);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.35), inset 0 -3px 6px rgba(40,80,110,.35);
+}
+.case-glace.roc {
+  background: radial-gradient(circle at 35% 30%, #857564, #4e433a 55%, #2a241e);
+  border-radius: 38% 46% 40% 50% / 44% 40% 52% 42%;
+  box-shadow: inset -3px -4px 6px rgba(0,0,0,.45), 0 2px 3px rgba(0,0,0,.6);
+}
+.case-glace.sortie {
+  display: grid; place-items: center;
+  background: radial-gradient(circle at 50% 60%, #f3d68c, #c9973f 55%, #6b4a1c);
+  border-radius: 50% 50% 4px 4px; box-shadow: 0 0 14px rgba(232,194,117,.7), inset 0 0 0 2px #5a3d15;
+  animation: pulse-sortie 2.4s ease-in-out infinite;
+}
+.rune-sortie { font: 700 1.2rem var(--rune); color: #3a2a10; }
+@keyframes pulse-sortie { 50% { box-shadow: 0 0 22px rgba(255,210,120,.95), inset 0 0 0 2px #5a3d15; } }
+.cristal-glace {
+  position: absolute; width: calc(100% / 9); aspect-ratio: 1; pointer-events: none; z-index: 1;
+  display: grid; place-items: center; transition: transform .35s ease, opacity .35s ease;
+}
+.cristal-glace::before {
+  content: ""; width: 42%; height: 62%;
+  background: linear-gradient(160deg, #f1d3ff, #a45ee0 45%, #5b2596);
+  clip-path: polygon(50% 0, 100% 30%, 82% 100%, 18% 100%, 0 30%);
+  filter: drop-shadow(0 0 5px #c98cff); animation: pulse-cristal 1.8s ease-in-out infinite;
+}
+@keyframes pulse-cristal { 50% { filter: drop-shadow(0 0 10px #e0b8ff); transform: translateY(-2px); } }
+.cristal-glace.pris { opacity: 0; transform: scale(1.8) translateY(-10px); }
+.voyageur-glace {
+  position: absolute; width: calc(100% / 9); aspect-ratio: 1; z-index: 2; display: grid; place-items: center;
+  transition-property: left, top; transition-timing-function: cubic-bezier(.15,.75,.3,1);
+}
+.voyageur-glace span {
+  width: 78%; aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center;
+  font: 700 1.05rem var(--rune); color: #2b1d0b;
+  background: radial-gradient(circle at 35% 30%, #f6dc9c, #c9973f 60%, #7a5a22);
+  box-shadow: 0 2px 5px rgba(0,0,0,.6), inset 0 0 0 2px #5a3d15;
+}
+.voyageur-glace.glisse.horizontal span { box-shadow: 0 2px 5px rgba(0,0,0,.6), inset 0 0 0 2px #5a3d15, 0 0 0 0 transparent, -14px 0 14px -4px rgba(230,245,255,.9); }
+.voyageur-glace.glisse.vertical span { box-shadow: 0 2px 5px rgba(0,0,0,.6), inset 0 0 0 2px #5a3d15, 0 -14px 14px -4px rgba(230,245,255,.9); }
+.voyageur-glace.arrive span { animation: choc .28s ease-out; }
+@keyframes choc { 30% { transform: scale(1.14, .88); } 70% { transform: scale(.95, 1.05); } }
+.voyageur-glace.bute span { animation: bute .3s ease; }
+@keyframes bute { 25%, 75% { transform: translateX(-3px); } 50% { transform: translateX(3px); } }
 .croix-fleches { display: grid; grid-template-columns: repeat(3, 56px); gap: 6px; justify-content: center; margin: 10px 0; }
 .fleche { min-height: 50px; padding: 0; font-size: 1.4rem; }
+
