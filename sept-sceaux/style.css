@@ -550,6 +550,9 @@ select {
 .avertissement-profondeurs { margin: 0 auto 16px; max-width: 36em; padding: 14px 18px; border: 1px solid #9c2a22; border-radius: 10px; background: linear-gradient(rgba(156,42,34,.18), rgba(156,42,34,.05)); text-align: center; }
 .avertissement-profondeurs .titre-avert { font: 700 1.1rem var(--titre); letter-spacing: .12em; text-transform: uppercase; color: #ff8a6b; margin-bottom: 6px; }
 .avertissement-profondeurs strong { color: var(--bronze-clair); }
+.compte-a-rebours { margin: 0 auto 16px; max-width: 36em; padding: 14px 18px; border: 1px solid var(--bronze-clair); border-radius: 10px; background: rgba(0,0,0,.25); text-align: center; }
+.compte-a-rebours .titre-avert { font: 700 1.1rem var(--titre); letter-spacing: .12em; text-transform: uppercase; color: var(--bronze-clair); margin-bottom: 6px; }
+.compte-a-rebours .temps-restant { font: 700 1.5rem var(--titre); color: #ffd98a; letter-spacing: .06em; margin: 8px 0 0; font-variant-numeric: tabular-nums; }
 .grille-logique .case.c3 { color: #e8c275; background: #2e2716; }
 .grille-logique .case.c4 { color: #8fb8e8; }
 

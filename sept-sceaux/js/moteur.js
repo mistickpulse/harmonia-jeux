@@ -467,6 +467,28 @@
   // (le code MJ, lui, garde l’accès pour tester). Passer à true pour ouvrir les Profondeurs.
   const PROFONDEURS_OUVERTES = false;
   // Épreuves annoncées mais pas encore écrites : cases vides, fermées.
+  // Date limite des Profondeurs : samedi 10/10/2026 à 23h59 (heure de Paris). Passé ce moment,
+  // les épreuves se referment pour les joueurs.
+  const FIN_PROFONDEURS = new Date('2026-10-10T23:59:00+02:00');
+  const tempsEcoule = () => Date.now() >= FIN_PROFONDEURS.getTime();
+  function compteARebours() {
+    const temps = el('p', { class: 'temps-restant' });
+    const bloc = el('div', { class: 'compte-a-rebours' },
+      el('p', { class: 'titre-avert', text: '⏳ Le temps presse' }),
+      el('p', { text: 'Les épreuves des Profondeurs doivent être finies avant le samedi 10 octobre à 23h59. Passé ce moment, les Profondeurs se refermeront.' }),
+      temps);
+    const maj = () => {
+      const reste = FIN_PROFONDEURS.getTime() - Date.now();
+      if (reste <= 0) { temps.textContent = 'Le temps est écoulé : les Profondeurs se sont refermées.'; return false; }
+      const j = Math.floor(reste / 864e5), h = Math.floor(reste / 36e5) % 24, m = Math.floor(reste / 6e4) % 60, sec = Math.floor(reste / 1e3) % 60;
+      const deux = (x) => String(x).padStart(2, '0');
+      temps.textContent = `${j} j  ${deux(h)} h  ${deux(m)} min  ${deux(sec)} s`;
+      return true;
+    };
+    maj();
+    const minuteur = setInterval(() => { if (!bloc.isConnected || !maj()) clearInterval(minuteur); }, 1000);
+    return bloc;
+  }
   const PROFONDEURS_A_VENIR = ['Les Écluses', 'Le Réseau runique', 'Les Miroirs du Chant', 'Le Registre chiffré', 'L’Énigme des Profondeurs'];
   S.enregistrerEpreuve = (def) => { S.epreuves.push(def); };
   const cleProfondeurs = () => 'profondeurs:' + etat.code;
@@ -480,12 +502,13 @@
         el('p', { text: 'Sous la porte s’ouvrent les Profondeurs. Ces épreuves sont bien plus dures que les sceaux : certaines demanderont des heures, du papier, et beaucoup de patience. Fais-les dans l’ordre que tu veux, à ton rythme.' }),
         el('p', {}, 'Chacune réussie te laisse un fragment d’une dernière énigme. Au bout, un code secret à donner au MJ, et pour ceux qui iront jusque-là, ',
           el('strong', { text: 'une récompense spéciale en jeu, vraiment, vraiment précieuse.' }))),
-      PROFONDEURS_OUVERTES ? null : el('p', { class: 'centre doux', text: etat.mj
-        ? 'Les Profondeurs sont encore fermées aux joueurs (l’énigme finale n’est pas prête). Le MJ, lui, peut entrer.'
-        : 'Les Profondeurs ne sont pas encore ouvertes. Reviens plus tard…' }),
+      compteARebours(),
+      PROFONDEURS_OUVERTES && !tempsEcoule() ? null : el('p', { class: 'centre doux', text: etat.mj
+        ? 'Les Profondeurs sont fermées aux joueurs (énigme finale pas prête ou temps écoulé). Le MJ, lui, peut entrer.'
+        : tempsEcoule() ? 'Les Profondeurs se sont refermées.' : 'Les Profondeurs ne sont pas encore ouvertes. Reviens plus tard…' }),
       el('p', { class: 'centre doux', text: `Épreuves réussies : ${nb} / ${S.epreuves.length + PROFONDEURS_A_VENIR.length}` }),
       el('div', { class: 'porte' }, S.epreuves.map((e) => {
-        const ouverte = PROFONDEURS_OUVERTES || etat.mj;
+        const ouverte = (PROFONDEURS_OUVERTES && !tempsEcoule()) || etat.mj;
         const classe = faites[e.id] ? 'brise' : ouverte ? 'ouvert' : 'ferme';
         return el('button', {
           type: 'button', class: 'sceau ' + classe, disabled: !ouverte, onclick: () => ecranEpreuve(e),
@@ -494,7 +517,7 @@
           el('span', { class: 'medaillon', text: faites[e.id] ? '✓' : e.icone || '⛏' }),
           el('span', { class: 'nom', text: e.nom }),
           el('span', { class: 'etoiles', text: '★'.repeat(e.etoiles) }),
-          el('span', { class: 'etat', text: faites[e.id] ? 'Réussie' : ouverte ? e.resume : 'Pas encore ouverte' }));
+          el('span', { class: 'etat', text: faites[e.id] ? 'Réussie' : ouverte ? e.resume : tempsEcoule() ? 'Refermée' : 'Pas encore ouverte' }));
       }).concat(PROFONDEURS_A_VENIR.map((nom) => el('button', { type: 'button', class: 'sceau ferme', disabled: true, 'aria-label': `${nom}, en préparation` },
         el('span', { class: 'medaillon', text: '?' }),
         el('span', { class: 'nom', text: nom }),
@@ -502,7 +525,7 @@
     ];
   }
   function ecranEpreuve(e) {
-    if (!PROFONDEURS_OUVERTES && !etat.mj) { ecranPorte('profondeurs'); return; }
+    if ((!PROFONDEURS_OUVERTES || tempsEcoule()) && !etat.mj) { ecranPorte('profondeurs'); return; }
     const zone = el('div', { class: 'zone-sceau' });
     const faites = reussites();
     const ctx = {
