@@ -187,3 +187,30 @@ input[type=text] {
   .reserve { grid-template-columns: 1fr 1fr; }
   .piece { font-size: .85rem; padding: 4px 6px; }
 }
+
+/* ---------- Solution (clé du gardien) ---------- */
+.acces-solution { margin-top: 40px; text-align: center; }
+.lien-gardien {
+  background: none; border: none; min-height: 32px; padding: 4px 8px;
+  font: italic .8rem var(--corps); letter-spacing: 0; color: var(--texte-doux); opacity: .45;
+}
+.lien-gardien:hover { opacity: .8; }
+.form-solution { display: flex; gap: 8px; justify-content: center; }
+.form-solution input { max-width: 180px; font-size: 1rem; min-height: 40px; }
+.volet-solution {
+  position: fixed; top: 0; right: 0; bottom: 0; width: min(380px, 100%); z-index: 20; overflow-y: auto;
+  padding: 16px 18px 32px; background: #1a1611; border-left: 1px solid var(--bronze);
+  box-shadow: -12px 0 32px rgba(0,0,0,.6); animation: glisse .25s ease;
+}
+.volet-solution .entete { margin-bottom: 8px; }
+.volet-solution h3 { margin: 0; font-size: 1rem; }
+.volet-solution h4 { font-family: var(--titre); color: var(--bronze); font-size: .85rem; letter-spacing: .12em; text-transform: uppercase; margin: 16px 0 6px; }
+.volet-solution ul { margin: 0; padding-left: 1.2em; }
+.volet-solution li { margin-bottom: 6px; }
+.volet-solution p { font-size: .95rem; margin-bottom: .7em; }
+.volet-solution .rune { font-size: 1.3em; color: var(--bronze-clair); }
+@keyframes glisse { from { transform: translateX(100%); } }
+@media (max-width: 560px) {
+  .volet-solution { top: auto; left: 0; width: 100%; max-height: 65vh; border-left: none; border-top: 1px solid var(--bronze); animation-name: monte; }
+  @keyframes monte { from { transform: translateY(100%); } }
+}

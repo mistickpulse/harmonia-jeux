@@ -61,9 +61,12 @@
       if (C * f.den === L * f.num) continue;
       const leurres = [nouvellePiece(h, 'double'), nouvellePiece(h, h.choisir(['roue', 'poulie'])), nouvellePiece(h, h.choisir(['double', 'roue', 'poulie']))];
       // Les roues doubles de la réserve sont présentées dans un sens au hasard.
-      const reserve = h.melanger(solution.concat(leurres)).map((p) =>
-        p.type === 'double' && h.reel() < 0.5 ? { type: p.type, a: p.b, b: p.a } : p);
-      return { C, L, cible: f, reserve };
+      const tous = h.melanger(solution.concat(leurres));
+      const retournees = tous.map((p) => p.type === 'double' && h.reel() < 0.5);
+      const reserve = tous.map((p, i) => (retournees[i] ? { type: p.type, a: p.b, b: p.a } : p));
+      // Où trouver chaque pièce de la solution dans la réserve, et faut-il la retourner.
+      const soluce = solution.map((p) => { const i = tous.indexOf(p); return { index: i, retourner: retournees[i] }; });
+      return { C, L, cible: f, reserve, soluce };
     }
   }
 
@@ -114,7 +117,7 @@
 
   function monter(zone, ctx) {
     const h = ctx.hasard;
-    const { C, L, cible, reserve } = generer(h);
+    const { C, L, cible, reserve, soluce } = generer(h);
     const montage = new Array(NB_AXES).fill(null); // { index, piece, retourne }
     let choixReserve = null;
     let choixAxe = null;
@@ -258,7 +261,8 @@
           conclure(calc);
         };
         msg.className = 'message';
-        requestAnimationFrame(pas);
+        if (document.hidden) pas(t0 + duree); // onglet en arrière-plan : résultat immédiat
+        else requestAnimationFrame(pas);
       }
     });
 
@@ -312,6 +316,37 @@
       el('div', { class: 'actions' }, bouton)
     );
     tout();
+
+    return { solution: () => expliquer(C, L, cible, reserve, soluce) };
+  }
+
+  // Solution trouvée par le générateur, et le raisonnement qui y mène.
+  // (D'autres montages peuvent marcher : le jeu accepte tout montage qui donne le bon résultat.)
+  function expliquer(C, L, cible, reserve, soluce) {
+    const frac = (n, d) => { const g = pgcd(n, d); n /= g; d /= g; return d === 1 ? String(n) : `${n}/${d}`; };
+    const montees = soluce.map(({ index, retourner }) => ({ piece: reserve[index], retourne: retourner }));
+    const reponse = montees.map((m, i) => {
+      const dansReserve = libelle(m.piece, false);
+      return m.retourne
+        ? `Axe ${i + 1} : ${dansReserve}, à retourner (${libelle(m.piece, true)})`
+        : `Axe ${i + 1} : ${dansReserve}`;
+    });
+
+    const doubles = montees.filter((m) => m.piece.type === 'double').map((m) => entreeSortie(m.piece, m.retourne));
+    const nbInverse = montees.filter((m) => inverse(m.piece)).length;
+    const inversions = nbInverse + 1;
+    let num = C, den = L;
+    doubles.forEach(({ e, s }) => { num *= s; den *= e; });
+
+    const pourquoi = [
+      `La vitesse. La manivelle a ${C} dents, le verrou ${L} : seuls, ils donneraient ${frac(C, L)} tour de verrou par tour de manivelle.`,
+      'Une roue simple ou une poulie ne change pas la vitesse finale : ce qu’elle reçoit d’un côté, elle le rend de l’autre (roue folle). Seules les roues doubles la changent, en multipliant par sortie ÷ entrée.',
+      ...doubles.map(({ e, s }) => `Double ${e} › ${s} : × ${frac(s, e)}.`),
+      `Total : ${[frac(C, L), ...doubles.map(({ e, s }) => frac(s, e))].join(' × ')} = ${frac(num, den)}, soit ${fraction(cible.num)} de verrou pour ${fraction(cible.den)} de manivelle.`,
+      `Le sens. Chaque roue dentée (simple ou double) inverse le sens ; une poulie le garde ; le verrou, roue dentée, l’inverse aussi. Ici : ${nbInverse} pièce${nbInverse > 1 ? 's' : ''} dentée${nbInverse > 1 ? 's' : ''} + le verrou = ${inversions} inversions, un nombre ${inversions % 2 ? 'impair : le verrou tourne à l’inverse de la manivelle, vers la gauche' : 'pair : le verrou tourne comme la manivelle, vers la droite'}.`,
+      'D’autres montages peuvent marcher : le jeu accepte tout montage qui donne la bonne vitesse et le bon sens.'
+    ];
+    return { reponse, pourquoi };
   }
 
   Sceaux.enregistrer({ numero: 2, monter });

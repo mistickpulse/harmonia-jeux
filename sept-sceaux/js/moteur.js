@@ -242,7 +242,49 @@
         el('div', { class: 'fragment', style: 'margin:0 auto;width:72px;height:84px;font-size:2.4rem', text: etat.resolus[n].fragment }));
       return;
     }
-    def.monter(zone, ctx);
+    const api = def.monter(zone, ctx) || {};
+    if (api.solution) app().append(accesSolution(n, api.solution));
+  }
+
+  // ---------- Solution (pour le MJ) ----------
+  // Un code par sceau (empreintes dans config.solutions) ouvre un panneau latéral :
+  // la solution de l'énigme telle que ce joueur la voit, et pourquoi c'est la bonne.
+  function accesSolution(n, solution) {
+    const bloc = el('div', { class: 'acces-solution' });
+    const panneau = () => {
+      const s = solution();
+      const volet = el('aside', { class: 'volet-solution', 'aria-label': 'Solution du sceau' },
+        el('div', { class: 'entete' },
+          el('h3', { text: 'Solution · Sceau ' + ROMAINS[n - 1] }),
+          el('button', { class: 'discret', type: 'button', 'aria-label': 'Fermer', text: '✕', onclick: () => volet.remove() })),
+        el('h4', { text: 'La réponse' }),
+        el('ul', {}, s.reponse.map((l) => el('li', {}, l))),
+        el('h4', { text: 'Pourquoi' }),
+        s.pourquoi.map((l) => el('p', {}, l)));
+      document.querySelector('.volet-solution')?.remove();
+      app().append(volet);
+    };
+    const ouvrir = () => { ecrire('solution:' + n, true); panneau(); };
+
+    if (etat.mj || lire('solution:' + n)) {
+      bloc.append(el('button', { class: 'discret', type: 'button', text: '🗝 Voir la solution', onclick: ouvrir }));
+      return bloc;
+    }
+    const champ = el('input', { type: 'text', autocomplete: 'off', autocapitalize: 'characters', spellcheck: 'false', 'aria-label': 'Clé du gardien', placeholder: 'Clé du gardien' });
+    const form = el('form', {
+      class: 'form-solution',
+      onsubmit: async (ev) => {
+        ev.preventDefault();
+        let empreinte = '';
+        try { empreinte = await sha256(normaliser(champ.value)); } catch (e) { /* voir ecranCode */ }
+        if (empreinte && empreinte === window.SCEAUX_CONFIG.solutions[n]) { form.remove(); bloc.append(el('button', { class: 'discret', type: 'button', text: '🗝 Voir la solution', onclick: ouvrir })); ouvrir(); return; }
+        champ.value = '';
+        form.classList.remove('secousse'); void form.offsetWidth; form.classList.add('secousse');
+      }
+    }, champ, el('button', { class: 'discret', type: 'submit', text: 'OK' }));
+    const lien = el('button', { class: 'lien-gardien', type: 'button', text: 'Clé du gardien', onclick: () => { lien.remove(); bloc.append(form); champ.focus(); } });
+    bloc.append(lien);
+    return bloc;
   }
 
   function briser(n) {

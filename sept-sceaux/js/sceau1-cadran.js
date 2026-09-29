@@ -94,6 +94,7 @@
     }
     function animer(i) {
       const depart = affiche[i], arrivee = angle[i], t0 = performance.now();
+      if (document.hidden) { affiche[i] = arrivee; poser(i, arrivee); return; } // pas d'animation en arrière-plan
       const pas = (t) => {
         const k = Math.min((t - t0) / 300, 1);
         affiche[i] = depart + (arrivee - depart) * (1 - Math.pow(1 - k, 3));
@@ -161,6 +162,20 @@
       msg,
       el('div', { class: 'actions' }, valider)
     );
+
+    const rune = (s) => el('span', { class: 'rune', text: runes[s] });
+    return {
+      solution: () => ({
+        reponse: cibles.map((c, i) => [`${NOMS[i]} : `, rune(c), ` (${sens[c].mot})`]),
+        pourquoi: [
+          'La devise se lit du cercle extérieur vers le cœur : chaque énigme désigne un mot, et la tablette donne la rune de ce mot.',
+          ...cibles.map((c, i) => c === cachee
+            ? [`${NOMS[i]} : « ${sens[c].k} », c’est ${sens[c].mot.toLowerCase()}. Ce mot n’est pas sur la tablette : c’est la ligne effacée. Chaque anneau porte les huit mêmes runes et la tablette en traduit sept ; la seule rune de l’anneau absente de la tablette est donc `, rune(c), '.']
+            : [`${NOMS[i]} : « ${sens[c].k} », c’est ${sens[c].mot.toLowerCase()}, donc `, rune(c), ' d’après la tablette.']),
+          'Il faut amener ces quatre runes sous la flèche, puis tourner la poignée.'
+        ]
+      })
+    };
   }
 
   Sceaux.enregistrer({ numero: 1, monter });

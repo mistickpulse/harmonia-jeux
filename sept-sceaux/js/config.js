@@ -11,5 +11,15 @@ window.SCEAUX_CONFIG = {
     { h: 'aa67b580ac8ce0067777ee5d2b0287e5a11e1c629053e4e06d3d8da2711ddcea' },
     { h: '4c8470bfb005c55e5bb0c52617deac2df9367dd728e05a9b648306bd90b99296' },
     { h: 'fe2b2b6b4570392165255d402a609af11095afdb33a89d7c66c7673ae6ba04e5', mj: true }
-  ]
+  ],
+  // Un code par sceau pour afficher sa solution (et pourquoi c'est la bonne), même règle d'empreinte.
+  solutions: {
+    1: '9037ef2f7f4ccc24577c92685019dd959c5329c2cd2fe497f3c2af850f84b320',
+    2: '326c96f29cd8b8bea938e9700b2da1f0ee9b6447d7fa8dd347c4e6a0271e47b8',
+    3: '813f7c1ed0bad5ae03b9b8eda9b501b558e56b84996de4d8653d052a32f7e7f7',
+    4: 'd38bd239a09917e39ebb2488093b39f6cd3c87a0685c342aab42064b89e68e00',
+    5: 'b4636b8394a154eb149909e86784e9eba4f071d70cdc7fd63e2319078bb6f4b9',
+    6: 'f9daba97bcf42127826a72ec8721c608d9870ee18d9a0726943b5a44607e0479',
+    7: 'dbec28d7ed216cfd0815660b9a1b52385cdba6b73e760326220ce8512449734f'
+  }
 };
