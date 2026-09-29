@@ -16,7 +16,7 @@
 }
 
 * { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
+html { -webkit-text-size-adjust: 100%; overflow-x: hidden; }
 body {
   margin: 0;
   min-height: 100vh;
@@ -249,7 +249,7 @@ input[type=text] {
 .grille-logique th[scope=row] { text-align: right; color: var(--texte); }
 .grille-logique td { padding: 0; border: 1px solid var(--bord); }
 .grille-logique .case {
-  width: 44px; height: 40px; min-height: 0; padding: 0; border: none; border-radius: 0;
+  width: 100%; min-width: 44px; height: 40px; min-height: 0; padding: 0; border: none; border-radius: 0;
   background: var(--pierre); color: var(--texte); font: 1.1rem var(--corps); letter-spacing: 0;
 }
 .grille-logique .case.c1 { color: var(--rouge); }
@@ -263,7 +263,7 @@ select {
   border-radius: 6px; padding: 6px 8px; min-height: 40px;
 }
 @media (max-width: 480px) {
-  .grille-logique .case { width: 38px; height: 36px; }
+  .grille-logique .case { min-width: 38px; height: 36px; }
   .grille-logique th { font-size: .72rem; padding: 2px; }
 }
 
@@ -301,7 +301,7 @@ select {
 }
 
 /* ---------- Sceau V : le Chant des Diapasons ---------- */
-.diapasons { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; max-width: 520px; margin: 16px auto 8px; }
+.diapasons { display: grid; grid-template-columns: repeat(12, 1fr); gap: 4px; max-width: 720px; margin: 16px auto 8px; }
 .diapason { display: flex; flex-direction: column; align-items: center; gap: 6px; border-radius: 8px; padding: 4px 0; }
 .diapason.choisi { background: rgba(232,194,117,.14); outline: 1px solid var(--bronze); }
 .diapason .frapper {
@@ -329,7 +329,7 @@ select {
 .progres-chant .point { width: 12px; height: 12px; border-radius: 50%; border: 1px solid var(--bronze); }
 .progres-chant .point.fait { background: var(--bronze-clair); }
 @media (max-width: 480px) {
-  .diapasons { gap: 2px; }
+  .diapasons { grid-template-columns: repeat(6, 1fr); gap: 6px 4px; }
   .diapason .frapper { height: 130px; }
   .diapason .branches { width: 20px; height: 80px; border-width: 5px; }
   .diapason .echanger { min-width: 0; width: 100%; }
@@ -338,7 +338,7 @@ select {
 /* ---------- Sceau VI : la Herse ---------- */
 .compteur { text-align: center; font-family: var(--titre); color: var(--texte-doux); letter-spacing: .08em; margin: 8px 0; }
 .compteur.alerte { color: var(--rouge); }
-.cadre-plateau { width: min(420px, 100%); margin: 0 auto; padding: 8px 14px 8px 8px; background: #2b241c; border-radius: 10px; border: 1px solid var(--bord); }
+.cadre-plateau { overflow: hidden; width: min(420px, 100%); margin: 0 auto; padding: 8px 14px 8px 8px; background: #2b241c; border-radius: 10px; border: 1px solid var(--bord); }
 .plateau {
   position: relative; width: 100%; aspect-ratio: 1; touch-action: none;
   background-color: #17130f;
@@ -453,3 +453,26 @@ select {
 .fiche-mj h3 { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
 .fiche-mj p { margin: 0 0 6px; }
 .code-mj { font: .85rem var(--titre); color: var(--texte-doux); letter-spacing: .1em; }
+
+/* ---------- Accueil : prière et trois secrets ---------- */
+.priere {
+  max-width: 34em; margin: 0 auto 1.6em; padding: 0 0 0 16px; text-align: left;
+  border-left: 2px solid var(--bronze); font-style: italic; color: #d8c8a8;
+}
+.priere p { margin: 0 0 .7em; line-height: 1.6; }
+.secrets { list-style: none; padding: 0; margin: 0 auto 2em; max-width: 34em; display: grid; gap: 10px; }
+.secret {
+  display: grid; grid-template-columns: 5.2em 1fr; grid-template-rows: auto auto auto; column-gap: 12px; align-items: center;
+  text-align: left; padding: 12px 14px; border: 1px solid var(--bord); border-radius: 10px;
+  background: linear-gradient(90deg, rgba(201,151,63,.12), transparent 70%);
+}
+.etoiles-secret { grid-row: 1 / 4; font-size: 1.3rem; color: var(--bronze-clair); letter-spacing: .05em; text-align: center; text-shadow: 0 0 10px rgba(232,194,117,.5); }
+.titre-secret { font: 700 1rem var(--titre); color: var(--bronze-clair); letter-spacing: .05em; }
+.secret .quand { font: .75rem var(--titre); letter-spacing: .15em; text-transform: uppercase; color: var(--texte-doux); }
+.secret:nth-child(3) { border-color: var(--bronze); box-shadow: 0 0 18px rgba(201,151,63,.2); }
+
+/* ---------- Sceau V : la partition du joueur ---------- */
+.progres-chant { display: block; }
+.partition { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; min-height: 44px; padding: 8px; margin: 6px auto; max-width: 720px; border: 1px dashed var(--bord); border-radius: 8px; background: #17130f; }
+.note-partition { position: relative; display: inline-grid; place-items: center; width: 34px; height: 40px; font: 1.2rem var(--rune); color: var(--bronze-clair); background: var(--pierre-2); border: 1px solid var(--bord); border-radius: 4px; }
+.note-partition small { position: absolute; top: 1px; left: 3px; font: .55rem var(--titre); color: var(--texte-doux); }

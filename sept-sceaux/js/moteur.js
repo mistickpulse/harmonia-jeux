@@ -210,7 +210,7 @@
         recompense('final').then((f) => {
           if (!f) { texte.replaceChildren(el('p', { class: 'doux', text: 'Le parchemin est encore scellé : le MJ y met la dernière main.' })); return; }
           const reussi = v >= DD;
-          texte.replaceChildren(el('p', { class: 'de-phrase' + (reussi ? '' : ' tronquee'), text: reussi ? f.complete : f.partielle }),
+          remplir(texte, el('p', { class: 'de-phrase' + (reussi ? '' : ' tronquee'), text: reussi ? f.complete : f.partielle }),
             reussi ? null : el('p', { class: 'doux', text: 'Le parchemin s’effrite avant la fin de la phrase… Un autre porteur des sceaux a peut-être lu la suite.' }));
         }).catch(() => texte.replaceChildren(el('p', { class: 'message erreur', text: 'Le parchemin est illisible. Préviens le MJ.' })));
       };
@@ -253,7 +253,7 @@
       corps);
     recompense('tableau').then((t) => {
       if (!t) { corps.replaceChildren(el('p', { text: 'Aucun tableau trouvé : relancer le script de chiffrement.' })); return; }
-      corps.replaceChildren(
+      remplir(corps,
         ...t.joueurs.map((j) => el('section', { class: 'fiche-mj' },
           el('h3', {}, j.personnage, el('span', { class: 'code-mj', text: j.code })),
           el('p', {}, el('strong', { text: 'Sceau II : ' }), j.perso || '(encore scellé)'),
@@ -281,6 +281,8 @@
     return n;
   }
   S.el = el;
+  // Remplace le contenu d'un nœud en ignorant les emplacements vides (sinon « null » s'affiche).
+  const remplir = (noeud, ...enfants) => noeud.replaceChildren(...enfants.flat().filter((x) => x != null));
   S.svg = function (tag, attrs, ...enfants) {
     const n = document.createElementNS('http://www.w3.org/2000/svg', tag);
     for (const [k, v] of Object.entries(attrs || {})) {
@@ -307,6 +309,18 @@
   }
 
   // ---------- Écran 1 : le code personnel ----------
+  // La prière dite au début de chaque partie (monologue de départ du MJ).
+  const PRIERE = [
+    'Le vent souffle à travers les vallées et les cités, portant avec lui des fragments d’un chant oublié. Il ne s’impose pas, il se cache, se laisse deviner… Mais il attend. Un signe, un pas en avant, une volonté qui brise le silence. Écoutez bien, car c’est à vous de réveiller l’écho endormi.',
+    'Ce n’est pas une mélodie figée, ni un simple vestige du passé. C’est un murmure vivant, un fil ténu entre hier et demain. Chaque pierre, chaque feuille frissonne sous ses fréquences, effleurée par la mémoire d’un monde qui refuse de s’éteindre.',
+    'Une question murmurée à l’ombre des étoiles. Et peut-être que la réponse apparaîtra.'
+  ];
+  // Les trois secrets du coffre, annoncés avant d'entrer (sans rien dévoiler de leur contenu).
+  const SECRETS = [
+    { etoiles: 1, titre: 'Le premier secret', quand: 'Après le sceau II', texte: 'Un secret qui ne parle que de toi.' },
+    { etoiles: 2, titre: 'Le deuxième secret', quand: 'Après le sceau IV', texte: 'Un secret partagé : chacun n’en détient qu’une part. Il faudra vous réunir.' },
+    { etoiles: 3, titre: 'Le troisième secret', quand: 'Après les sept sceaux', texte: 'Le plus lourd de tous. Il faudra aussi un peu de chance.' }
+  ];
   function ecranCode(erreur) {
     const champ = el('input', {
       type: 'text', id: 'code', autocomplete: 'off', autocapitalize: 'characters', spellcheck: 'false',
@@ -338,11 +352,18 @@
 
     afficher(el('section', { class: 'accueil' },
       el('h1', { text: 'Les Sept Sceaux' }),
-      el('p', { class: 'intro', text: "Une porte de chambre forte naine, fermée par sept sceaux. Chacun garde une énigme, et chacune est plus cruelle que la précédente. Derrière la porte, un parchemin porte ton nom." }),
+      el('blockquote', { class: 'priere' }, PRIERE.map((p) => el('p', { text: p }))),
+      el('p', { class: 'intro', text: 'Une porte de chambre forte naine, fermée par sept sceaux. Chacun garde une énigme, et chacune est plus cruelle que la précédente. Ce coffre-fort magique renferme trois secrets.' }),
+      el('ol', { class: 'secrets' }, SECRETS.map((s) => el('li', { class: 'secret' },
+        el('span', { class: 'etoiles-secret', 'aria-label': `${s.etoiles} étoile${s.etoiles > 1 ? 's' : ''}`, text: '★'.repeat(s.etoiles) }),
+        el('span', { class: 'titre-secret', text: s.titre }),
+        el('span', { class: 'quand', text: s.quand }),
+        el('span', { class: 'doux petit', text: s.texte })))),
       el('p', { class: 'doux', text: 'Entre le code que le MJ t’a confié.' }),
       form
     ));
-    champ.focus();
+    champ.focus({ preventScroll: true }); // la page reste en haut : la prière se lit d'abord
+    window.scrollTo(0, 0);
   }
 
   // ---------- Écran 2 : la porte ----------
@@ -592,6 +613,7 @@
   S.ECLAT_DE = ECLAT_DE;
 
   // Au retour sur le site, on rouvre directement la porte du dernier code utilisé.
+  try { history.scrollRestoration = 'manual'; } catch (e) { /* ancien navigateur */ }
   document.addEventListener('DOMContentLoaded', () => {
     // Ancienne mémoire des clés, commune à tous les codes : on l'oublie.
     for (let n = 1; n <= 7; n++) effacer('solution:' + n);
