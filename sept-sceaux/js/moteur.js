@@ -369,7 +369,9 @@
   // ---------- Écran 2 : la porte ----------
   function disponible(n) { return n === 1 || !!etat.resolus[n - 1]; }
 
-  function ecranPorte() {
+  // Onglets de la porte : les sept sceaux (par défaut) et les jeux bonus, ouverts à tout moment.
+  function ecranPorte(onglet) {
+    if (onglet === 'bonus') { afficher(entetePorte('bonus'), ...contenuBonus()); return; }
     const porte = el('div', { class: 'porte' });
     SCEAUX.forEach((s, i) => {
       const n = i + 1;
@@ -403,14 +405,7 @@
     }
 
     afficher(
-      el('div', { class: 'entete' },
-        el('span', { class: 'code', text: etat.mj ? 'Code MJ' : 'Porte scellée' }),
-        el('button', { class: 'discret', type: 'button', text: 'Changer de code', onclick: () => ecranCode() })
-      ),
-      el('h1', { text: 'La Porte' }),
-      etat.mj ? el('div', { class: 'actions barre-mj' },
-        el('button', { type: 'button', class: 'discret', text: '📜 Tableau du MJ : ce que reçoit chaque joueur', onclick: ecranTableau }),
-        el('button', { type: 'button', class: 'discret', text: '🎲 Tester le lutrin', onclick: ecranDe })) : null,
+      entetePorte('sceaux'),
       toutBrise() ? carteLutrin() : null,
       barreSecrets(),
       el('p', { class: 'consigne', text: 'Brise les sceaux un par un. Chacun laisse tomber un éclat de pierre gravé : garde-les, le dernier sceau les réclame.' }),
@@ -444,6 +439,53 @@
         }
       }))
     );
+  }
+
+  function entetePorte(onglet) {
+    const bouton = (id, texte) => el('button', {
+      type: 'button', role: 'tab', class: 'onglet' + (onglet === id ? ' actif' : ''), 'aria-selected': onglet === id ? 'true' : 'false',
+      text: texte, onclick: () => { if (onglet !== id) ecranPorte(id); }
+    });
+    return el('div', {},
+      el('div', { class: 'entete' },
+        el('span', { class: 'code', text: etat.mj ? 'Code MJ' : 'Porte scellée' }),
+        el('button', { class: 'discret', type: 'button', text: 'Changer de code', onclick: () => ecranCode() })),
+      el('h1', { text: 'La Porte' }),
+      etat.mj ? el('div', { class: 'actions barre-mj' },
+        el('button', { type: 'button', class: 'discret', text: '📜 Tableau du MJ : ce que reçoit chaque joueur', onclick: ecranTableau }),
+        el('button', { type: 'button', class: 'discret', text: '🎲 Tester le lutrin', onclick: ecranDe })) : null,
+      el('div', { class: 'onglets', role: 'tablist' }, bouton('sceaux', 'Les Sept Sceaux'), bouton('bonus', '✦ Bonus')));
+  }
+
+  // ---------- Onglet Bonus : jeux ouverts à tout moment ----------
+  S.bonus = [];
+  S.enregistrerBonus = (def) => { S.bonus.push(def); };
+  function contenuBonus() {
+    if (!S.bonus.length) return [el('p', { class: 'consigne', text: 'Aucun jeu bonus pour l’instant.' })];
+    return [el('p', { class: 'consigne', text: 'Des jeux en plus, ouverts à tout moment, que tu aies brisé les sceaux ou non.' }),
+      el('div', { class: 'cartes-bonus' }, S.bonus.map((b) => {
+        const meilleur = lire(`bonus:${etat.code}:${b.id}:meilleur`);
+        return el('section', { class: 'carte-bonus' },
+          el('h3', { text: b.titre }),
+          el('p', { class: 'doux', text: b.description }),
+          meilleur != null && b.resume ? el('p', { class: 'petit', text: b.resume(meilleur) }) : null,
+          el('button', { type: 'button', text: 'Jouer', onclick: () => ecranBonus(b) }));
+      }))];
+  }
+  function ecranBonus(b) {
+    const zone = el('div', { class: 'zone-bonus' });
+    const cle = `bonus:${etat.code}:${b.id}`;
+    afficher(
+      el('div', { class: 'entete' }, el('button', { class: 'discret', type: 'button', text: '← Les bonus', onclick: () => ecranPorte('bonus') })),
+      el('div', { class: 'titre-sceau' }, el('div', { class: 'numero', text: 'BONUS' }), el('h2', { text: b.titre })),
+      zone);
+    b.monter(zone, {
+      code: etat.code,
+      memoire: { lire: () => lire(cle), ecrire: (v) => ecrire(cle, v), effacer: () => effacer(cle) },
+      meilleur: { lire: () => lire(cle + ':meilleur'), ecrire: (v) => ecrire(cle + ':meilleur', v) },
+      retour: () => ecranPorte('bonus'),
+      secouer: (noeud) => { noeud.classList.remove('secousse'); void noeud.getBoundingClientRect(); noeud.classList.add('secousse'); }
+    });
   }
 
   // ---------- Les secrets déjà obtenus, accessibles d'un bouton ----------
