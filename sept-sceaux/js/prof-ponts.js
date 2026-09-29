@@ -1,4 +1,4 @@
-// Les Profondeurs — Les Ponts de Pierre (★★★)
+// Les Profondeurs — Les Ponts de Pierre (★★★★)
 // Hashi : des piliers numérotés au-dessus d'un gouffre. Il faut les relier par des ponts droits
 // (horizontaux ou verticaux), au plus 2 entre deux piliers, sans croisement, pour que chaque
 // pilier porte exactement son nombre de ponts et que tout soit relié en un seul ensemble.
@@ -6,8 +6,8 @@
 (function () {
   'use strict';
   const { el, svg } = Sceaux;
-  const T = 9;                       // plan de 9 × 9
-  const LETTRES = 'ABCDEFGHI';
+  const T = 10;                      // plan de 10 × 10
+  const LETTRES = 'ABCDEFGHIJ';
   const nomPilier = (p) => `${LETTRES[p.c]}${p.r + 1}`;
 
   // Arêtes possibles : chaque pilier voit le plus proche dans chaque direction.
@@ -73,8 +73,8 @@
       const piliers = [{ r: h.entier(0, T - 1), c: h.entier(0, T - 1), n: 0 }];
       occupe.set(piliers[0].r * T + piliers[0].c, 'P');
       const ponts = [];
-      const cible = h.entier(15, 18);
-      for (let tour = 0; piliers.length < cible && tour < 800; tour++) {
+      const cible = h.entier(22, 28);
+      for (let tour = 0; piliers.length < cible && tour < 1500; tour++) {
         const a = h.choisir(piliers);
         const [dr, dc] = h.choisir([[0, 1], [0, -1], [1, 0], [-1, 0]]);
         const d = h.entier(2, 5);
@@ -91,11 +91,54 @@
         a.n += n; b.n += n;
         ponts.push([a, b, n]);
       }
-      if (piliers.length < 14) continue;
+      if (piliers.length < 20) continue;
+      // Des boucles : ponts en plus entre piliers qui se voient, si le passage est libre.
+      // Sans elles, la carte est un arbre et se déduit trop facilement de proche en proche.
+      const idx = new Map(piliers.map((p, i) => [p, i]));
+      const dejaRelies = new Set(ponts.map(([a, b]) => [idx.get(a), idx.get(b)].sort((u, v) => u - v).join('-')));
+      for (const e of h.melanger(aretesPossibles(piliers))) {
+        if (dejaRelies.has([e.a, e.b].sort((u, v) => u - v).join('-')) || h.reel() > 0.4) continue;
+        const a = piliers[e.a], b = piliers[e.b];
+        const cases = [];
+        if (e.horiz) for (let c = Math.min(a.c, b.c) + 1; c < Math.max(a.c, b.c); c++) cases.push(a.r * T + c);
+        else for (let r = Math.min(a.r, b.r) + 1; r < Math.max(a.r, b.r); r++) cases.push(r * T + a.c);
+        if (cases.some((k) => occupe.has(k))) continue;
+        cases.forEach((k) => occupe.set(k, e.horiz ? 'H' : 'V'));
+        const n = h.reel() < 0.4 ? 2 : 1;
+        a.n += n; b.n += n;
+        ponts.push([a, b, n]);
+      }
       const aretes = aretesPossibles(piliers);
-      if (compter(piliers, aretes, 2) !== 1) continue;
+      if (facile(piliers, aretes)) continue;           // se résout avec les règles simples : trop facile
+      if (compter(piliers, aretes, 2) !== 1) continue; // une seule solution
       return { piliers, aretes };
     }
+  }
+
+  // Solveur « naïf » : bornes sur chaque pilier, croisements, deux « 1 » jamais reliés, deux « 2 »
+  // jamais reliés par un double pont. S'il suffit à tout résoudre, la carte est trop facile.
+  function facile(piliers, aretes) {
+    const lo = aretes.map(() => 0), hi = aretes.map((e) => {
+      const na = piliers[e.a].n, nb = piliers[e.b].n;
+      if (na === 1 && nb === 1) return 0;
+      if (na === 2 && nb === 2) return 1;
+      return Math.min(2, na, nb);
+    });
+    const incid = piliers.map((p, i) => aretes.map((e, k) => (e.a === i || e.b === i ? k : -1)).filter((k) => k >= 0));
+    for (let change = true; change;) {
+      change = false;
+      piliers.forEach((p, i) => {
+        const sLo = incid[i].reduce((s, k) => s + lo[k], 0), sHi = incid[i].reduce((s, k) => s + hi[k], 0);
+        for (const k of incid[i]) {
+          const nLo = Math.max(lo[k], p.n - (sHi - hi[k])), nHi = Math.min(hi[k], p.n - (sLo - lo[k]));
+          if (nLo !== lo[k] || nHi !== hi[k]) { lo[k] = nLo; hi[k] = nHi; change = true; }
+        }
+      });
+      aretes.forEach((e, k) => {
+        if (lo[k] > 0) aretes.forEach((f, l) => { if (hi[l] > 0 && croisent(e, f, piliers)) { hi[l] = 0; change = true; } });
+      });
+    }
+    return aretes.every((e, k) => lo[k] === hi[k]);
   }
 
   function monter(zone, ctx) {
@@ -107,12 +150,12 @@
     const degre = (i) => aretes.reduce((s, e, k) => s + (e.a === i || e.b === i ? x[k] : 0), 0);
     const P = (i) => ({ x: piliers[i].c * 100 + 50, y: piliers[i].r * 100 + 50 });
 
-    const plan = svg('svg', { viewBox: '0 0 900 940', class: 'plan-ponts', role: 'img', 'aria-label': 'Plan des piliers' });
+    const plan = svg('svg', { viewBox: '0 0 1000 1040', class: 'plan-ponts', role: 'img', 'aria-label': 'Plan des piliers' });
     const msg = el('p', { class: 'message' });
 
     function dessiner() {
-      plan.replaceChildren(svg('rect', { x: 0, y: 0, width: 900, height: 940, fill: '#0f0c0a', rx: 14 }));
-      for (let c = 0; c < T; c++) plan.append(svg('text', { x: c * 100 + 50, y: 930, class: 'coord', 'text-anchor': 'middle', text: LETTRES[c] }));
+      plan.replaceChildren(svg('rect', { x: 0, y: 0, width: 1000, height: 1040, fill: '#0f0c0a', rx: 14 }));
+      for (let c = 0; c < T; c++) plan.append(svg('text', { x: c * 100 + 50, y: 1030, class: 'coord', 'text-anchor': 'middle', text: LETTRES[c] }));
       aretes.forEach((e, k) => {
         const a = P(e.a), b = P(e.b);
         if (x[k]) {
@@ -194,7 +237,7 @@
           return false;
         })(0);
         return {
-          reponse: ['Colonnes A à I (de gauche à droite), lignes 1 à 9 (de haut en bas).',
+          reponse: ['Colonnes A à J (de gauche à droite), lignes 1 à 10 (de haut en bas).',
             ...aretes.map((e, k) => (sol[k] ? `${nomPilier(piliers[e.a])} — ${nomPilier(piliers[e.b])} : ${sol[k]} pont${sol[k] > 1 ? 's' : ''}` : null)).filter(Boolean)],
           pourquoi: [
             'Solution unique, vérifiée en essayant toutes les combinaisons de ponts possibles.',
@@ -207,5 +250,5 @@
     };
   }
 
-  Sceaux.enregistrerEpreuve({ id: 'ponts', nom: 'Les Ponts de Pierre', icone: '⌗', etoiles: 3, resume: 'Logique', monter });
+  Sceaux.enregistrerEpreuve({ id: 'ponts', nom: 'Les Ponts de Pierre', icone: '⌗', etoiles: 4, resume: 'Logique', monter });
 })();
