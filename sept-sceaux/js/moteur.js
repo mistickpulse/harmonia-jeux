@@ -8,7 +8,7 @@
   const SCEAUX = [
     { nom: 'Le Cadran des Rois', etoiles: 1 },
     { nom: 'Les Engrenages', etoiles: 2 },
-    { nom: 'La Relève de la Garde', etoiles: 3 },
+    { nom: 'La Relève de la Garde', etoiles: 4 }, // plus dure que les autres (demande du MJ)
     { nom: "L'Inscription", etoiles: 3 },
     { nom: 'Le Chant des Diapasons', etoiles: 4 },
     { nom: 'La Herse', etoiles: 4 },

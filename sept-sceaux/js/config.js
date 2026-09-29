@@ -24,7 +24,9 @@ window.SCEAUX_CONFIG = {
   solutionsProfondeurs: {
     clans: '0ee758773ed970e963cdfa6c139e924fa8295d23f39bf59937d9b377a1f0db44',
     tapisserie: 'dd2890b9a365ce7691a9cdaad9bf149439630e3ea8582f220e4eed196993eb37',
-    ponts: '5a77616f0303c478e77daa7c57b9645c140b6e56e788ad0662ba5afae967cff0'
+    ponts: '5a77616f0303c478e77daa7c57b9645c140b6e56e788ad0662ba5afae967cff0',
+    lanternes: '87fec1f1729fed676dc9f7efec22c0a61731f8650bb8d9ce312455181c7dec46',
+    glaces: 'beabf7432bcf3ef757bd7ccc4a7cb4e991f176cc315a8abcc75c668c455b77ff'
   },
   // Clés du gardien des jeux bonus qui en ont une.
   solutionsBonus: {

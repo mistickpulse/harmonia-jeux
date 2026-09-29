@@ -589,3 +589,27 @@ select {
 .plan-ponts .pilier.choisi circle { stroke: var(--bronze-clair); stroke-width: 7; }
 .plan-ponts .pilier.complet circle { fill: #5a4520; stroke: var(--bronze-clair); }
 .plan-ponts .pilier.trop circle { fill: #5a1f18; stroke: var(--rouge); }
+
+/* ---------- Les Lanternes ---------- */
+.cadre-galerie { width: min(460px, 100%); margin: 8px auto; }
+.galerie { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; user-select: none; -webkit-user-select: none; touch-action: manipulation; }
+.galerie > * { aspect-ratio: 1; display: grid; place-items: center; border-radius: 3px; font: 700 1rem var(--titre); }
+.pilier-galerie { background: #0a0806; border: 1px solid #3a3026; color: var(--texte); }
+.pilier-galerie.ok { color: var(--bronze-clair); }
+.pilier-galerie.trop { color: var(--rouge); }
+.dalle { min-height: 0; padding: 0; border: 1px solid #2b241c; background: #16120e; color: var(--texte-doux); letter-spacing: 0; }
+.dalle.eclairee { background: #4a3a1c; border-color: #6b5638; }
+.dalle.lanterne { color: #ffe29a; font-size: 1.2rem; text-shadow: 0 0 8px #ffb300; }
+.dalle.conflit { color: #ff6b6b; text-shadow: 0 0 8px #c0392b; }
+.dalle.point { color: var(--texte-doux); }
+
+/* ---------- Les Glaces du Col ---------- */
+.cadre-caverne { width: min(420px, 100%); margin: 8px auto; }
+.caverne { display: grid; grid-template-columns: repeat(9, 1fr); gap: 2px; touch-action: none; user-select: none; -webkit-user-select: none; }
+.case-glace { aspect-ratio: 1; display: grid; place-items: center; border-radius: 3px; font-size: 1.05rem; }
+.case-glace.glace { background: linear-gradient(135deg, #cfe3ee, #9fbfd1); color: #3b6f96; }
+.case-glace.roc { background: linear-gradient(#5e5448, #3a332b); box-shadow: inset 0 -3px 0 rgba(0,0,0,.35); }
+.case-glace.sortie { background: linear-gradient(135deg, #e8c275, #c9973f); color: #3a2a10; }
+.case-glace.voyageur { outline: 2px solid #1b1612; outline-offset: -2px; }
+.croix-fleches { display: grid; grid-template-columns: repeat(3, 56px); gap: 6px; justify-content: center; margin: 10px 0; }
+.fleche { min-height: 50px; padding: 0; font-size: 1.4rem; }
