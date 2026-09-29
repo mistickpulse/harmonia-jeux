@@ -25,8 +25,13 @@ Teaser de la saison 2 d'Harmonia : sept énigmes de plus en plus difficiles. Les
 |---|---|---|
 | I. Le Cadran des Rois | `sceau1-cadran.js` | fait |
 | II. Les Engrenages | `sceau2-engrenages.js` | fait |
-| III. La Relève de la Garde | | à faire |
-| IV. L'Inscription | | à faire |
-| V. Le Chant des Diapasons | | à faire |
-| VI. La Herse | | à faire |
-| VII. Le Sceau du Maître + parchemins chiffrés | | à faire |
+| III. La Relève de la Garde | `sceau3-garde.js` | fait |
+| IV. L'Inscription | `sceau4-inscription.js` | fait |
+| V. Le Chant des Diapasons | `sceau5-diapasons.js` | fait |
+| VI. La Herse | `sceau6-herse.js` | fait |
+| VII. Le Sceau du Maître | `sceau7-maitre.js` | fait |
+| Parchemins chiffrés | `recompenses.js` (généré) | mécanisme fait ; textes à fournir par le MJ |
+
+## Récompenses
+
+`js/recompenses.js` est **généré** : ne pas le modifier à la main. Il contient les parchemins chiffrés (AES-256-GCM), une clé par code joueur ; les textes en clair restent dans le coffre privé du MJ. Trois paliers : parchemin personnel (sceau II), lambeaux d'une phrase commune (sceau IV), secret final (sceau VII).

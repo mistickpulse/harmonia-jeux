@@ -126,7 +126,29 @@ input[type=text] {
   position: fixed; inset: 0; background: rgba(8,6,4,.88); display: grid; place-items: center; z-index: 10;
   padding: 16px; animation: apparition .6s ease;
 }
-.brisure .contenu { text-align: center; max-width: 26em; }
+.brisure .contenu { text-align: center; max-width: 26em; max-height: 100%; overflow-y: auto; padding: 8px 4px; }
+
+/* ---------- Parchemins (récompenses) ---------- */
+.parchemins { margin-top: 28px; }
+.parchemins > h3 { text-align: center; }
+.parchemin {
+  margin: 12px auto; max-width: 34em; padding: 18px 20px; text-align: left;
+  color: #2b2118; background: linear-gradient(#efe2c4, #e2cfa6);
+  border-radius: 4px; box-shadow: 0 6px 18px rgba(0,0,0,.5), inset 0 0 40px rgba(120,80,30,.25);
+}
+.parchemin h3 { color: #5a3a1a; font-size: 1rem; text-align: center; margin-bottom: 10px; }
+.parchemin .doux { color: #6b5540; }
+.parchemin .texte-parchemin { font-size: 1.1rem; font-style: italic; white-space: pre-line; margin: 0; }
+.parchemin .scelle { font-style: italic; color: #6b5540; margin: 0; }
+.parchemin .scelle::before { content: '●'; color: #9c2a22; font-size: 1.4rem; margin-right: 8px; vertical-align: middle; }
+.lambeau {
+  font-size: 1.1rem; font-style: italic; margin: 0 0 10px; padding: 8px 10px;
+  background: rgba(255,255,255,.35); border: 1px dashed #b39668;
+  clip-path: polygon(0 4%, 6% 0, 94% 6%, 100% 0, 99% 94%, 92% 100%, 8% 96%, 1% 100%);
+}
+.consigne-collective { font-size: .95rem; margin: 0 0 12px; padding: 8px 10px; border-left: 3px solid #9c2a22; background: rgba(156,42,34,.08); }
+.numero-lambeau { font: 700 .85rem var(--titre); color: #7a4b1c; margin-right: 10px; }
+.brisure .parchemin { margin-top: 8px; }
 .brisure .fragment { width: 88px; height: 104px; font-size: 3rem; margin: 18px auto; animation: chute .9s ease; }
 @keyframes apparition { from { opacity: 0; } }
 @keyframes chute { from { transform: translateY(-40px) rotate(-20deg); opacity: 0; } }
@@ -363,3 +385,71 @@ select {
   .alveoles { gap: 4px; }
   .alveole .rune { font-size: 1.4rem; }
 }
+
+/* ---------- Le lutrin : jet de D20 (inspiré de Baldur's Gate 3) ---------- */
+.lutrin-carte {
+  margin: 8px auto 20px; max-width: 34em; padding: 16px 18px; text-align: center; border-radius: 10px;
+  border: 1px solid var(--bronze); background: radial-gradient(ellipse at 50% 0%, #3a2c45, #1a1511);
+  box-shadow: 0 0 24px rgba(160,110,220,.25);
+}
+.lutrin-carte h3 { color: #e3c8ff; }
+.barre-mj { margin: 0 0 12px; }
+.ecran-de {
+  position: relative; text-align: center; padding: 24px 12px 40px; margin-top: 8px; border-radius: 14px;
+  background: radial-gradient(ellipse at 50% 42%, #2c2138 0%, #120d17 60%, #0a0709 100%);
+  box-shadow: inset 0 0 60px rgba(0,0,0,.8);
+}
+.de-type { font: 600 .85rem var(--titre); letter-spacing: .25em; text-transform: uppercase; color: #cdb6e6; margin: 0 0 14px; }
+.de-dd {
+  width: 64px; height: 64px; margin: 0 auto 10px; display: grid; place-content: center;
+  transform: rotate(45deg); border: 2px solid var(--bronze); background: #1b1420;
+  box-shadow: 0 0 18px rgba(201,151,63,.35);
+}
+.de-dd > * { transform: rotate(-45deg); display: block; }
+.de-dd-titre { font: .7rem var(--titre); letter-spacing: .2em; text-transform: uppercase; color: var(--texte-doux); margin: 0 0 12px; }
+.de-dd strong { font: 700 1.9rem var(--titre); color: var(--bronze-clair); line-height: 1; }
+.de-bouton {
+  display: block; margin: 18px auto 6px; width: min(240px, 62vw); aspect-ratio: 1; padding: 0; min-height: 0;
+  background: none; border: none; cursor: pointer; perspective: 700px; filter: drop-shadow(0 0 14px rgba(170,120,255,.45));
+  animation: flotte 3s ease-in-out infinite;
+}
+.de-bouton.pose { cursor: default; animation: none; }
+.de-svg { width: 100%; height: 100%; overflow: visible; transform-style: preserve-3d; }
+.de-contour { fill: url(#faceDe); stroke: var(--bronze-clair); stroke-width: 3; stroke-linejoin: round; }
+.de-aretes line { stroke: #b99554; stroke-width: 2; opacity: .8; }
+.de-face { fill: #2d2139; stroke: var(--bronze-clair); stroke-width: 2.5; stroke-linejoin: round; }
+.de-nombre { font: 700 44px var(--titre); fill: #f4e2b8; paint-order: stroke; stroke: #0a0709; stroke-width: 3px; }
+.de-bouton.roule { animation: none; }
+.de-bouton.roule .de-svg { animation: culbute 1.9s cubic-bezier(.15,.7,.25,1) forwards; }
+@keyframes flotte { 50% { transform: translateY(-8px); } }
+@keyframes culbute {
+  0%   { transform: translateY(0) rotateX(0) rotateY(0) rotateZ(0) scale(1); }
+  15%  { transform: translateY(-60px) rotateX(260deg) rotateY(120deg) rotateZ(90deg) scale(1.15); }
+  45%  { transform: translateY(10px) rotateX(620deg) rotateY(330deg) rotateZ(250deg) scale(.95); }
+  70%  { transform: translateY(-14px) rotateX(760deg) rotateY(430deg) rotateZ(330deg) scale(1.05); }
+  88%  { transform: translateY(2px) rotateX(715deg) rotateY(365deg) rotateZ(357deg) scale(1); }
+  100% { transform: translateY(0) rotateX(720deg) rotateY(360deg) rotateZ(360deg) scale(1); }
+}
+.de-bandeau { min-height: 3.2rem; display: grid; place-items: center; }
+.de-verdict {
+  font: 700 clamp(1.4rem, 6vw, 2.2rem) var(--titre); letter-spacing: .12em; text-transform: uppercase;
+  animation: eclat .8s ease-out;
+}
+@keyframes eclat { from { opacity: 0; transform: scale(1.8); letter-spacing: .5em; filter: blur(6px); } }
+.de-verdict.reussite { color: #f1d27a; text-shadow: 0 0 18px rgba(241,210,122,.6); }
+.de-verdict.critique-reussite { color: #fff1b8; text-shadow: 0 0 10px #ffd35c, 0 0 30px #ffb300; }
+.de-verdict.echec { color: #9fb3c8; text-shadow: 0 0 12px rgba(120,150,190,.5); }
+.de-verdict.critique-echec { color: #ff5a4a; text-shadow: 0 0 10px #c0392b, 0 0 30px #8e1b10; }
+.de-bouton.reussite, .de-bouton.critique-reussite { filter: drop-shadow(0 0 22px rgba(255,205,90,.75)); }
+.de-bouton.echec { filter: drop-shadow(0 0 16px rgba(120,150,190,.5)) grayscale(.3); }
+.de-bouton.critique-echec { filter: drop-shadow(0 0 22px rgba(220,50,40,.8)); }
+.de-texte { max-width: 32em; margin: 10px auto 0; animation: apparition 1s ease; }
+.de-phrase { font: italic 1.3rem var(--corps); color: #f4e2b8; line-height: 1.6; text-shadow: 0 0 12px rgba(0,0,0,.8); }
+.de-phrase.tronquee { color: #d9c9a4; }
+.de-echec-critique { font: italic 1.1rem var(--corps); color: #ffb0a6; }
+
+/* ---------- Tableau du MJ ---------- */
+.fiche-mj { padding: 12px 16px; margin-bottom: 10px; border: 1px solid var(--bord); border-radius: 8px; background: var(--pierre); }
+.fiche-mj h3 { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
+.fiche-mj p { margin: 0 0 6px; }
+.code-mj { font: .85rem var(--titre); color: var(--texte-doux); letter-spacing: .1em; }

@@ -98,6 +98,173 @@
     const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(txt));
     return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('');
   }
+
+  // ---------- Récompenses chiffrées ----------
+  // Trois paliers : parchemin personnel (sceau II), lambeaux de la phrase commune (sceau IV),
+  // secret final (sceau VII). Déchiffrés avec une clé tirée du code du joueur (voir
+  // recompenses.js, généré depuis le coffre privé). null = encore scellé par le MJ.
+  const PALIERS = [
+    { sceau: 2, cle: 'perso', titre: 'Ton parchemin' },
+    { sceau: 4, cle: 'milieu', titre: 'Lambeaux d’une phrase' },
+    { sceau: 7, cle: 'final', titre: 'Le lutrin de pierre' }
+  ];
+  const b64 = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0));
+  async function recompense(cle) {
+    const r = (window.SCEAUX_RECOMPENSES || {})[etat.empreinte];
+    const bloc = r && r[cle];
+    if (!bloc) return null;
+    const brute = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('sept-sceaux:recompense:' + etat.code));
+    const k = await crypto.subtle.importKey('raw', brute, 'AES-GCM', false, ['decrypt']);
+    const clair = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64(bloc.iv) }, k, b64(bloc.ct));
+    return JSON.parse(new TextDecoder().decode(clair));
+  }
+  // Remplit un conteneur avec la récompense d'un palier (asynchrone : déchiffrement).
+  function afficherRecompense(palier, conteneur) {
+    conteneur.replaceChildren(el('p', { class: 'doux petit', text: 'Le sceau de cire se brise…' }));
+    recompense(palier.cle).then((v) => {
+      if (v == null) {
+        conteneur.replaceChildren(el('p', { class: 'scelle', text: 'Le cachet de cire est encore intact : le MJ y met la dernière main. Reviens plus tard, il s’ouvrira de lui-même.' }));
+      } else if (palier.cle === 'milieu') {
+        conteneur.replaceChildren(
+          el('p', { class: 'consigne-collective' },
+            el('strong', { text: 'Énigme collective. ' }),
+            'Ces lambeaux ne sont qu’une partie d’une seule phrase, partagée entre tous les porteurs des sceaux : chacun n’en a reçu que deux. ',
+            el('strong', { text: 'Note-les précieusement' }),
+            ', puis mettez vos lambeaux en commun à la table pour reconstituer la phrase ensemble. Les chiffres I à IV donnent l’ordre.'),
+          ...v.map((m) => el('p', { class: 'lambeau' }, el('span', { class: 'numero-lambeau', text: m.numero }), m.texte)));
+      } else {
+        conteneur.replaceChildren(el('p', { class: 'texte-parchemin', text: v }));
+      }
+    }).catch(() => {
+      conteneur.replaceChildren(el('p', { class: 'message erreur', text: 'Le parchemin est illisible. Recharge la page, ou préviens le MJ.' }));
+    });
+  }
+  function carteParchemin(palier) {
+    if (palier.cle === 'final') return carteLutrin();
+    const corps = el('div', { class: 'corps-parchemin' });
+    afficherRecompense(palier, corps);
+    return el('section', { class: 'parchemin' }, el('h3', { text: palier.titre }), corps);
+  }
+
+  // ---------- Le lutrin de pierre : le jet de D20 final ----------
+  // Accessible seulement quand les sept sceaux sont brisés. Un seul jet par joueur (retenu) :
+  // 1 = échec critique (rien) ; 2 à 12 = phrase tronquée ; 13 et plus = phrase complète.
+  const DD = 13;
+  const toutBrise = () => [1, 2, 3, 4, 5, 6, 7].every((n) => etat.resolus[n]);
+  const cleDe = () => 'de:' + etat.code;
+  function verdict(v) {
+    if (v === 1) return { nom: 'Échec critique', classe: 'critique-echec' };
+    if (v === 20) return { nom: 'Réussite critique', classe: 'critique-reussite' };
+    return v >= DD ? { nom: 'Réussite', classe: 'reussite' } : { nom: 'Échec', classe: 'echec' };
+  }
+  function carteLutrin() {
+    const jet = lire(cleDe());
+    return el('section', { class: 'lutrin-carte' },
+      el('h3', { text: 'Le lutrin de pierre' }),
+      el('p', { text: jet ? `Tu as lancé le dé : ${jet.valeur}. ${verdict(jet.valeur).nom}.` : 'Derrière la porte, un dernier parchemin repose sur un lutrin. Le lire demande un peu de chance…' }),
+      el('button', { type: 'button', text: jet ? 'Revoir le lutrin' : '🎲 Approcher du lutrin', onclick: ecranDe }));
+  }
+
+  // Dé à vingt faces vu de face, façon Baldur's Gate 3.
+  function dessinDe() {
+    const H = [[0, -95], [82, -47.5], [82, 47.5], [0, 95], [-82, 47.5], [-82, -47.5]];
+    const T = [[0, -58], [50, 29], [-50, 29]];
+    const p = (pts) => pts.map((x) => x.join(',')).join(' ');
+    const trait = (a, b) => S.svg('line', { x1: a[0], y1: a[1], x2: b[0], y2: b[1] });
+    const nombre = S.svg('text', { x: 0, y: 12, 'text-anchor': 'middle', class: 'de-nombre', text: '20' });
+    const svgDe = S.svg('svg', { viewBox: '-105 -105 210 210', class: 'de-svg', 'aria-hidden': 'true' },
+      S.svg('defs', {}, S.svg('radialGradient', { id: 'faceDe', cx: '50%', cy: '35%', r: '70%' },
+        S.svg('stop', { offset: '0%', 'stop-color': '#4b3a5c' }), S.svg('stop', { offset: '100%', 'stop-color': '#16101d' }))),
+      S.svg('polygon', { points: p(H), class: 'de-contour' }),
+      S.svg('g', { class: 'de-aretes' },
+        S.svg('polygon', { points: p(T), class: 'de-face' }),
+        trait(T[0], H[0]), trait(T[0], H[1]), trait(T[0], H[5]),
+        trait(T[1], H[1]), trait(T[1], H[2]), trait(T[1], H[3]),
+        trait(T[2], H[5]), trait(T[2], H[4]), trait(T[2], H[3])),
+      nombre);
+    return { svgDe, nombre };
+  }
+
+  function ecranDe() {
+    if (!toutBrise() && !etat.mj) { ecranPorte(); return; }
+    const deja = lire(cleDe());
+    const { svgDe, nombre } = dessinDe();
+    const bouton = el('button', { type: 'button', class: 'de-bouton', 'aria-label': 'Lancer le dé' }, svgDe);
+    const bandeau = el('div', { class: 'de-bandeau', 'aria-live': 'polite' });
+    const texte = el('div', { class: 'de-texte' });
+    const aide = el('p', { class: 'doux centre', text: 'Touche le dé pour le lancer. Un seul jet : le destin ne se relance pas.' });
+
+    function reveler(v, anime) {
+      const r = verdict(v);
+      nombre.textContent = String(v);
+      bouton.className = 'de-bouton pose ' + r.classe;
+      bandeau.replaceChildren(el('span', { class: 'de-verdict ' + r.classe, text: r.nom }));
+      aide.remove();
+      const suite = () => {
+        if (v === 1) {
+          texte.replaceChildren(el('p', { class: 'de-echec-critique', text: 'Les runes du lutrin s’éteignent une à une. Le parchemin tombe en poussière avant que tu aies pu en lire un seul mot.' }),
+            el('p', { class: 'doux', text: 'Échec critique… Le destin est cruel. Tes compagnons ont peut-être eu plus de chance que toi.' }));
+          return;
+        }
+        texte.replaceChildren(el('p', { class: 'doux petit', text: 'Le parchemin se déroule…' }));
+        recompense('final').then((f) => {
+          if (!f) { texte.replaceChildren(el('p', { class: 'doux', text: 'Le parchemin est encore scellé : le MJ y met la dernière main.' })); return; }
+          const reussi = v >= DD;
+          texte.replaceChildren(el('p', { class: 'de-phrase' + (reussi ? '' : ' tronquee'), text: reussi ? f.complete : f.partielle }),
+            reussi ? null : el('p', { class: 'doux', text: 'Le parchemin s’effrite avant la fin de la phrase… Un autre porteur des sceaux a peut-être lu la suite.' }));
+        }).catch(() => texte.replaceChildren(el('p', { class: 'message erreur', text: 'Le parchemin est illisible. Préviens le MJ.' })));
+      };
+      if (anime) setTimeout(suite, 700); else suite();
+    }
+
+    let lance = false;
+    bouton.addEventListener('click', () => {
+      if (lance || lire(cleDe())) return;
+      lance = true;
+      const tirage = new Uint32Array(1);
+      crypto.getRandomValues(tirage);
+      const v = (tirage[0] % 20) + 1;
+      ecrire(cleDe(), { valeur: v, date: Date.now() }); // retenu tout de suite : recharger ne relance pas
+      bouton.classList.add('roule');
+      const clignote = setInterval(() => { nombre.textContent = String(1 + Math.floor(Math.random() * 20)); }, 70);
+      setTimeout(() => { clearInterval(clignote); bouton.classList.remove('roule'); reveler(v, true); }, 1900);
+    });
+
+    afficher(
+      el('div', { class: 'entete' },
+        el('button', { class: 'discret', type: 'button', text: '← La porte', onclick: ecranPorte }),
+        etat.mj ? el('button', { class: 'discret', type: 'button', text: 'MJ : effacer le jet', onclick: () => { effacer(cleDe()); ecranDe(); } }) : null),
+      el('section', { class: 'ecran-de' },
+        el('p', { class: 'de-type', text: 'Jet d’Intelligence · Histoire' }),
+        el('p', { class: 'de-dd-titre', text: 'Difficulté' }),
+        el('div', { class: 'de-dd' }, el('strong', { text: String(DD) })),
+        bouton, bandeau, aide, texte)
+    );
+    if (deja) reveler(deja.valeur, false);
+  }
+
+  // ---------- Tableau du MJ : ce que chaque joueur recevra ----------
+  function ecranTableau() {
+    const corps = el('div', { class: 'tableau-mj' }, el('p', { class: 'doux', text: 'Déchiffrement…' }));
+    afficher(
+      el('div', { class: 'entete' }, el('button', { class: 'discret', type: 'button', text: '← La porte', onclick: ecranPorte })),
+      el('h1', { text: 'Tableau du MJ' }),
+      el('p', { class: 'consigne', text: 'Visible uniquement avec le code MJ. Ce que chaque joueur trouve derrière les sceaux II, IV et VII.' }),
+      corps);
+    recompense('tableau').then((t) => {
+      if (!t) { corps.replaceChildren(el('p', { text: 'Aucun tableau trouvé : relancer le script de chiffrement.' })); return; }
+      corps.replaceChildren(
+        ...t.joueurs.map((j) => el('section', { class: 'fiche-mj' },
+          el('h3', {}, j.personnage, el('span', { class: 'code-mj', text: j.code })),
+          el('p', {}, el('strong', { text: 'Sceau II : ' }), j.perso || '(encore scellé)'),
+          el('p', {}, el('strong', { text: 'Sceau IV : ' }), j.morceaux.map((m) => `${m.numero}. ${m.texte}`).join('  ·  ')))),
+        t.final ? el('section', { class: 'fiche-mj' },
+          el('h3', { text: 'Sceau VII : le lutrin (commun)' }),
+          el('p', {}, el('strong', { text: `D20, DD ${DD}. ` }), '1 : échec critique, rien ne s’affiche. 2 à 12 : phrase tronquée. 13 et plus : phrase complète.'),
+          el('p', {}, el('strong', { text: 'Tronquée : ' }), t.final.partielle),
+          el('p', {}, el('strong', { text: 'Complète : ' }), t.final.complete)) : null);
+    }).catch(() => corps.replaceChildren(el('p', { class: 'message erreur', text: 'Déchiffrement impossible.' })));
+  }
   const normaliser = (code) => code.toUpperCase().replace(/[^A-Z0-9]/g, '');
 
   // ---------- Petit utilitaire DOM ----------
@@ -164,7 +331,7 @@
         }
         ecrire('dernier', champ.value.toUpperCase().trim());
         const partie = lire('partie:' + code) || { resolus: {} };
-        etat = { code, mj: !!trouve.mj, resolus: partie.resolus || {} };
+        etat = { code, empreinte, mj: !!trouve.mj, resolus: partie.resolus || {} };
         ecranPorte();
       }
     }, champ, el('button', { type: 'submit', text: 'Poser la main sur la porte' }), msg);
@@ -220,17 +387,33 @@
         el('button', { class: 'discret', type: 'button', text: 'Changer de code', onclick: () => ecranCode() })
       ),
       el('h1', { text: 'La Porte' }),
+      etat.mj ? el('div', { class: 'actions barre-mj' },
+        el('button', { type: 'button', class: 'discret', text: '📜 Tableau du MJ : ce que reçoit chaque joueur', onclick: ecranTableau }),
+        el('button', { type: 'button', class: 'discret', text: '🎲 Tester le lutrin', onclick: ecranDe })) : null,
+      toutBrise() ? carteLutrin() : null,
       el('p', { class: 'consigne', text: 'Brise les sceaux un par un. Chacun laisse tomber un éclat de pierre gravé : garde-les, le dernier sceau les réclame.' }),
       porte,
       el('div', { class: 'fragments' }, el('h3', { text: 'Éclats' }),
         Object.keys(etat.resolus).length ? el('p', { class: 'doux petit', text: 'Touche un éclat pour lire la gravure au dos.' }) : null,
         liste, lecture),
+      el('div', { class: 'parchemins' },
+        el('h3', { text: 'Parchemins' }),
+        (() => {
+          const restants = PALIERS.filter((p) => !etat.resolus[p.sceau]).map((p) => ROMAINS[p.sceau - 1]);
+          if (!restants.length) return null;
+          const texte = restants.length === 1
+            ? `Un parchemin dort encore derrière le sceau ${restants[0]}.`
+            : `Des parchemins dorment derrière les sceaux ${restants.join(', ').replace(/, ([^,]*)$/, ' et $1')}.`;
+          return el('p', { class: 'doux petit centre', text: texte });
+        })(),
+        PALIERS.filter((p) => etat.resolus[p.sceau] && p.cle !== 'final').map(carteParchemin)),
       etat.mj ? el('div', { class: 'actions' }, el('button', {
         class: 'discret', type: 'button', text: 'MJ : remettre la partie à zéro',
         onclick: () => {
           etat.resolus = {};
           effacer('partie:' + etat.code);
           SCEAUX.forEach((s, i) => effacer(`encours:${etat.code}:${i + 1}`));
+          effacer(cleDe());
           ecranPorte();
         }
       })) : null
@@ -338,9 +521,14 @@
         el('p', { class: 'gravure', text: '« ' + S.ordreDuMaitre(etat.code).gravures[n - 1] + ' »' })]
       : [el('h2', { text: 'La porte s’ouvre' }),
         el('p', { class: 'doux', text: 'Les sept sceaux sont brisés. La pierre glisse sans un bruit.' })];
+    const palier = PALIERS.find((p) => p.sceau === n && p.cle !== 'final');
+    if (palier) contenu.push(el('p', { class: 'doux', text: 'Un parchemin roulé glisse hors du sceau.' }), carteParchemin(palier));
+    if (n === 7) contenu.push(el('p', { class: 'doux', text: 'Derrière, sur un lutrin de pierre, repose un dernier parchemin. Le lire demandera un peu de chance…' }));
     const voile = el('div', { class: 'brisure', role: 'dialog', 'aria-label': 'Sceau brisé' },
       el('div', { class: 'contenu' }, contenu,
-        el('button', { type: 'button', text: 'Retour à la porte', onclick: () => { voile.remove(); ecranPorte(); } })));
+        n === 7 && toutBrise()
+          ? el('button', { type: 'button', text: '🎲 Approcher du lutrin', onclick: () => { voile.remove(); ecranDe(); } })
+          : el('button', { type: 'button', text: 'Retour à la porte', onclick: () => { voile.remove(); ecranPorte(); } })));
     document.body.append(voile);
   }
 
