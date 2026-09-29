@@ -516,3 +516,76 @@ select {
 .score-quiz { font: 700 3rem var(--titre); color: var(--bronze-clair); margin: 0; }
 .titre-quiz { font: 700 1.4rem var(--titre); letter-spacing: .08em; color: var(--texte); margin: 0 0 4px; }
 @media (max-width: 480px) { .reponses { grid-template-columns: 1fr; } }
+
+/* ---------- Les Profondeurs : commun ---------- */
+.consigne-epreuve { margin-bottom: 14px; }
+.consigne-epreuve p { margin-bottom: .6em; }
+
+/* ---------- Le Conseil des Clans ---------- */
+.indices-clans { margin: 8px 0 0; padding-left: 1.5em; }
+.indices-clans li { margin-bottom: 6px; cursor: pointer; }
+.indices-clans li.raye { text-decoration: line-through; opacity: .45; }
+.carnet .grilles .grille-logique th[scope=row] { white-space: nowrap; font-size: .75rem; }
+.sieges { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 8px 0 12px; }
+.siege { padding: 10px; display: grid; gap: 6px; }
+.siege h4 { margin: 0; text-align: center; font-family: var(--titre); color: var(--bronze-clair); }
+.siege select { width: 100%; min-height: 38px; font-size: .9rem; }
+
+/* ---------- Les Chambres Fortes ---------- */
+.cadre-chambres { width: min(440px, 100%); margin: 8px auto; }
+.chambres { display: grid; grid-template-columns: repeat(9, 1fr); gap: 2px; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
+.salle {
+  aspect-ratio: 1; min-height: 0; padding: 0; border-radius: 3px; border: 1px solid #5a4632;
+  background: linear-gradient(#5e4a36, #45362a); color: var(--texte); font: 700 1rem var(--titre); letter-spacing: 0;
+}
+.salle.ouverte { background: #1b1612; border-color: #2b241c; cursor: default; }
+.salle.entree { box-shadow: inset 0 0 0 2px var(--bronze); }
+.salle.marquee { color: #ff8a6b; }
+.salle.piege { background: #7a1f16; color: #ffd0a0; }
+.salle.n1 { color: #8fb8e8; } .salle.n2 { color: #9ed07f; } .salle.n3 { color: #f0a868; }
+.salle.n4 { color: #d58ae8; } .salle.n5, .salle.n6, .salle.n7, .salle.n8 { color: #ff6b6b; }
+.mode-marquer { border-color: #ff8a6b; color: #ff8a6b; }
+
+/* ---------- Profondeurs : avertissement et marqueurs du carnet ---------- */
+.avertissement-profondeurs { margin: 0 auto 16px; max-width: 36em; padding: 14px 18px; border: 1px solid #9c2a22; border-radius: 10px; background: linear-gradient(rgba(156,42,34,.18), rgba(156,42,34,.05)); text-align: center; }
+.avertissement-profondeurs .titre-avert { font: 700 1.1rem var(--titre); letter-spacing: .12em; text-transform: uppercase; color: #ff8a6b; margin-bottom: 6px; }
+.avertissement-profondeurs strong { color: var(--bronze-clair); }
+.grille-logique .case.c3 { color: #e8c275; background: #2e2716; }
+.grille-logique .case.c4 { color: #8fb8e8; }
+
+/* ---------- Chambres Fortes : la ronde de 8run0 ---------- */
+.chambres { position: relative; }
+.jeton-8run0 {
+  position: absolute; width: calc(100% / 9); aspect-ratio: 1; pointer-events: none; z-index: 2;
+  transition: left .5s ease, top .5s ease; filter: drop-shadow(0 0 6px rgba(255,170,60,.7));
+}
+.salle.changee { animation: changee 1.6s ease 2; box-shadow: inset 0 0 0 2px var(--bronze-clair); }
+@keyframes changee { 50% { background: #5a4520; } }
+.message.ronde { color: var(--bronze-clair); }
+.portrait-8run0 { float: left; width: 56px; height: 56px; margin: 0 10px 4px 0; }
+
+/* ---------- La Tapisserie effacée ---------- */
+.cadre-tapisserie { overflow-x: auto; margin: 10px auto; max-width: 100%; }
+.tapisserie {
+  --t: clamp(20px, calc((100vw - 110px) / var(--n)), 32px);
+  display: grid; grid-template-columns: auto repeat(var(--n), var(--t)); grid-auto-rows: auto;
+  width: max-content; margin: 0 auto; touch-action: none; user-select: none; -webkit-user-select: none;
+}
+.tapisserie .indice-col { display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 4px; font: 700 .72rem var(--titre); color: var(--bronze-clair); line-height: 1.15; }
+.tapisserie .indice-ligne { display: flex; gap: 5px; justify-content: flex-end; align-items: center; padding-right: 6px; height: var(--t); font: 700 .72rem var(--titre); color: var(--bronze-clair); }
+.tapisserie .fait { color: var(--texte-doux); opacity: .45; }
+.maille { width: var(--t); height: var(--t); box-sizing: border-box; border: 1px solid #3a3026; background: #1d1813; display: grid; place-items: center; color: #6b5a48; font-size: .8rem; cursor: pointer; }
+.maille.tisse { background: linear-gradient(#b48a4a, #8a6a3a); border-color: #5a4632; }
+.tapisserie.revelee .maille.tisse { background: linear-gradient(var(--bronze-clair), var(--bronze)); box-shadow: 0 0 6px rgba(232,194,117,.6); }
+
+/* ---------- Les Ponts de Pierre ---------- */
+.cadre-ponts { width: min(520px, 100%); margin: 8px auto; }
+.plan-ponts { width: 100%; display: block; border: 1px solid var(--bord); border-radius: 12px; touch-action: manipulation; user-select: none; }
+.plan-ponts .coord { font: 600 22px var(--titre); fill: var(--texte-doux); }
+.plan-ponts .pont { stroke: #b48a4a; stroke-width: 7; stroke-linecap: round; }
+.plan-ponts .zone-pont { stroke: transparent; stroke-width: 34; cursor: pointer; }
+.plan-ponts .pilier circle { fill: #2b241c; stroke: #8a7456; stroke-width: 4; cursor: pointer; }
+.plan-ponts .pilier text { font: 700 44px var(--titre); fill: var(--texte); pointer-events: none; }
+.plan-ponts .pilier.choisi circle { stroke: var(--bronze-clair); stroke-width: 7; }
+.plan-ponts .pilier.complet circle { fill: #5a4520; stroke: var(--bronze-clair); }
+.plan-ponts .pilier.trop circle { fill: #5a1f18; stroke: var(--rouge); }

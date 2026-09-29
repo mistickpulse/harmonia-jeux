@@ -20,6 +20,16 @@ window.SCEAUX_CONFIG = {
     '14face4b2511fcf4ed46e72bd726c1f7679d62ac49a88ed40509fba1e69ead67': { 3: 'duo-kage-fee' },
     'd5f8848eed507fb8d2f2eabc07e84f4c3ba2622ab8ade955e4e2f192dcad87c9': { 3: 'duo-kage-fee' }
   },
+  // Clés du gardien des épreuves des Profondeurs (même règle d'empreinte), par identifiant.
+  solutionsProfondeurs: {
+    clans: '0ee758773ed970e963cdfa6c139e924fa8295d23f39bf59937d9b377a1f0db44',
+    tapisserie: 'dd2890b9a365ce7691a9cdaad9bf149439630e3ea8582f220e4eed196993eb37',
+    ponts: '5a77616f0303c478e77daa7c57b9645c140b6e56e788ad0662ba5afae967cff0'
+  },
+  // Clés du gardien des jeux bonus qui en ont une.
+  solutionsBonus: {
+    chambres: 'e4f1f25d915e5db31098475c318d14ca297db2b6e88dc72d5ffaa12e1bc89a3d'
+  },
   // Un code par sceau pour afficher sa solution (et pourquoi c'est la bonne), même règle d'empreinte.
   solutions: {
     1: '9037ef2f7f4ccc24577c92685019dd959c5329c2cd2fe497f3c2af850f84b320',

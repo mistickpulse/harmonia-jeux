@@ -372,6 +372,7 @@
   // Onglets de la porte : les sept sceaux (par défaut) et les jeux bonus, ouverts à tout moment.
   function ecranPorte(onglet) {
     if (onglet === 'bonus') { afficher(entetePorte('bonus'), ...contenuBonus()); return; }
+    if (onglet === 'profondeurs') { afficher(entetePorte('profondeurs'), ...contenuProfondeurs()); return; }
     const porte = el('div', { class: 'porte' });
     SCEAUX.forEach((s, i) => {
       const n = i + 1;
@@ -454,7 +455,76 @@
       etat.mj ? el('div', { class: 'actions barre-mj' },
         el('button', { type: 'button', class: 'discret', text: '📜 Tableau du MJ : ce que reçoit chaque joueur', onclick: ecranTableau }),
         el('button', { type: 'button', class: 'discret', text: '🎲 Tester le lutrin', onclick: ecranDe })) : null,
-      el('div', { class: 'onglets', role: 'tablist' }, bouton('sceaux', 'Les Sept Sceaux'), bouton('bonus', '✦ Bonus')));
+      el('div', { class: 'onglets', role: 'tablist' }, bouton('sceaux', 'Les Sept Sceaux'), bouton('profondeurs', '⛏ Les Profondeurs'), bouton('bonus', '✦ Bonus')));
+  }
+
+  // ---------- Onglet Les Profondeurs : épreuves difficiles, dans l'ordre qu'on veut ----------
+  // Chaque épreuve s'enregistre avec Sceaux.enregistrerEpreuve({ id, nom, etoiles, resume, monter(zone, ctx) }).
+  // Son énigme dépend du code du joueur (graine code:prof:id). Réussie, elle laisse un fragment
+  // de l'énigme finale (à venir).
+  S.epreuves = [];
+  S.enregistrerEpreuve = (def) => { S.epreuves.push(def); };
+  const cleProfondeurs = () => 'profondeurs:' + etat.code;
+  const reussites = () => lire(cleProfondeurs()) || {};
+  function contenuProfondeurs() {
+    const faites = reussites();
+    const nb = S.epreuves.filter((e) => faites[e.id]).length;
+    return [
+      el('div', { class: 'avertissement-profondeurs' },
+        el('p', { class: 'titre-avert', text: '⚠ Épreuves très difficiles' }),
+        el('p', { text: 'Sous la porte s’ouvrent les Profondeurs. Ces épreuves sont bien plus dures que les sceaux : certaines demanderont des heures, du papier, et beaucoup de patience. Fais-les dans l’ordre que tu veux, à ton rythme.' }),
+        el('p', {}, 'Chacune réussie te laisse un fragment d’une dernière énigme. Au bout, un code secret à donner au MJ, et pour ceux qui iront jusque-là, ',
+          el('strong', { text: 'une récompense spéciale en jeu, vraiment, vraiment précieuse.' }))),
+      el('p', { class: 'centre doux', text: `Épreuves réussies : ${nb} / ${S.epreuves.length}` }),
+      el('div', { class: 'porte' }, S.epreuves.map((e) => el('button', {
+        type: 'button', class: 'sceau ' + (faites[e.id] ? 'brise' : 'ouvert'), onclick: () => ecranEpreuve(e),
+        'aria-label': `${e.nom}, ${faites[e.id] ? 'réussie' : 'à faire'}`
+      },
+        el('span', { class: 'medaillon', text: faites[e.id] ? '✓' : e.icone || '⛏' }),
+        el('span', { class: 'nom', text: e.nom }),
+        el('span', { class: 'etoiles', text: '★'.repeat(e.etoiles) }),
+        el('span', { class: 'etat', text: faites[e.id] ? 'Réussie' : e.resume }))))
+    ];
+  }
+  function ecranEpreuve(e) {
+    const zone = el('div', { class: 'zone-sceau' });
+    const faites = reussites();
+    const ctx = {
+      hasard: S.hasard(etat.code + ':prof:' + e.id),
+      code: etat.code,
+      mj: etat.mj,
+      memoire: { lire: () => lire(`prof-encours:${etat.code}:${e.id}`), ecrire: (v) => ecrire(`prof-encours:${etat.code}:${e.id}`, v) },
+      secouer: (noeud) => { noeud.classList.remove('secousse'); void noeud.getBoundingClientRect(); noeud.classList.add('secousse'); },
+      reussir: () => {
+        const f = reussites(); f[e.id] = true; ecrire(cleProfondeurs(), f);
+        effacer(`prof-encours:${etat.code}:${e.id}`);
+        const voile = el('div', { class: 'brisure', role: 'dialog', 'aria-label': 'Épreuve réussie' },
+          el('div', { class: 'contenu' },
+            el('h2', { text: 'Épreuve réussie' }),
+            el('p', { class: 'doux', text: `${e.nom} : les Profondeurs te laissent passer.` }),
+            el('button', { type: 'button', text: 'Retour aux Profondeurs', onclick: () => { voile.remove(); ecranPorte('profondeurs'); } })));
+        document.body.append(voile);
+      }
+    };
+    afficher(
+      el('div', { class: 'entete' },
+        el('button', { class: 'discret', type: 'button', text: '← Les Profondeurs', onclick: () => ecranPorte('profondeurs') }),
+        etat.mj && !faites[e.id] ? el('button', { class: 'discret', type: 'button', text: 'MJ : passer', onclick: ctx.reussir }) : null,
+        faites[e.id] ? el('button', { class: 'discret', type: 'button', text: '↺ Rejouer', onclick: () => { const f = reussites(); delete f[e.id]; ecrire(cleProfondeurs(), f); ecranEpreuve(e); } }) : null),
+      el('div', { class: 'titre-sceau' },
+        el('div', { class: 'numero', text: 'LES PROFONDEURS · ' + '★'.repeat(e.etoiles) }),
+        el('h2', { text: e.nom })),
+      zone);
+    if (faites[e.id]) {
+      zone.append(el('p', { class: 'consigne', text: 'Tu as déjà réussi cette épreuve. Tu peux la rejouer si tu veux (ta réussite est conservée tant que tu ne cliques pas sur « Rejouer »).' }));
+      return;
+    }
+    const api = e.monter(zone, ctx) || {};
+    if (api.solution) {
+      app().append(accesSolution(0, api.solution, {
+        titre: e.nom, attendu: (window.SCEAUX_CONFIG.solutionsProfondeurs || {})[e.id], id: 'prof-' + e.id
+      }));
+    }
   }
 
   // ---------- Onglet Bonus : jeux ouverts à tout moment ----------
@@ -479,13 +549,31 @@
       el('div', { class: 'entete' }, el('button', { class: 'discret', type: 'button', text: '← Les bonus', onclick: () => ecranPorte('bonus') })),
       el('div', { class: 'titre-sceau' }, el('div', { class: 'numero', text: 'BONUS' }), el('h2', { text: b.titre })),
       zone);
-    b.monter(zone, {
+    const api = b.monter(zone, {
       code: etat.code,
+      mj: etat.mj,
+      hasard: S.hasard(etat.code + ':bonus:' + b.id),
       memoire: { lire: () => lire(cle), ecrire: (v) => ecrire(cle, v), effacer: () => effacer(cle) },
       meilleur: { lire: () => lire(cle + ':meilleur'), ecrire: (v) => ecrire(cle + ':meilleur', v) },
       retour: () => ecranPorte('bonus'),
-      secouer: (noeud) => { noeud.classList.remove('secousse'); void noeud.getBoundingClientRect(); noeud.classList.add('secousse'); }
-    });
+      secouer: (noeud) => { noeud.classList.remove('secousse'); void noeud.getBoundingClientRect(); noeud.classList.add('secousse'); },
+      // Jeux bonus « à réussir » (ex. les Chambres Fortes) : on retient la réussite, on rejoue à volonté.
+      reussir: () => {
+        ecrire(cle + ':meilleur', true);
+        effacer(cle);
+        const voile = el('div', { class: 'brisure', role: 'dialog', 'aria-label': 'Réussi' },
+          el('div', { class: 'contenu' },
+            el('h2', { text: 'Réussi !' }),
+            el('p', { class: 'doux', text: `${b.titre} : bravo.` }),
+            el('button', { type: 'button', text: 'Retour aux bonus', onclick: () => { voile.remove(); ecranPorte('bonus'); } })));
+        document.body.append(voile);
+      }
+    }) || {};
+    if (api.solution) {
+      app().append(accesSolution(0, api.solution, {
+        titre: b.titre, attendu: (window.SCEAUX_CONFIG.solutionsBonus || {})[b.id], id: 'bonus-' + b.id
+      }));
+    }
   }
 
   // ---------- Les secrets déjà obtenus, accessibles d'un bouton ----------
@@ -570,13 +658,15 @@
   // ---------- Solution (pour le MJ) ----------
   // Un code par sceau (empreintes dans config.solutions) ouvre un panneau latéral :
   // la solution de l'énigme telle que ce joueur la voit, et pourquoi c'est la bonne.
-  function accesSolution(n, solution) {
+  function accesSolution(n, solution, opts) {
+    // opts (épreuves des Profondeurs) : { titre, attendu (empreinte de la clé), id (mémoire) }.
+    const o = opts || { titre: 'Sceau ' + ROMAINS[n - 1], attendu: window.SCEAUX_CONFIG.solutions[n], id: n };
     const bloc = el('div', { class: 'acces-solution' });
     const panneau = () => {
       const s = solution();
       const volet = el('aside', { class: 'volet-solution', 'aria-label': 'Solution du sceau' },
         el('div', { class: 'entete' },
-          el('h3', { text: 'Solution · Sceau ' + ROMAINS[n - 1] }),
+          el('h3', { text: 'Solution · ' + o.titre }),
           el('button', { class: 'discret', type: 'button', 'aria-label': 'Fermer', text: '✕', onclick: () => volet.remove() })),
         el('h4', { text: 'La réponse' }),
         el('ul', {}, s.reponse.map((l) => el('li', {}, l))),
@@ -586,7 +676,7 @@
       app().append(volet);
     };
     // La clé entrée n'est retenue que pour CE joueur et CE sceau (jamais pour les autres codes).
-    const cleMemoire = `solution:${etat.code}:${n}`;
+    const cleMemoire = `solution:${etat.code}:${o.id}`;
     const ouvrir = () => { if (!etat.mj) ecrire(cleMemoire, true); panneau(); };
 
     // Code MJ : accès direct. Code joueur : il faut la clé du gardien de ce sceau.
@@ -601,7 +691,7 @@
         ev.preventDefault();
         let empreinte = '';
         try { empreinte = await sha256(normaliser(champ.value)); } catch (e) { /* voir ecranCode */ }
-        if (empreinte && empreinte === window.SCEAUX_CONFIG.solutions[n]) { form.remove(); bloc.append(el('button', { class: 'discret', type: 'button', text: '🗝 Voir la solution', onclick: ouvrir })); ouvrir(); return; }
+        if (empreinte && empreinte === o.attendu) { form.remove(); bloc.append(el('button', { class: 'discret', type: 'button', text: '🗝 Voir la solution', onclick: ouvrir })); ouvrir(); return; }
         champ.value = '';
         form.classList.remove('secousse'); void form.offsetWidth; form.classList.add('secousse');
       }
