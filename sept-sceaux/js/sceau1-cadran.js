@@ -41,6 +41,9 @@
       let p; do { p = h.entier(0, 7); } while (ordre[p] === cibles[i]);
       return p;
     });
+    // Reprise : positions laissées par le joueur lors de sa dernière visite.
+    const garde = ctx.memoire.lire();
+    if (garde && Array.isArray(garde.pos) && garde.pos.length === 4) garde.pos.forEach((p, i) => { pos[i] = ((p | 0) % 8 + 8) % 8; });
     const angle = pos.map((p) => -p * 45);          // angle cumulé (pas de saut à 360°)
 
     // --- La devise ---
@@ -107,6 +110,7 @@
       pos[i] = (pos[i] - pas + 8) % 8;
       angle[i] += pas * 45;
       animer(i);
+      ctx.memoire.ecrire({ pos });
     }
 
     // Toucher un anneau le fait tourner d'un cran dans le sens des aiguilles d'une montre.
@@ -145,7 +149,6 @@
         msg.className = 'message erreur';
         msg.textContent = 'La poignée refuse de tourner.';
         ctx.secouer(cadran);
-        ctx.penalite(valider, 5, 'La poignée se bloque');
       }
     });
 

@@ -14,7 +14,7 @@ Teaser de la saison 2 d'Harmonia : sept énigmes de plus en plus difficiles. Les
 1. Créer `js/sceauN-nom.js` sur le modèle des sceaux existants.
 2. L'ajouter dans `index.html`, après les autres.
 3. Utiliser `ctx.hasard` pour tout ce qui varie : le même code donne toujours la même énigme, deux codes donnent deux énigmes différentes.
-4. Appeler `ctx.reussir()` quand le sceau est résolu, et `ctx.penalite(bouton, secondes)` après une erreur.
+4. Appeler `ctx.reussir()` quand le sceau est résolu. **Essais illimités** : aucun blocage après une erreur. Sauvegarder le travail en cours avec `ctx.memoire.ecrire(etat)` à chaque action, et le restaurer au montage avec `ctx.memoire.lire()` (stockage local + cookie).
 5. Faire renvoyer à `monter` un objet `{ solution: () => ({ reponse: [...], pourquoi: [...] }) }` : la solution de l'énigme générée et le raisonnement qui y mène (texte ou nœuds DOM). Le moteur l'affiche dans un panneau latéral quand on entre la clé du sceau (empreintes dans `config.solutions`).
 6. Ne pas conditionner le résultat à une animation : si l'onglet est caché, le navigateur les met en pause (voir `document.hidden` dans les sceaux I et II).
 7. À chaque mise en ligne, augmenter le numéro `?v=` de tous les fichiers dans `index.html` (sinon les navigateurs gardent l'ancienne version en cache une dizaine de minutes).

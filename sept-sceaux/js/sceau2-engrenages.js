@@ -119,6 +119,17 @@
     const h = ctx.hasard;
     const { C, L, cible, reserve, soluce } = generer(h);
     const montage = new Array(NB_AXES).fill(null); // { index, piece, retourne }
+    // Reprise : pièces posées lors de la dernière visite.
+    const garde = ctx.memoire.lire();
+    if (garde && Array.isArray(garde.montage)) {
+      const deja = new Set();
+      garde.montage.slice(0, NB_AXES).forEach((m, i) => {
+        if (!m || !reserve[m.index] || deja.has(m.index)) return;
+        deja.add(m.index);
+        montage[i] = { index: m.index, piece: reserve[m.index], retourne: !!m.retourne };
+      });
+    }
+    const memoriser = () => ctx.memoire.ecrire({ montage: montage.map((m) => (m ? { index: m.index, retourne: m.retourne } : null)) });
     let choixReserve = null;
     let choixAxe = null;
     let anime = false;
@@ -211,7 +222,7 @@
       actionsAxe.append(el('button', { type: 'button', class: 'discret', text: '✕ Retirer', onclick: () => { montage[choixAxe] = null; choixAxe = null; tout(); } }));
     }
 
-    function tout() { dessiner(); dessinerReserve(); dessinerActions(); }
+    function tout() { dessiner(); dessinerReserve(); dessinerActions(); memoriser(); }
 
     function cliquerReserve(idx) {
       if (anime) return;
@@ -284,7 +295,6 @@
       msg.className = 'message erreur';
       msg.textContent = `Le verrou a fait ${fractionTxt(f)} vers la ${f.sens > 0 ? 'droite' : 'gauche'}. Il se rebloque.`;
       ctx.secouer(scene);
-      ctx.penalite(bouton, 3, 'Le mécanisme se réarme');
     }
     const fractionTxt = (f) => {
       const v = (cible.den * f.num) / f.den;

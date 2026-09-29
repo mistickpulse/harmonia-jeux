@@ -56,17 +56,43 @@
     return h;
   };
 
-  // ---------- Stockage (peut échouer : navigation privée, cookies bloqués) ----------
+  // ---------- Stockage ----------
+  // Double sauvegarde pour ne jamais perdre la progression : stockage local du
+  // navigateur ET cookie (un an). Si l'un est effacé ou bloqué, l'autre prend le relais.
+  // Chaque accès est protégé : navigation privée ou cookies bloqués ne cassent rien.
   const PREFIXE = 'sept-sceaux:v1:';
+  const CHEMIN = location.pathname.replace(/[^/]*$/, '');
+  const nomCookie = (cle) => encodeURIComponent(PREFIXE + cle);
+  function lireCookie(cle) {
+    try {
+      const nom = nomCookie(cle) + '=';
+      const c = document.cookie.split('; ').find((x) => x.startsWith(nom));
+      return c ? decodeURIComponent(c.slice(nom.length)) : null;
+    } catch (e) { return null; }
+  }
+  function ecrireCookie(cle, texte, age) {
+    try {
+      document.cookie = `${nomCookie(cle)}=${encodeURIComponent(texte)}; max-age=${age}; path=${CHEMIN}; SameSite=Lax` +
+        (location.protocol === 'https:' ? '; Secure' : '');
+    } catch (e) { /* tant pis */ }
+  }
   function lire(cle) {
-    try { const v = localStorage.getItem(PREFIXE + cle); return v ? JSON.parse(v) : null; } catch (e) { return null; }
+    let v = null;
+    try { v = localStorage.getItem(PREFIXE + cle); } catch (e) { /* on tente le cookie */ }
+    if (v == null) v = lireCookie(cle);
+    try { return v ? JSON.parse(v) : null; } catch (e) { return null; }
   }
   function ecrire(cle, val) {
-    try { localStorage.setItem(PREFIXE + cle, JSON.stringify(val)); } catch (e) { /* tant pis */ }
+    const texte = JSON.stringify(val);
+    try { localStorage.setItem(PREFIXE + cle, texte); } catch (e) { /* tant pis */ }
+    ecrireCookie(cle, texte, 60 * 60 * 24 * 365);
   }
   function effacer(cle) {
     try { localStorage.removeItem(PREFIXE + cle); } catch (e) { /* tant pis */ }
+    ecrireCookie(cle, '', 0);
   }
+  // Demande au navigateur de ne pas vider ce stockage quand il manque de place.
+  try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (e) { /* facultatif */ }
 
   async function sha256(txt) {
     const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(txt));
@@ -193,7 +219,12 @@
       el('div', { class: 'fragments' }, el('h3', { text: 'Fragments' }), liste),
       etat.mj ? el('div', { class: 'actions' }, el('button', {
         class: 'discret', type: 'button', text: 'MJ : remettre la partie à zéro',
-        onclick: () => { etat.resolus = {}; effacer('partie:' + etat.code); ecranPorte(); }
+        onclick: () => {
+          etat.resolus = {};
+          effacer('partie:' + etat.code);
+          SCEAUX.forEach((s, i) => effacer(`encours:${etat.code}:${i + 1}`));
+          ecranPorte();
+        }
       })) : null
     );
   }
@@ -209,17 +240,11 @@
       hasard: S.hasard(graine),
       mj: etat.mj,
       reussir: () => briser(n),
-      // Bloque un bouton quelques secondes après une erreur (contre l'essai au hasard).
-      penalite: (bouton, secondes, message) => {
-        const texte = bouton.textContent;
-        let reste = secondes;
-        bouton.disabled = true;
-        const tic = () => {
-          if (reste <= 0) { bouton.disabled = false; bouton.textContent = texte; return; }
-          bouton.textContent = `${message || 'Patience'}… ${reste}`;
-          reste--; setTimeout(tic, 1000);
-        };
-        tic();
+      // Travail en cours sur ce sceau (positions, pièces posées…), pour reprendre là où on s'était arrêté.
+      // Essais illimités (décision de Fabian) : aucun blocage après une erreur.
+      memoire: {
+        lire: () => lire(`encours:${etat.code}:${n}`),
+        ecrire: (v) => ecrire(`encours:${etat.code}:${n}`, v)
       },
       secouer: (noeud) => { noeud.classList.remove('secousse'); void noeud.offsetWidth; noeud.classList.add('secousse'); }
     };
@@ -291,6 +316,7 @@
     const fragment = S.fragmentDu(etat.code, n);
     etat.resolus[n] = { fragment };
     sauver();
+    effacer(`encours:${etat.code}:${n}`);
     const voile = el('div', { class: 'brisure', role: 'dialog', 'aria-label': 'Sceau brisé' },
       el('div', { class: 'contenu' },
         el('h2', { text: 'Le sceau se brise' }),
@@ -306,5 +332,12 @@
   const RUNES_FRAGMENTS = ['ᛟ', 'ᛞ', 'ᛉ', 'ᛝ', 'ᚠ', 'ᛗ', 'ᚦ', 'ᛒ', 'ᛏ', 'ᚱ', 'ᛇ', 'ᚷ'];
   S.fragmentDu = (code, n) => S.hasard(code + ':fragments').melanger(RUNES_FRAGMENTS)[n - 1];
 
-  document.addEventListener('DOMContentLoaded', () => ecranCode());
+  // Au retour sur le site, on rouvre directement la porte du dernier code utilisé.
+  document.addEventListener('DOMContentLoaded', () => {
+    ecranCode();
+    if (!lire('dernier')) return;
+    const form = document.querySelector('.accueil form');
+    if (form.requestSubmit) form.requestSubmit();
+    else form.dispatchEvent(new Event('submit', { cancelable: true }));
+  });
 })();
