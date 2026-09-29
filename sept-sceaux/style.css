@@ -1,0 +1,189 @@
+:root {
+  --fond: #110e0b;
+  --pierre: #1d1914;
+  --pierre-2: #29231c;
+  --bord: #4a3e30;
+  --texte: #e9dcc3;
+  --texte-doux: #b4a58a;
+  --bronze: #c9973f;
+  --bronze-clair: #e8c275;
+  --acier: #8fa3ad;
+  --rouge: #c0513f;
+  --vert: #7fae5a;
+  --titre: 'Cinzel', Georgia, serif;
+  --corps: 'EB Garamond', Georgia, serif;
+  --rune: 'Noto Sans Runic', 'Segoe UI Historic', sans-serif;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: radial-gradient(ellipse at 50% 0%, #2a2219 0%, var(--fond) 70%) fixed, var(--fond);
+  color: var(--texte);
+  font-family: var(--corps);
+  font-size: 18px;
+  line-height: 1.5;
+}
+#app { max-width: 760px; margin: 0 auto; padding: 24px 16px 64px; }
+h1, h2, h3 { font-family: var(--titre); font-weight: 700; letter-spacing: .06em; color: var(--bronze-clair); margin: 0 0 .5em; }
+h1 { font-size: clamp(1.8rem, 7vw, 2.8rem); text-align: center; }
+h2 { font-size: clamp(1.2rem, 4.5vw, 1.6rem); }
+p { margin: 0 0 1em; }
+.doux { color: var(--texte-doux); }
+.centre { text-align: center; }
+.rune { font-family: var(--rune); }
+
+button, .bouton {
+  font: 600 1rem var(--titre);
+  letter-spacing: .05em;
+  color: var(--fond);
+  background: linear-gradient(var(--bronze-clair), var(--bronze));
+  border: 1px solid #7a5a22;
+  border-radius: 6px;
+  padding: .7em 1.2em;
+  min-height: 44px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+button:disabled { opacity: .45; cursor: not-allowed; }
+button.discret {
+  background: transparent; color: var(--texte-doux); border-color: var(--bord);
+  font-family: var(--corps); font-size: .95rem; letter-spacing: 0;
+}
+button:focus-visible, input:focus-visible { outline: 2px solid var(--bronze-clair); outline-offset: 2px; }
+
+input[type=text] {
+  font: 600 1.3rem var(--titre); letter-spacing: .12em; text-transform: uppercase; text-align: center;
+  width: 100%; max-width: 320px; padding: .5em; min-height: 48px;
+  color: var(--texte); background: var(--pierre); border: 1px solid var(--bord); border-radius: 6px;
+}
+
+.panneau {
+  background: linear-gradient(var(--pierre-2), var(--pierre));
+  border: 1px solid var(--bord);
+  border-radius: 10px;
+  padding: 20px 16px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 8px 24px rgba(0,0,0,.4);
+}
+.message { min-height: 1.6em; text-align: center; margin: .6em 0; font-style: italic; }
+.message.erreur { color: var(--rouge); }
+.message.ok { color: var(--vert); }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 12px; }
+
+/* ---------- Écran du code ---------- */
+.accueil { text-align: center; padding-top: 6vh; }
+.accueil .intro { font-style: italic; max-width: 30em; margin: 0 auto 2em; color: var(--texte-doux); }
+.accueil form { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+
+/* ---------- La porte ---------- */
+.entete { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+.entete .code { font-family: var(--titre); color: var(--texte-doux); font-size: .9rem; letter-spacing: .1em; }
+.porte {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px;
+}
+.sceau {
+  display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center;
+  padding: 16px 10px; border-radius: 10px; border: 1px solid var(--bord);
+  background: var(--pierre); color: var(--texte); font-family: var(--corps); font-size: 1rem; letter-spacing: 0;
+  min-height: 0;
+}
+.sceau .medaillon {
+  width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center;
+  font: 700 1.4rem var(--titre); color: var(--fond);
+  background: radial-gradient(circle at 35% 30%, #d9534a, #7c1f1a);
+  box-shadow: 0 2px 6px rgba(0,0,0,.6), inset 0 -3px 6px rgba(0,0,0,.4);
+}
+.sceau .nom { font-family: var(--titre); font-size: .9rem; color: var(--bronze-clair); }
+.sceau .etoiles { color: var(--bronze); font-size: .85rem; letter-spacing: .1em; }
+.sceau.ouvert { cursor: pointer; border-color: var(--bronze); box-shadow: 0 0 18px rgba(201,151,63,.25); }
+.sceau.ouvert:hover { background: var(--pierre-2); }
+.sceau.ferme { opacity: .45; cursor: not-allowed; }
+.sceau.brise .medaillon { background: radial-gradient(circle at 35% 30%, #5b524a, #2b2520); color: var(--bronze-clair); font-family: var(--rune); font-size: 1.8rem; }
+.sceau.brise { cursor: pointer; }
+.sceau .etat { font-size: .85rem; color: var(--texte-doux); font-style: italic; }
+
+.fragments { margin-top: 20px; text-align: center; }
+.fragments .liste { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+.fragment {
+  width: 44px; height: 52px; display: grid; place-items: center; font: 1.5rem var(--rune);
+  color: var(--bronze-clair); background: var(--pierre-2); border: 1px solid var(--bord);
+  clip-path: polygon(12% 0, 88% 6%, 100% 60%, 80% 100%, 8% 94%, 0 40%);
+}
+.fragment.vide { color: transparent; opacity: .35; }
+
+/* ---------- Écran d'un sceau ---------- */
+.titre-sceau { text-align: center; margin-bottom: 12px; }
+.titre-sceau .numero { font-family: var(--titre); color: var(--texte-doux); letter-spacing: .2em; font-size: .85rem; }
+.consigne { font-style: italic; text-align: center; max-width: 34em; margin: 0 auto 1em; }
+.devise {
+  font-style: italic; font-size: 1.1rem; text-align: center; padding: 14px 16px; margin: 0 auto 16px;
+  border-top: 1px solid var(--bord); border-bottom: 1px solid var(--bord); max-width: 36em;
+}
+
+.brisure {
+  position: fixed; inset: 0; background: rgba(8,6,4,.88); display: grid; place-items: center; z-index: 10;
+  padding: 16px; animation: apparition .6s ease;
+}
+.brisure .contenu { text-align: center; max-width: 26em; }
+.brisure .fragment { width: 88px; height: 104px; font-size: 3rem; margin: 18px auto; animation: chute .9s ease; }
+@keyframes apparition { from { opacity: 0; } }
+@keyframes chute { from { transform: translateY(-40px) rotate(-20deg); opacity: 0; } }
+.secousse { animation: secousse .4s; }
+@keyframes secousse { 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+
+.noscript { text-align: center; padding: 2em; }
+
+@media (max-width: 480px) {
+  body { font-size: 17px; }
+  #app { padding-top: 16px; }
+  .porte { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .sceau { padding: 12px 6px; }
+  .sceau .medaillon { width: 54px; height: 54px; }
+}
+
+.petit { font-size: .9rem; }
+
+/* ---------- Sceau I : le Cadran des Rois ---------- */
+.disposition-cadran { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+.cadran { width: 100%; max-width: 400px; display: block; margin: 0 auto; cursor: pointer; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
+
+.cadran .rune-cadran { font-family: var(--rune); fill: var(--bronze-clair); pointer-events: none; }
+.commandes-cadran { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-top: 10px; }
+.commande { display: flex; align-items: center; justify-content: space-between; gap: 4px; font-size: .9rem; color: var(--texte-doux); }
+.commande button { min-width: 44px; padding: .3em .5em; font-size: 1.2rem; }
+.tablette { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px 12px; }
+.tablette .entree { display: flex; align-items: center; gap: 10px; padding: 4px 0; border-bottom: 1px dashed var(--bord); }
+.tablette .rune { font-size: 1.6rem; color: var(--bronze-clair); width: 1.4em; text-align: center; }
+.tablette .effacee { opacity: .5; font-style: italic; }
+@media (max-width: 620px) {
+  .disposition-cadran { grid-template-columns: 1fr; }
+}
+
+/* ---------- Sceau II : les Engrenages ---------- */
+.mecanisme { width: 100%; max-width: 600px; margin: 0 auto; display: block; border-radius: 10px; border: 1px solid var(--bord); user-select: none; -webkit-user-select: none; }
+.mecanisme .etiquette { font: 600 15px var(--corps); fill: var(--texte); }
+.mecanisme .etiquette.douce { font-size: 12px; fill: var(--texte-doux); font-style: italic; }
+.mecanisme .zone-axe { cursor: pointer; }
+.mecanisme .zone-axe:hover { fill: rgba(232,194,117,.05); }
+.mecanisme .zone-axe.choisi { fill: rgba(232,194,117,.12); stroke: var(--bronze); stroke-width: 1.5; }
+.actions-axe { min-height: 44px; margin-top: 8px; }
+.reserve { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-bottom: 16px; }
+.piece {
+  display: flex; align-items: center; gap: 8px; text-align: left;
+  background: var(--pierre); color: var(--texte); border: 1px solid var(--bord);
+  font: 600 .95rem var(--corps); letter-spacing: 0; padding: 6px 10px;
+}
+.piece.choisie { border-color: var(--bronze-clair); box-shadow: 0 0 0 2px rgba(232,194,117,.35); background: var(--pierre-2); }
+.piece:disabled { opacity: .3; }
+.regles { margin: 8px 0 4px; padding: 12px 16px; }
+.regles summary { cursor: pointer; font-family: var(--titre); color: var(--bronze-clair); }
+.regles ul { margin: 10px 0 0; padding-left: 1.2em; }
+.regles li { margin-bottom: 4px; }
+@media (max-width: 480px) {
+  .mecanisme .etiquette { font-size: 17px; }
+  .mecanisme .etiquette.douce { font-size: 14px; }
+  .reserve { grid-template-columns: 1fr 1fr; }
+  .piece { font-size: .85rem; padding: 4px 6px; }
+}
