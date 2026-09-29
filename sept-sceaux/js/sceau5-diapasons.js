@@ -100,7 +100,10 @@
       if (!d) return;
       d.classList.remove('vibre'); void d.offsetWidth; d.classList.add('vibre');
     }
-    function jouer(pos) { frapper(notes[rangee[pos]].freq); vibrer(pos); }
+    function jouer(pos) {
+      if (!scene.isConnected) { arreter(); return; } // le joueur a quitté le sceau : silence
+      frapper(notes[rangee[pos]].freq); vibrer(pos);
+    }
 
     function dessiner() {
       scene.replaceChildren();
@@ -126,9 +129,14 @@
           el('div', { class: 'actions' },
             el('button', { type: 'button', class: 'discret', text: '⌫ Retirer la dernière', disabled: !saisie.length, onclick: () => { saisie.pop(); memoriser(); msg.textContent = ''; dessiner(); } }),
             el('button', { type: 'button', class: 'discret', text: '✕ Tout effacer', disabled: !saisie.length, onclick: () => { saisie = []; memoriser(); msg.textContent = ''; dessiner(); } }),
-            el('button', { type: 'button', class: 'discret', text: '♪ Écouter ta partition', disabled: !saisie.length, onclick: ecouterPartition })));
+            el('button', { type: 'button', class: 'discret', text: enCours === 'partition' ? '■ Arrêter ta partition' : '♪ Écouter ta partition', disabled: !saisie.length, onclick: ecouterPartition })));
       }
-      actions.replaceChildren(el('button', { type: 'button', class: 'discret', text: range ? '♪ Écouter le Chant' : '♪ Écouter la rangée', onclick: range ? ecouterChant : ecouterRangee }));
+      const principal = range ? 'chant' : 'rangee';
+      actions.replaceChildren(el('button', {
+        type: 'button', class: 'discret' + (enCours === principal ? ' en-lecture' : ''),
+        text: enCours === principal ? (range ? '■ Arrêter le Chant' : '■ Arrêter la rangée') : (range ? '♪ Écouter le Chant' : '♪ Écouter la rangée'),
+        onclick: range ? ecouterChant : ecouterRangee
+      }));
       actions.append(range
         ? el('button', { type: 'button', text: 'Présenter le Chant', disabled: !saisie.length, onclick: presenterChant })
         : el('button', { type: 'button', text: 'Présenter la rangée', onclick: verifier }));
@@ -164,8 +172,9 @@
       ctx.secouer(barre);
     }
     function ecouterPartition() {
-      if (enJeu || !saisie.length) return;
-      sequence(saisie.map((n) => rangee.indexOf(n)), saisie.map(() => 600));
+      if (enCours === 'partition') { arreter(); return; }
+      if (!saisie.length) return;
+      sequence('partition', saisie.map((n) => rangee.indexOf(n)), saisie.map(() => 600));
     }
 
     function echanger(pos) {
@@ -175,21 +184,31 @@
       dessiner();
     }
 
-    // Joue une suite de positions ; durees[i] = durée de la note i (en ms).
-    function sequence(positions, durees) {
-      enJeu = true;
+    // Joue une suite de positions ; durees[i] = durée de la note i (en ms). Interruptible :
+    // pendant la lecture, le bouton correspondant devient « Arrêter ».
+    let minuteries = [];
+    let enCours = null; // 'chant', 'rangee' ou 'partition'
+    function sequence(nom, positions, durees) {
+      arreter();
+      enJeu = true; enCours = nom;
       let t = 0;
       positions.forEach((pos, i) => {
-        setTimeout(() => jouer(pos), t);
+        minuteries.push(setTimeout(() => jouer(pos), t));
         t += durees[i];
       });
-      setTimeout(() => { enJeu = false; }, t);
+      minuteries.push(setTimeout(() => { enJeu = false; enCours = null; minuteries = []; if (scene.isConnected) dessiner(); }, t));
+      dessiner();
     }
-    function ecouterRangee() { if (!enJeu) sequence([...Array(NB).keys()], new Array(NB).fill(650)); }
-    function ecouterChant() {
-      if (enJeu) return;
-      sequence(chant.map((n) => rangee.indexOf(n)), durees.map((d) => d * TEMPS));
+    function arreter() {
+      minuteries.forEach(clearTimeout);
+      minuteries = [];
+      const etait = enCours;
+      enJeu = false; enCours = null;
+      if (etait && scene.isConnected) dessiner();
     }
+    const basculer = (nom, lancer) => () => (enCours === nom ? arreter() : lancer());
+    const ecouterRangee = basculer('rangee', () => sequence('rangee', [...Array(NB).keys()], new Array(NB).fill(650)));
+    const ecouterChant = basculer('chant', () => sequence('chant', chant.map((n) => rangee.indexOf(n)), durees.map((d) => d * TEMPS)));
 
     function verifier() {
       const bien = rangee.filter((n, i) => n === i).length;
