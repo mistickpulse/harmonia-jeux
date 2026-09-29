@@ -463,6 +463,11 @@
   // Son énigme dépend du code du joueur (graine code:prof:id). Réussie, elle laisse un fragment
   // de l'énigme finale (à venir).
   S.epreuves = [];
+  // Tant que l’énigme finale n’est pas prête, les joueurs voient les épreuves sans pouvoir y entrer
+  // (le code MJ, lui, garde l’accès pour tester). Passer à true pour ouvrir les Profondeurs.
+  const PROFONDEURS_OUVERTES = false;
+  // Épreuves annoncées mais pas encore écrites : cases vides, fermées.
+  const PROFONDEURS_A_VENIR = ['Les Écluses', 'Le Réseau runique', 'Les Miroirs du Chant', 'Le Registre chiffré', 'L’Énigme des Profondeurs'];
   S.enregistrerEpreuve = (def) => { S.epreuves.push(def); };
   const cleProfondeurs = () => 'profondeurs:' + etat.code;
   const reussites = () => lire(cleProfondeurs()) || {};
@@ -475,18 +480,29 @@
         el('p', { text: 'Sous la porte s’ouvrent les Profondeurs. Ces épreuves sont bien plus dures que les sceaux : certaines demanderont des heures, du papier, et beaucoup de patience. Fais-les dans l’ordre que tu veux, à ton rythme.' }),
         el('p', {}, 'Chacune réussie te laisse un fragment d’une dernière énigme. Au bout, un code secret à donner au MJ, et pour ceux qui iront jusque-là, ',
           el('strong', { text: 'une récompense spéciale en jeu, vraiment, vraiment précieuse.' }))),
-      el('p', { class: 'centre doux', text: `Épreuves réussies : ${nb} / ${S.epreuves.length}` }),
-      el('div', { class: 'porte' }, S.epreuves.map((e) => el('button', {
-        type: 'button', class: 'sceau ' + (faites[e.id] ? 'brise' : 'ouvert'), onclick: () => ecranEpreuve(e),
-        'aria-label': `${e.nom}, ${faites[e.id] ? 'réussie' : 'à faire'}`
-      },
-        el('span', { class: 'medaillon', text: faites[e.id] ? '✓' : e.icone || '⛏' }),
-        el('span', { class: 'nom', text: e.nom }),
-        el('span', { class: 'etoiles', text: '★'.repeat(e.etoiles) }),
-        el('span', { class: 'etat', text: faites[e.id] ? 'Réussie' : e.resume }))))
+      PROFONDEURS_OUVERTES ? null : el('p', { class: 'centre doux', text: etat.mj
+        ? 'Les Profondeurs sont encore fermées aux joueurs (l’énigme finale n’est pas prête). Le MJ, lui, peut entrer.'
+        : 'Les Profondeurs ne sont pas encore ouvertes. Reviens plus tard…' }),
+      el('p', { class: 'centre doux', text: `Épreuves réussies : ${nb} / ${S.epreuves.length + PROFONDEURS_A_VENIR.length}` }),
+      el('div', { class: 'porte' }, S.epreuves.map((e) => {
+        const ouverte = PROFONDEURS_OUVERTES || etat.mj;
+        const classe = faites[e.id] ? 'brise' : ouverte ? 'ouvert' : 'ferme';
+        return el('button', {
+          type: 'button', class: 'sceau ' + classe, disabled: !ouverte, onclick: () => ecranEpreuve(e),
+          'aria-label': `${e.nom}, ${faites[e.id] ? 'réussie' : ouverte ? 'à faire' : 'pas encore ouverte'}`
+        },
+          el('span', { class: 'medaillon', text: faites[e.id] ? '✓' : e.icone || '⛏' }),
+          el('span', { class: 'nom', text: e.nom }),
+          el('span', { class: 'etoiles', text: '★'.repeat(e.etoiles) }),
+          el('span', { class: 'etat', text: faites[e.id] ? 'Réussie' : ouverte ? e.resume : 'Pas encore ouverte' }));
+      }).concat(PROFONDEURS_A_VENIR.map((nom) => el('button', { type: 'button', class: 'sceau ferme', disabled: true, 'aria-label': `${nom}, en préparation` },
+        el('span', { class: 'medaillon', text: '?' }),
+        el('span', { class: 'nom', text: nom }),
+        el('span', { class: 'etat', text: 'En préparation' })))))
     ];
   }
   function ecranEpreuve(e) {
+    if (!PROFONDEURS_OUVERTES && !etat.mj) { ecranPorte('profondeurs'); return; }
     const zone = el('div', { class: 'zone-sceau' });
     const faites = reussites();
     const ctx = {
