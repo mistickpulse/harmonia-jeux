@@ -703,14 +703,14 @@ select {
 
 /* ---------- Le Golem de Pierre ---------- */
 .cadre-golem { width: min(420px, 100%); margin: 10px auto; padding: 8px; border-radius: 12px; background: radial-gradient(ellipse at 50% 30%, #1d1a26, #07060a 75%); border: 1px solid #3a3026; }
-.salle-golem { position: relative; display: grid; grid-template-columns: repeat(8, 1fr); gap: 3px; }
+.salle-golem { position: relative; display: grid; grid-template-columns: repeat(9, 1fr); gap: 3px; }
 .dalle-golem { aspect-ratio: 1; border-radius: 4px; display: grid; place-items: center; }
 .dalle-golem.vide { background: transparent; }
 .dalle-golem.sol { background: linear-gradient(#6b5d4e, #4a4036); box-shadow: inset 0 2px 0 rgba(255,255,255,.12), 0 4px 0 #2a241e, 0 6px 8px rgba(0,0,0,.6); }
 .dalle-golem.rune span { font: 700 1.1rem var(--rune); color: #8a7456; }
 .dalle-golem.rune.allumee { background: radial-gradient(circle, #f3d68c, #c9973f 70%); box-shadow: 0 0 14px rgba(232,194,117,.8), 0 4px 0 #6b4a1c; }
 .dalle-golem.rune.allumee span { color: #3a2a10; }
-.golem { position: absolute; width: calc(100% / 8); aspect-ratio: 1; display: grid; place-items: center; z-index: 2; transition: left .22s ease, top .22s ease; }
+.golem { position: absolute; width: calc(100% / 9); aspect-ratio: 1; display: grid; place-items: center; z-index: 2; transition: left .22s ease, top .22s ease; }
 .golem .corps {
   width: 74%; aspect-ratio: 1; border-radius: 22% 22% 30% 30%; display: grid; place-items: start center;
   background: radial-gradient(circle at 40% 30%, #a9a39a, #6e675e 60%, #45403a); box-shadow: 0 3px 6px rgba(0,0,0,.7), inset 0 -3px 0 rgba(0,0,0,.3);
@@ -727,6 +727,9 @@ select {
 .cases-prog { display: flex; flex-wrap: wrap; gap: 5px; }
 .case-prog { width: 38px; height: 38px; min-height: 0; padding: 0; background: #16120e; border: 1px dashed var(--bord); color: var(--bronze-clair); font: 700 1.1rem var(--corps); letter-spacing: 0; }
 .case-prog.pleine { border-style: solid; background: var(--pierre-2); }
-.palette-golem { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 8px; }
+.palette-golem { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 8px; }
 .ordre { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 2px; background: var(--pierre-2); color: var(--texte); border: 1px solid var(--bronze); font: .7rem var(--corps); letter-spacing: 0; }
 .ordre .signe { font-size: 1.3rem; color: var(--bronze-clair); }
+.golem.saute .corps { animation: saut-golem .26s ease; }
+@keyframes saut-golem { 50% { transform: scale(1.35); box-shadow: 0 12px 10px rgba(0,0,0,.5); } }
+@media (max-width: 480px) { .palette-golem { grid-template-columns: repeat(4, 1fr); } }
