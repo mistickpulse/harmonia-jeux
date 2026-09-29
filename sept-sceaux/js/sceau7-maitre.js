@@ -89,7 +89,7 @@
           restants = restants.filter(t);
           const faits = [];
           for (let g = 0; g < 6; g++) {
-            if (!connu[g] && restants.every((p) => p[g] === restants[0][g])) { connu[g] = true; faits.push(`${runes[g]} est le ${restants[0][g] + 1}e forgé`); }
+            if (!connu[g] && restants.every((p) => p[g] === restants[0][g])) { connu[g] = true; faits.push(`${runes[g]} est le ${restants[0][g] === 0 ? '1er' : restants[0][g] + 1 + 'e'} forgé`); }
           }
           etapes.push(`${runes[f]} : « ${gravures[f]} » ${faits.length ? '→ ' + faits.join(' ; ') + '.' : '→ élimine des possibilités.'}`);
         }

@@ -369,15 +369,15 @@
       const nom = (g) => (h.reel() < 0.5 ? runes[g] : ECLAT_DE[g]);
       const gravures = [0, 1, 2, 3, 4, 5].map((f) => {
         const vraies = [];
-        const ajoute = (texte, test, poids) => vraies.push({ texte, test, poids });
+        const ajoute = (texte, test, poids, cible = -1) => vraies.push({ texte, test, poids, cible });
         for (let g = 0; g < 6; g++) {
           if (g === f) continue;
           const d = pos[f] - pos[g];
-          if (d === 1) ajoute(`Je fus forgé juste après ${nom(g)}.`, (p) => p[f] - p[g] === 1, 4);
-          if (d === -1) ajoute(`Je fus forgé juste avant ${nom(g)}.`, (p) => p[f] - p[g] === -1, 4);
-          if (d > 1) ajoute(`Je fus forgé après ${nom(g)}.`, (p) => p[f] > p[g], 3);
-          if (d < -1) ajoute(`Je fus forgé avant ${nom(g)}.`, (p) => p[f] < p[g], 3);
-          if (Math.abs(d) >= 2) ajoute(`${NOMBRES[Math.abs(d) - 1]} entre ${nom(g)} et moi.`, (p) => Math.abs(p[f] - p[g]) === Math.abs(d), 4);
+          if (d === 1) ajoute(`Je fus forgé juste après ${nom(g)}.`, (p) => p[f] - p[g] === 1, 4, g);
+          if (d === -1) ajoute(`Je fus forgé juste avant ${nom(g)}.`, (p) => p[f] - p[g] === -1, 4, g);
+          if (d > 1) ajoute(`Je fus forgé après ${nom(g)}.`, (p) => p[f] > p[g], 3, g);
+          if (d < -1) ajoute(`Je fus forgé avant ${nom(g)}.`, (p) => p[f] < p[g], 3, g);
+          if (Math.abs(d) >= 2) ajoute(`${NOMBRES[Math.abs(d) - 1]} entre ${nom(g)} et moi.`, (p) => Math.abs(p[f] - p[g]) === Math.abs(d), 4, g);
         }
         if (pos[f] > 0 && pos[f] < 5) ajoute('Je ne fus ni le premier ni le dernier forgé.', (p) => p[f] > 0 && p[f] < 5, 2);
         if (pos[f] <= 2) ajoute('Je fus parmi les trois premiers forgés.', (p) => p[f] <= 2, 2);
@@ -388,8 +388,12 @@
         let r = h.reel() * total;
         return vraies.find((v) => (r -= v.poids) <= 0) || vraies[vraies.length - 1];
       });
-      const possibles = PERMS6.filter((p) => gravures.every((g) => g.test(p)));
-      if (possibles.length === 1 || essai > 3000) {
+      // Deux éclats ne se citent jamais l'un l'autre (sinon deux gravures disent la même chose),
+      // l'ordre doit être unique, et chaque gravure doit être indispensable.
+      const croisees = gravures.some((g, f) => g.cible >= 0 && gravures[g.cible].cible === f);
+      const compte = (liste) => PERMS6.filter((p) => liste.every((g) => g.test(p))).length;
+      const bon = !croisees && compte(gravures) === 1 && gravures.every((g) => compte(gravures.filter((x) => x !== g)) > 1);
+      if (bon || essai > 20000) {
         return (cacheOrdre[code] = { runes, ordre, gravures: gravures.map((g) => g.texte), tests: gravures.map((g) => g.test), PERMS6 });
       }
     }
