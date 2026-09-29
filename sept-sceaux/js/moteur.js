@@ -412,6 +412,7 @@
         el('button', { type: 'button', class: 'discret', text: '📜 Tableau du MJ : ce que reçoit chaque joueur', onclick: ecranTableau }),
         el('button', { type: 'button', class: 'discret', text: '🎲 Tester le lutrin', onclick: ecranDe })) : null,
       toutBrise() ? carteLutrin() : null,
+      barreSecrets(),
       el('p', { class: 'consigne', text: 'Brise les sceaux un par un. Chacun laisse tomber un éclat de pierre gravé : garde-les, le dernier sceau les réclame.' }),
       porte,
       el('div', { class: 'fragments' }, el('h3', { text: 'Éclats' }),
@@ -428,17 +429,52 @@
           return el('p', { class: 'doux petit centre', text: texte });
         })(),
         PALIERS.filter((p) => etat.resolus[p.sceau] && p.cle !== 'final').map(carteParchemin)),
-      etat.mj ? el('div', { class: 'actions' }, el('button', {
-        class: 'discret', type: 'button', text: 'MJ : remettre la partie à zéro',
+      el('div', { class: 'actions recommencer' }, el('button', {
+        class: 'discret', type: 'button', text: etat.mj ? 'MJ : remettre la partie à zéro (jet du dé compris)' : '↺ Recommencer les épreuves',
         onclick: () => {
+          const question = etat.mj
+            ? 'Remettre toute la partie du code MJ à zéro, jet du dé compris ?'
+            : 'Recommencer les sept épreuves depuis le début ?\n\nTous les sceaux se refermeront. Ton jet de dé au lutrin, lui, reste acquis : le destin ne se relance pas.';
+          if (!window.confirm(question)) return;
           etat.resolus = {};
           effacer('partie:' + etat.code);
           SCEAUX.forEach((s, i) => effacer(`encours:${etat.code}:${i + 1}`));
-          effacer(cleDe());
+          if (etat.mj) effacer(cleDe());
           ecranPorte();
         }
-      })) : null
+      }))
     );
+  }
+
+  // ---------- Les secrets déjà obtenus, accessibles d'un bouton ----------
+  const SECRETS_PORTE = [
+    { etoiles: 1, sceau: 2, palier: 'perso' },
+    { etoiles: 2, sceau: 4, palier: 'milieu' },
+    { etoiles: 3, sceau: 7, palier: 'final' }
+  ];
+  function barreSecrets() {
+    return el('div', { class: 'barre-secrets' },
+      el('span', { class: 'titre-barre', text: 'Tes secrets' }),
+      SECRETS_PORTE.map((s) => {
+        const ouvert = !!etat.resolus[s.sceau];
+        return el('button', {
+          type: 'button', class: 'bouton-secret' + (ouvert ? '' : ' verrouille'), disabled: !ouvert,
+          'aria-label': ouvert ? `Relire le secret ${'★'.repeat(s.etoiles)}` : `Secret ${'★'.repeat(s.etoiles)} : se débloque après le sceau ${ROMAINS[s.sceau - 1]}`,
+          onclick: () => ouvrirSecret(s)
+        }, el('span', { class: 'etoiles-secret', text: '★'.repeat(s.etoiles) }),
+          el('span', { class: 'petit', text: ouvert ? 'Relire' : `🔒 Sceau ${ROMAINS[s.sceau - 1]}` }));
+      }));
+  }
+  function ouvrirSecret(s) {
+    if (s.palier === 'final') { ecranDe(); return; } // le troisième secret se relit au lutrin
+    const palier = PALIERS.find((p) => p.cle === s.palier);
+    const voile = el('div', { class: 'brisure', role: 'dialog', 'aria-label': 'Secret' },
+      el('div', { class: 'contenu' },
+        el('p', { class: 'etoiles-secret grand', text: '★'.repeat(s.etoiles) }),
+        carteParchemin(palier),
+        el('button', { type: 'button', text: 'Fermer', onclick: () => voile.remove() })));
+    voile.addEventListener('click', (ev) => { if (ev.target === voile) voile.remove(); });
+    document.body.append(voile);
   }
 
   // ---------- Écran 3 : un sceau ----------
@@ -459,7 +495,9 @@
         lire: () => lire(`encours:${etat.code}:${n}`),
         ecrire: (v) => ecrire(`encours:${etat.code}:${n}`, v)
       },
-      secouer: (noeud) => { noeud.classList.remove('secousse'); void noeud.offsetWidth; noeud.classList.add('secousse'); }
+      // getBoundingClientRect force le recalcul aussi sur un dessin SVG (offsetWidth n'y existe pas),
+      // sinon la secousse ne se rejoue pas au deuxième échec.
+      secouer: (noeud) => { noeud.classList.remove('secousse'); void noeud.getBoundingClientRect(); noeud.classList.add('secousse'); }
     };
 
     const barre = el('div', { class: 'entete' },

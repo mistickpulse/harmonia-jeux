@@ -111,6 +111,7 @@
       angle[i] += pas * 45;
       animer(i);
       ctx.memoire.ecrire({ pos });
+      msg.className = 'message'; msg.textContent = ''; // nouvel essai : on efface l'échec précédent
     }
 
     // Toucher un anneau le fait tourner d'un cran dans le sens des aiguilles d'une montre.
@@ -141,13 +142,15 @@
     });
 
     const msg = el('p', { class: 'message' });
+    let essais = 0;
     const valider = el('button', {
       type: 'button', text: 'Tourner la poignée',
       onclick: () => {
         const ok = pos.every((p, i) => ordres[i][p] === cibles[i]);
         if (ok) { msg.className = 'message ok'; msg.textContent = 'Un déclic sourd traverse la pierre.'; setTimeout(ctx.reussir, 700); return; }
+        essais++;
         msg.className = 'message erreur';
-        msg.textContent = 'La poignée refuse de tourner.';
+        msg.textContent = `La poignée refuse de tourner.${essais > 1 ? ` (essai ${essais})` : ''} Tourne les anneaux et réessaie.`;
         ctx.secouer(cadran);
       }
     });
