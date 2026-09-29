@@ -383,7 +383,7 @@
         'aria-label': `Sceau ${ROMAINS[i]}, ${s.nom}, ${etatTxt}`,
         onclick: () => ecranSceau(n)
       },
-        el('span', { class: 'medaillon', text: brise ? brise.fragment : ROMAINS[i] }),
+        el('span', { class: 'medaillon', text: brise ? eclat(n) : ROMAINS[i] }),
         el('span', { class: 'nom', text: s.nom }),
         el('span', { class: 'etoiles', text: '★'.repeat(s.etoiles) }),
         el('span', { class: 'etat', text: etatTxt })
@@ -396,8 +396,8 @@
       const r = etat.resolus[n];
       liste.append(r
         ? el('button', {
-          type: 'button', class: 'fragment', text: r.fragment, 'aria-label': `Éclat ${r.fragment} : lire la gravure`,
-          onclick: () => { lecture.textContent = `${r.fragment} (${S.ECLAT_DE[n - 1]}) : « ${S.ordreDuMaitre(etat.code).gravures[n - 1]} »`; }
+          type: 'button', class: 'fragment', text: eclat(n), 'aria-label': `Éclat ${eclat(n)} : lire la gravure`,
+          onclick: () => { lecture.textContent = `${eclat(n)} (${S.ECLAT_DE[n - 1]}) : « ${S.ordreDuMaitre(etat.code).gravures[n - 1]} »`; }
         })
         : el('span', { class: 'fragment vide', text: '·' }));
     }
@@ -517,7 +517,7 @@
 
     if (etat.resolus[n]) {
       zone.append(el('div', {}, el('p', { class: 'consigne', text: 'Ce sceau est déjà brisé.' + (n <= 6 ? ' Son éclat est à toi.' : '') }),
-        n <= 6 ? el('div', { class: 'fragment', style: 'margin:0 auto;width:72px;height:84px;font-size:2.4rem', text: etat.resolus[n].fragment }) : null,
+        n <= 6 ? el('div', { class: 'fragment', style: 'margin:0 auto;width:72px;height:84px;font-size:2.4rem', text: eclat(n) }) : null,
         n <= 6 ? el('p', { class: 'gravure', text: '« ' + S.ordreDuMaitre(etat.code).gravures[n - 1] + ' »' }) : null));
       return;
     }
@@ -597,6 +597,9 @@
   // (le sceau VII demandera de les remettre dans le bon ordre).
   const RUNES_FRAGMENTS = ['ᛟ', 'ᛞ', 'ᛉ', 'ᛝ', 'ᚠ', 'ᛗ', 'ᚦ', 'ᛒ', 'ᛏ', 'ᚱ', 'ᛇ', 'ᚷ'];
   S.fragmentDu = (code, n) => S.hasard(code + ':fragments').melanger(RUNES_FRAGMENTS)[n - 1];
+  // Symbole de l'éclat d'un sceau : toujours recalculé depuis le code (jamais lu dans la
+  // sauvegarde), pour qu'une donnée abîmée ne fausse pas la porte ni le sceau VII.
+  const eclat = (n) => (n <= 6 ? S.fragmentDu(etat.code, n) : '✦');
 
   // ---------- L'ordre du Maître (sceau VII) ----------
   // Chaque éclat porte au dos une gravure sur l'ordre dans lequel la montagne les a forgés.
