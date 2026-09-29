@@ -89,6 +89,17 @@
     }
   }
 
+  // Petit schéma d'exemple : L lanterne, e dalle éclairée, . dalle sombre, x point, ■ pilier, 0-4 pilier numéroté.
+  function exemple(lignes, texte) {
+    const grille = lignes.map((l) => l.split(' '));
+    const g = el('div', { class: 'mini-galerie', style: `grid-template-columns: repeat(${grille[0].length}, 26px)` });
+    grille.flat().forEach((ch) => {
+      if (/[0-4■]/.test(ch)) g.append(el('div', { class: 'pilier-galerie', text: ch === '■' ? '' : ch }));
+      else g.append(el('div', { class: 'dalle' + (ch === 'L' ? ' lanterne eclairee' : ch === 'e' ? ' eclairee' : ch === 'x' ? ' point' : ''), text: ch === 'L' ? '✺' : ch === 'x' ? '·' : '' }));
+    });
+    return el('div', { class: 'exemple-lanterne' }, g, el('p', { class: 'petit', text: texte }));
+  }
+
   function monter(zone, ctx) {
     const { murs, nombres, lanternes } = generer(ctx.hasard);
     const vis = visibilites(murs);
@@ -146,7 +157,13 @@
         el('h3', { text: 'La règle' }),
         el('p', { text: 'Une galerie plongée dans le noir, coupée de piliers. Pose des lanternes sur les dalles pour que toute la galerie soit éclairée.' }),
         el('p', { text: 'Une lanterne éclaire sa propre dalle et toutes celles de sa ligne et de sa colonne, jusqu’au premier pilier (ou au bord). Deux lanternes ne doivent jamais s’éclairer l’une l’autre. Un pilier portant un nombre touche exactement ce nombre de lanternes par ses côtés (pas en diagonale) ; un pilier sans nombre, on ne sait pas.' }),
-        el('p', { text: 'Touche une dalle : lanterne ✺, puis point · (« sûrement pas de lanterne ici »), puis vide. Clic droit sur ordinateur pour poser directement un point. Les nombres satisfaits passent au doré, ceux qui en ont trop au rouge. Il n’existe qu’une seule solution.' })),
+        el('p', { text: 'Touche une dalle : lanterne ✺, puis point · (« sûrement pas de lanterne ici »), puis vide. Clic droit sur ordinateur pour poser directement un point. Les nombres satisfaits passent au doré, ceux qui en ont trop au rouge. Il n’existe qu’une seule solution.' }),
+        el('h4', { class: 'titre-exemples', text: 'Exemples' }),
+        el('div', { class: 'exemples-lanternes' },
+          exemple(['L e e ■ .'], 'La lumière part dans les 4 directions et s’arrête au premier pilier : la dernière dalle, derrière le pilier, reste sombre.'),
+          exemple(['. x .', 'x 0 x', '. x .'], 'Un pilier « 0 » ne touche aucune lanterne : ses 4 voisines (côtés) portent un point. Elles devront être éclairées par des lanternes plus lointaines. Les diagonales ne comptent pas.'),
+          exemple(['e L e', 'L 3 L', 'e x e'],'Un pilier « 3 » : trois de ses quatre voisines portent une lanterne. Contre un bord ou un autre pilier, un « 3 » ou un « 2 » peut n’avoir qu’une seule façon de se remplir.'),
+          exemple(['L e e e e', 'e . . 1 .', 'e e e L e'],'Le piège : la lanterne en haut éclaire toute la première ligne. La dalle au-dessus du « 1 » est donc éclairée : on ne peut plus y poser de lanterne (deux lanternes se verraient). Le « 1 » doit prendre sa lanterne ailleurs, ici en dessous. Un rayon peut ainsi « fermer » une voisine d’un pilier.'))),
       el('div', { class: 'cadre-galerie' }, galerie),
       msg,
       el('div', { class: 'actions' }, el('button', { type: 'button', class: 'discret', text: '✕ Tout effacer', onclick: () => { if (fini || !window.confirm('Retirer toutes les lanternes et tous les points ?')) return; pose.fill(0); memoriser(); dessiner(); verifier(); } })));
