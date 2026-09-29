@@ -10,8 +10,16 @@ window.SCEAUX_CONFIG = {
     { h: '6caea53f70f0303ca73a69f9e8cd5cda3c0f388c335c525d19d030ce12406a60' }, // invité (remplace l'ancien code de Koma, un PNJ)
     { h: 'aa67b580ac8ce0067777ee5d2b0287e5a11e1c629053e4e06d3d8da2711ddcea' },
     { h: '4c8470bfb005c55e5bb0c52617deac2df9367dd728e05a9b648306bd90b99296' },
+    { h: 'd5f8848eed507fb8d2f2eabc07e84f4c3ba2622ab8ade955e4e2f192dcad87c9' },
     { h: 'fe2b2b6b4570392165255d402a609af11095afdb33a89d7c66c7673ae6ba04e5', mj: true }
   ],
+  // Énigmes partagées : pour ces codes (empreintes), le sceau indiqué est généré à partir
+  // d'une graine commune, donc identique pour plusieurs joueurs qui peuvent le résoudre
+  // ensemble. Kagé et la Fée BD : même sceau III (demande du MJ).
+  graines: {
+    '14face4b2511fcf4ed46e72bd726c1f7679d62ac49a88ed40509fba1e69ead67': { 3: 'duo-kage-fee' },
+    'd5f8848eed507fb8d2f2eabc07e84f4c3ba2622ab8ade955e4e2f192dcad87c9': { 3: 'duo-kage-fee' }
+  },
   // Un code par sceau pour afficher sa solution (et pourquoi c'est la bonne), même règle d'empreinte.
   solutions: {
     1: '9037ef2f7f4ccc24577c92685019dd959c5329c2cd2fe497f3c2af850f84b320',

@@ -482,7 +482,9 @@
     const def = S.liste[n - 1];
     const info = SCEAUX[n - 1];
     const zone = el('div', { class: 'zone-sceau' });
-    const graine = etat.code + ':sceau' + n;
+    // Énigme partagée entre plusieurs joueurs (config.graines) ou propre à ce code.
+    const commune = ((window.SCEAUX_CONFIG.graines || {})[etat.empreinte] || {})[n];
+    const graine = (commune ? 'commune:' + commune : etat.code) + ':sceau' + n;
 
     const ctx = {
       hasard: S.hasard(graine),
