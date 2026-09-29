@@ -299,9 +299,12 @@
       document.querySelector('.volet-solution')?.remove();
       app().append(volet);
     };
-    const ouvrir = () => { ecrire('solution:' + n, true); panneau(); };
+    // La clé entrée n'est retenue que pour CE joueur et CE sceau (jamais pour les autres codes).
+    const cleMemoire = `solution:${etat.code}:${n}`;
+    const ouvrir = () => { if (!etat.mj) ecrire(cleMemoire, true); panneau(); };
 
-    if (etat.mj || lire('solution:' + n)) {
+    // Code MJ : accès direct. Code joueur : il faut la clé du gardien de ce sceau.
+    if (etat.mj || lire(cleMemoire)) {
       bloc.append(el('button', { class: 'discret', type: 'button', text: '🗝 Voir la solution', onclick: ouvrir }));
       return bloc;
     }
@@ -402,6 +405,8 @@
 
   // Au retour sur le site, on rouvre directement la porte du dernier code utilisé.
   document.addEventListener('DOMContentLoaded', () => {
+    // Ancienne mémoire des clés, commune à tous les codes : on l'oublie.
+    for (let n = 1; n <= 7; n++) effacer('solution:' + n);
     ecranCode();
     if (!lire('dernier')) return;
     const form = document.querySelector('.accueil form');
