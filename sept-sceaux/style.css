@@ -11,7 +11,7 @@
   --rouge: #c0513f;
   --vert: #7fae5a;
   --titre: 'Cinzel', Georgia, serif;
-  --corps: 'EB Garamond', Georgia, serif;
+  --corps: 'EB Garamond', 'Noto Sans Runic', Georgia, serif;
   --rune: 'Noto Sans Runic', 'Segoe UI Historic', sans-serif;
 }
 
@@ -213,4 +213,153 @@ input[type=text] {
 @media (max-width: 560px) {
   .volet-solution { top: auto; left: 0; width: 100%; max-height: 65vh; border-left: none; border-top: 1px solid var(--bronze); animation-name: monte; }
   @keyframes monte { from { transform: translateY(100%); } }
+}
+
+/* ---------- Sceau III : la Relève de la Garde ---------- */
+.notes-capitaine ol { margin: 8px 0 0; padding-left: 1.4em; }
+.notes-capitaine li { margin-bottom: 6px; }
+.carnet { margin: 16px 0; }
+.carnet summary { cursor: pointer; font-family: var(--titre); color: var(--bronze-clair); text-align: center; margin-bottom: 10px; }
+.grilles { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; }
+.grille-logique { border-collapse: collapse; }
+.grille-logique caption { font-family: var(--titre); color: var(--texte-doux); font-size: .85rem; letter-spacing: .1em; padding-bottom: 4px; }
+.grille-logique th { font-weight: 600; font-size: .8rem; color: var(--texte-doux); padding: 2px 4px; }
+.grille-logique th[scope=row] { text-align: right; color: var(--texte); }
+.grille-logique td { padding: 0; border: 1px solid var(--bord); }
+.grille-logique .case {
+  width: 44px; height: 40px; min-height: 0; padding: 0; border: none; border-radius: 0;
+  background: var(--pierre); color: var(--texte); font: 1.1rem var(--corps); letter-spacing: 0;
+}
+.grille-logique .case.c1 { color: var(--rouge); }
+.grille-logique .case.c2 { color: var(--vert); background: #232a1c; }
+.registre { margin: 8px auto 0; border-collapse: collapse; }
+.registre th, .registre td { padding: 6px 8px; border-bottom: 1px solid var(--bord); text-align: left; }
+.registre th { font-family: var(--titre); font-size: .85rem; color: var(--texte-doux); }
+.registre th[scope=row] { font-family: var(--corps); font-size: 1rem; color: var(--texte); }
+select {
+  font: 1rem var(--corps); color: var(--texte); background: var(--pierre); border: 1px solid var(--bord);
+  border-radius: 6px; padding: 6px 8px; min-height: 40px;
+}
+@media (max-width: 480px) {
+  .grille-logique .case { width: 38px; height: 36px; }
+  .grille-logique th { font-size: .72rem; padding: 2px; }
+}
+
+/* ---------- Sceau IV : l'Inscription ---------- */
+.inscription { line-height: 1; text-align: center; margin: 8px 0 12px; padding: 14px 8px; background: #17130f; border: 1px solid var(--bord); border-radius: 10px; }
+.mot-runique { display: inline-flex; flex-wrap: nowrap; gap: 2px; margin: 0 6px 12px; vertical-align: top; }
+.glyphe {
+  display: inline-flex; flex-direction: column; align-items: center; gap: 4px;
+  width: 30px; min-height: 0; padding: 4px 0; border: 1px solid transparent; border-radius: 4px;
+  background: none; color: var(--texte); font: inherit; letter-spacing: 0;
+}
+.glyphe .rune { font-size: 1.35rem; color: var(--bronze-clair); }
+.glyphe .lettre { font: 700 .95rem var(--titre); color: var(--texte-doux); min-height: 1em; }
+.glyphe.connue .lettre { color: var(--vert); }
+.glyphe.active { border-color: var(--bronze); background: rgba(232,194,117,.12); }
+.ponctuation { align-self: flex-end; color: var(--texte-doux); padding: 0 1px 6px; }
+.clavier-runes { min-height: 60px; margin-bottom: 14px; }
+.rune.grande { font-size: 1.8rem; color: var(--bronze-clair); vertical-align: middle; }
+.touches { display: grid; grid-template-columns: repeat(9, 1fr); gap: 5px; max-width: 460px; margin: 0 auto; }
+.touche { min-height: 40px; padding: 0; font: 700 1rem var(--titre); background: var(--pierre-2); color: var(--texte); border: 1px solid var(--bord); }
+.touche.choisie { background: linear-gradient(var(--bronze-clair), var(--bronze)); color: var(--fond); }
+.touche.prise { opacity: .5; }
+.touche.effacer { grid-column: span 1; }
+.aides { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+.liste-runes { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.liste-runes .rune { font-size: 1.3rem; color: var(--bronze-clair); }
+.form-mot { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.form-mot input { max-width: 240px; }
+@media (max-width: 560px) {
+  .aides { grid-template-columns: 1fr; }
+  .touches { grid-template-columns: repeat(7, 1fr); }
+  .glyphe { width: 26px; }
+  .glyphe .rune { font-size: 1.2rem; }
+  .mot-runique { margin: 0 4px 10px; }
+}
+
+/* ---------- Sceau V : le Chant des Diapasons ---------- */
+.diapasons { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; max-width: 520px; margin: 16px auto 8px; }
+.diapason { display: flex; flex-direction: column; align-items: center; gap: 6px; border-radius: 8px; padding: 4px 0; }
+.diapason.choisi { background: rgba(232,194,117,.14); outline: 1px solid var(--bronze); }
+.diapason .frapper {
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 6px;
+  width: 100%; height: 150px; padding: 0 0 6px; background: none; border: none; min-height: 0;
+}
+.diapason .branches {
+  position: relative; width: 26px; height: 92px;
+  border: 6px solid #b48a4a; border-top: none; border-radius: 0 0 14px 14px;
+  box-shadow: inset 0 -2px 0 rgba(0,0,0,.25);
+}
+.diapason .branches::after {
+  content: ''; position: absolute; left: 50%; bottom: -30px; width: 6px; height: 26px; margin-left: -3px;
+  background: #b48a4a; border-radius: 0 0 3px 3px;
+}
+.diapason .rune { margin-top: 26px; font-size: 1.3rem; color: var(--bronze-clair); }
+.diapason.vibre .branches { animation: vibre .5s ease-out; }
+@keyframes vibre {
+  0%, 100% { transform: none; }
+  10%, 50% { transform: scaleX(1.12); }
+  30%, 70% { transform: scaleX(.9); }
+}
+.diapason .echanger { min-width: 40px; min-height: 36px; padding: 0 6px; font-size: 1.1rem; }
+.progres-chant { display: flex; justify-content: center; gap: 8px; min-height: 16px; margin: 8px 0; }
+.progres-chant .point { width: 12px; height: 12px; border-radius: 50%; border: 1px solid var(--bronze); }
+.progres-chant .point.fait { background: var(--bronze-clair); }
+@media (max-width: 480px) {
+  .diapasons { gap: 2px; }
+  .diapason .frapper { height: 130px; }
+  .diapason .branches { width: 20px; height: 80px; border-width: 5px; }
+  .diapason .echanger { min-width: 0; width: 100%; }
+}
+
+/* ---------- Sceau VI : la Herse ---------- */
+.compteur { text-align: center; font-family: var(--titre); color: var(--texte-doux); letter-spacing: .08em; margin: 8px 0; }
+.compteur.alerte { color: var(--rouge); }
+.cadre-plateau { width: min(420px, 100%); margin: 0 auto; padding: 8px 14px 8px 8px; background: #2b241c; border-radius: 10px; border: 1px solid var(--bord); }
+.plateau {
+  position: relative; width: 100%; aspect-ratio: 1; touch-action: none;
+  background-color: #17130f;
+  background-image: linear-gradient(#2b241c 1px, transparent 1px), linear-gradient(90deg, #2b241c 1px, transparent 1px);
+  background-size: calc(100% / 6) calc(100% / 6);
+  border-radius: 4px;
+}
+.plateau .sortie { position: absolute; left: 100%; top: calc(100% / 3); width: 14px; height: calc(100% / 6); background: linear-gradient(90deg, #17130f, #e8c27533); }
+.bloc {
+  position: absolute; padding: 0; margin: 0; min-height: 0; border: 3px solid #17130f; border-radius: 6px;
+  background: linear-gradient(#8a6a44, #6e5334); color: #e9dcc3cc; font: 700 1rem var(--titre); letter-spacing: 0;
+  touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none;
+  box-shadow: inset 0 2px 0 rgba(255,255,255,.12), inset 0 -3px 0 rgba(0,0,0,.25);
+}
+.bloc.vertical { background: linear-gradient(90deg, #7a5d3b, #5f4730); }
+.bloc.cle { background: linear-gradient(var(--bronze-clair), var(--bronze)); color: var(--fond); font-size: 1.3rem; }
+.bloc:active { cursor: grabbing; }
+.bloc.sort { transition: transform .8s ease-in; transform: translateX(260%); }
+
+/* ---------- Éclats et gravures ---------- */
+.fragments button.fragment { min-height: 0; padding: 0; cursor: pointer; }
+.gravure { font-style: italic; text-align: center; color: var(--bronze-clair); max-width: 30em; margin: 10px auto; min-height: 1.5em; }
+
+/* ---------- Sceau VII : le Sceau du Maître ---------- */
+.alveoles { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; max-width: 460px; margin: 12px auto; }
+.alveole {
+  position: relative; aspect-ratio: 5 / 6; min-height: 0; padding: 0;
+  background: radial-gradient(circle at 50% 40%, #0d0b08, #231d16); border: 2px solid var(--bord); border-radius: 12px;
+  display: grid; place-items: center; color: var(--bronze-clair);
+}
+.alveole .numero { position: absolute; top: 4px; left: 6px; font: .75rem var(--titre); color: var(--texte-doux); }
+.alveole .rune { font-size: 1.8rem; }
+.alveole:not(.vide) { border-color: var(--bronze); }
+.reserve-eclats { display: grid; gap: 8px; }
+.eclat {
+  display: flex; align-items: center; gap: 12px; text-align: left; padding: 8px 12px;
+  background: var(--pierre); color: var(--texte); border: 1px solid var(--bord);
+  font: 1rem var(--corps); letter-spacing: 0;
+}
+.eclat .fragment { flex: none; }
+.eclat.choisi { border-color: var(--bronze-clair); box-shadow: 0 0 0 2px rgba(232,194,117,.35); background: var(--pierre-2); }
+.eclat.pose { opacity: .55; }
+@media (max-width: 480px) {
+  .alveoles { gap: 4px; }
+  .alveole .rune { font-size: 1.4rem; }
 }

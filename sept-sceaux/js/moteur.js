@@ -135,7 +135,7 @@
 
   function afficher(...noeuds) {
     const a = app();
-    a.replaceChildren(...noeuds);
+    a.replaceChildren(...noeuds.filter((x) => x != null)); // un emplacement vide ne doit pas s'afficher « null »
     window.scrollTo(0, 0);
   }
 
@@ -203,9 +203,15 @@
     });
 
     const liste = el('div', { class: 'liste' });
+    const lecture = el('p', { class: 'gravure', 'aria-live': 'polite' });
     for (let n = 1; n <= 6; n++) {
       const r = etat.resolus[n];
-      liste.append(el('span', { class: 'fragment' + (r ? '' : ' vide'), text: r ? r.fragment : '·' }));
+      liste.append(r
+        ? el('button', {
+          type: 'button', class: 'fragment', text: r.fragment, 'aria-label': `Éclat ${r.fragment} : lire la gravure`,
+          onclick: () => { lecture.textContent = `${r.fragment} (${S.ECLAT_DE[n - 1]}) : « ${S.ordreDuMaitre(etat.code).gravures[n - 1]} »`; }
+        })
+        : el('span', { class: 'fragment vide', text: '·' }));
     }
 
     afficher(
@@ -214,9 +220,11 @@
         el('button', { class: 'discret', type: 'button', text: 'Changer de code', onclick: () => ecranCode() })
       ),
       el('h1', { text: 'La Porte' }),
-      el('p', { class: 'consigne', text: 'Brise les sceaux un par un. Chacun laisse tomber un fragment de pierre : garde-les, le dernier sceau les réclame.' }),
+      el('p', { class: 'consigne', text: 'Brise les sceaux un par un. Chacun laisse tomber un éclat de pierre gravé : garde-les, le dernier sceau les réclame.' }),
       porte,
-      el('div', { class: 'fragments' }, el('h3', { text: 'Fragments' }), liste),
+      el('div', { class: 'fragments' }, el('h3', { text: 'Éclats' }),
+        Object.keys(etat.resolus).length ? el('p', { class: 'doux petit', text: 'Touche un éclat pour lire la gravure au dos.' }) : null,
+        liste, lecture),
       etat.mj ? el('div', { class: 'actions' }, el('button', {
         class: 'discret', type: 'button', text: 'MJ : remettre la partie à zéro',
         onclick: () => {
@@ -238,6 +246,7 @@
 
     const ctx = {
       hasard: S.hasard(graine),
+      code: etat.code,
       mj: etat.mj,
       reussir: () => briser(n),
       // Travail en cours sur ce sceau (positions, pièces posées…), pour reprendre là où on s'était arrêté.
@@ -263,8 +272,9 @@
     );
 
     if (etat.resolus[n]) {
-      zone.append(el('p', { class: 'consigne', text: 'Ce sceau est déjà brisé. Son fragment est à toi.' }),
-        el('div', { class: 'fragment', style: 'margin:0 auto;width:72px;height:84px;font-size:2.4rem', text: etat.resolus[n].fragment }));
+      zone.append(el('div', {}, el('p', { class: 'consigne', text: 'Ce sceau est déjà brisé.' + (n <= 6 ? ' Son éclat est à toi.' : '') }),
+        n <= 6 ? el('div', { class: 'fragment', style: 'margin:0 auto;width:72px;height:84px;font-size:2.4rem', text: etat.resolus[n].fragment }) : null,
+        n <= 6 ? el('p', { class: 'gravure', text: '« ' + S.ordreDuMaitre(etat.code).gravures[n - 1] + ' »' }) : null));
       return;
     }
     const api = def.monter(zone, ctx) || {};
@@ -313,17 +323,21 @@
   }
 
   function briser(n) {
-    const fragment = S.fragmentDu(etat.code, n);
+    const fragment = n <= 6 ? S.fragmentDu(etat.code, n) : '✦';
     etat.resolus[n] = { fragment };
     sauver();
     effacer(`encours:${etat.code}:${n}`);
-    const voile = el('div', { class: 'brisure', role: 'dialog', 'aria-label': 'Sceau brisé' },
-      el('div', { class: 'contenu' },
-        el('h2', { text: 'Le sceau se brise' }),
+    const contenu = n <= 6
+      ? [el('h2', { text: 'Le sceau se brise' }),
         el('p', { class: 'doux', text: 'Un éclat de pierre roule à tes pieds.' }),
         el('div', { class: 'fragment', text: fragment }),
-        el('button', { type: 'button', text: 'Retour à la porte', onclick: () => { voile.remove(); ecranPorte(); } })
-      ));
+        el('p', { class: 'doux petit', text: 'Au dos, une gravure :' }),
+        el('p', { class: 'gravure', text: '« ' + S.ordreDuMaitre(etat.code).gravures[n - 1] + ' »' })]
+      : [el('h2', { text: 'La porte s’ouvre' }),
+        el('p', { class: 'doux', text: 'Les sept sceaux sont brisés. La pierre glisse sans un bruit.' })];
+    const voile = el('div', { class: 'brisure', role: 'dialog', 'aria-label': 'Sceau brisé' },
+      el('div', { class: 'contenu' }, contenu,
+        el('button', { type: 'button', text: 'Retour à la porte', onclick: () => { voile.remove(); ecranPorte(); } })));
     document.body.append(voile);
   }
 
@@ -331,6 +345,56 @@
   // (le sceau VII demandera de les remettre dans le bon ordre).
   const RUNES_FRAGMENTS = ['ᛟ', 'ᛞ', 'ᛉ', 'ᛝ', 'ᚠ', 'ᛗ', 'ᚦ', 'ᛒ', 'ᛏ', 'ᚱ', 'ᛇ', 'ᚷ'];
   S.fragmentDu = (code, n) => S.hasard(code + ':fragments').melanger(RUNES_FRAGMENTS)[n - 1];
+
+  // ---------- L'ordre du Maître (sceau VII) ----------
+  // Chaque éclat porte au dos une gravure sur l'ordre dans lequel la montagne les a forgés.
+  // Les six gravures (une par éclat) sont tirées jusqu'à ce que l'ordre soit unique.
+  const ECLAT_DE = ['l’éclat du Cadran', 'l’éclat des Engrenages', 'l’éclat de la Relève', 'l’éclat de l’Inscription', 'l’éclat des Diapasons', 'l’éclat de la Herse'];
+  const PERMS6 = (function perms(t) {
+    if (t.length <= 1) return [t];
+    const r = [];
+    t.forEach((x, i) => perms(t.slice(0, i).concat(t.slice(i + 1))).forEach((p) => r.push([x].concat(p))));
+    return r;
+  })([0, 1, 2, 3, 4, 5]).map((ordre) => { const pos = []; ordre.forEach((f, i) => { pos[f] = i; }); return pos; });
+  const cacheOrdre = {};
+  S.ordreDuMaitre = function (code) {
+    if (cacheOrdre[code]) return cacheOrdre[code];
+    const h = S.hasard(code + ':ordre');
+    const runes = [1, 2, 3, 4, 5, 6].map((n) => S.fragmentDu(code, n));
+    const NOMBRES = ['', 'Un éclat fut forgé', 'Deux éclats furent forgés', 'Trois éclats furent forgés', 'Quatre éclats furent forgés'];
+    for (let essai = 0; ; essai++) {
+      const ordre = h.melanger([0, 1, 2, 3, 4, 5]); // ordre[i] = éclat forgé en i-ème
+      const pos = []; ordre.forEach((f, i) => { pos[f] = i; });
+      // Désignation d'un autre éclat : par sa rune, ou par le sceau d'où il vient.
+      const nom = (g) => (h.reel() < 0.5 ? runes[g] : ECLAT_DE[g]);
+      const gravures = [0, 1, 2, 3, 4, 5].map((f) => {
+        const vraies = [];
+        const ajoute = (texte, test, poids) => vraies.push({ texte, test, poids });
+        for (let g = 0; g < 6; g++) {
+          if (g === f) continue;
+          const d = pos[f] - pos[g];
+          if (d === 1) ajoute(`Je fus forgé juste après ${nom(g)}.`, (p) => p[f] - p[g] === 1, 4);
+          if (d === -1) ajoute(`Je fus forgé juste avant ${nom(g)}.`, (p) => p[f] - p[g] === -1, 4);
+          if (d > 1) ajoute(`Je fus forgé après ${nom(g)}.`, (p) => p[f] > p[g], 3);
+          if (d < -1) ajoute(`Je fus forgé avant ${nom(g)}.`, (p) => p[f] < p[g], 3);
+          if (Math.abs(d) >= 2) ajoute(`${NOMBRES[Math.abs(d) - 1]} entre ${nom(g)} et moi.`, (p) => Math.abs(p[f] - p[g]) === Math.abs(d), 4);
+        }
+        if (pos[f] > 0 && pos[f] < 5) ajoute('Je ne fus ni le premier ni le dernier forgé.', (p) => p[f] > 0 && p[f] < 5, 2);
+        if (pos[f] <= 2) ajoute('Je fus parmi les trois premiers forgés.', (p) => p[f] <= 2, 2);
+        if (pos[f] >= 3) ajoute('Je fus parmi les trois derniers forgés.', (p) => p[f] >= 3, 2);
+        if (pos[f] === 0) ajoute('Je fus le premier forgé.', (p) => p[f] === 0, 1);
+        if (pos[f] === 5) ajoute('Je fus le dernier forgé.', (p) => p[f] === 5, 1);
+        const total = vraies.reduce((a, v) => a + v.poids, 0);
+        let r = h.reel() * total;
+        return vraies.find((v) => (r -= v.poids) <= 0) || vraies[vraies.length - 1];
+      });
+      const possibles = PERMS6.filter((p) => gravures.every((g) => g.test(p)));
+      if (possibles.length === 1 || essai > 3000) {
+        return (cacheOrdre[code] = { runes, ordre, gravures: gravures.map((g) => g.texte), tests: gravures.map((g) => g.test), PERMS6 });
+      }
+    }
+  };
+  S.ECLAT_DE = ECLAT_DE;
 
   // Au retour sur le site, on rouvre directement la porte du dernier code utilisé.
   document.addEventListener('DOMContentLoaded', () => {
