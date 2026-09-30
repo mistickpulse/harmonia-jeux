@@ -591,15 +591,19 @@
       const ouverte = (PROFONDEURS_OUVERTES && !tempsEcoule()) || etat.mj || enigmePourTous(e);
       const classe = faites[e.id] ? 'brise' : ouverte ? 'ouvert' : 'ferme';
       const reussi = e.rang ? 'Réussie' : 'Indice obtenu';
+      // L’Énigme reste cliquable (pour taper son code d’accès) mais paraît verrouillée tant que le joueur
+      // n’est pas entré avec son code, et que le MJ ne l’a pas ouverte à tous.
+      const garde = e.id === 'enigme' ? lire(`prof-garde:${etat.code}:enigme`) : null;
+      const cadenas = e.id === 'enigme' && ouverte && !faites[e.id] && !etat.mj && !enigmePourTous(e) && !(garde && garde.porte);
       return el('button', {
         // Une épreuve réussie reste consultable même fermée (ses souvenirs servent d’indices à l’Énigme).
-        type: 'button', class: 'sceau ' + classe + (e.rang ? ' ' + e.rang : ''), disabled: !ouverte && !faites[e.id], onclick: () => ecranEpreuve(e),
+        type: 'button', class: 'sceau ' + classe + (e.rang ? ' ' + e.rang : '') + (cadenas ? ' verrouillee' : ''), disabled: !ouverte && !faites[e.id], onclick: () => ecranEpreuve(e),
         'aria-label': `${e.nom}, ${faites[e.id] ? reussi : ouverte ? 'à faire' : 'pas encore ouverte'}`
       },
-        el('span', { class: 'medaillon', text: faites[e.id] ? '✓' : e.icone || '⛏' }),
+        el('span', { class: 'medaillon', text: faites[e.id] ? '✓' : cadenas ? '🔒' : e.icone || '⛏' }),
         el('span', { class: 'nom', text: e.nom }),
         el('span', { class: 'etoiles', text: '★'.repeat(e.etoiles) }),
-        el('span', { class: 'etat', text: faites[e.id] ? reussi : ouverte ? e.resume : tempsEcoule() ? 'Refermée' : 'Pas encore ouverte' }));
+        el('span', { class: 'etat', text: faites[e.id] ? reussi : cadenas ? 'Code d’accès requis' : ouverte ? e.resume : tempsEcoule() ? 'Refermée' : 'Pas encore ouverte' }));
     };
     return [
       el('div', { class: 'avertissement-profondeurs' },

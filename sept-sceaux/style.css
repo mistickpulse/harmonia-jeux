@@ -868,3 +868,5 @@ select {
   .porte.grille-3 .sceau .nom { font-size: .78rem; }
   .porte.grille-3 .sceau .etat { font-size: .7rem; }
 }
+.sceau.verrouillee { filter: grayscale(.75) brightness(.8); }
+.sceau.verrouillee .medaillon { font-size: 1.6rem; }

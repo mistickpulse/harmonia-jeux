@@ -6,6 +6,8 @@
 (function () {
   'use strict';
   const { el } = Sceaux;
+  // Remplit un nœud en ignorant les emplacements vides (sinon « null » s'affiche à l'écran).
+  const remplir = (noeud, ...enfants) => noeud.replaceChildren(...enfants.flat().filter((x) => x != null));
   const QUESTION = 'Qu’entend la pierre quand plus personne ne chante ?';
   const ALPHA = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
   const normaliser = (t) => t.toUpperCase().replace(/Œ/g, 'OE').replace(/Æ/g, 'AE').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Z0-9]/g, '');
@@ -112,7 +114,7 @@
     function porte() {
       const champ = el('input', { type: 'text', placeholder: 'Code d’accès', autocomplete: 'off', autocapitalize: 'characters', spellcheck: 'false', 'aria-label': 'Code d’accès aux Profondeurs' });
       const msg = el('p', { class: 'message' });
-      zone.replaceChildren(
+      remplir(zone,
         el('div', { class: 'panneau porte-enigme' },
           el('p', { text: 'Une dernière porte, sans poignée ni serrure. Seulement une fente, et une voix qui demande le mot de passage.' }),
           el('p', {}, el('strong', { text: 'Cette énigme est commune à tous.' }), ' Derrière la porte, chacun trouvera la même question, et elle n’a qu’une seule réponse. Seuls les codes d’accès, cachés dans le Registre chiffré, sont personnels.'),
@@ -134,7 +136,7 @@
       const msg = el('p', { class: 'message' });
       const resultat = el('div', {});
       champ.addEventListener('input', () => ctx.memoire.ecrire({ ouverte: true, essai: champ.value }));
-      zone.replaceChildren(
+      remplir(zone,
         el('div', { class: 'salle-enigme' },
           pourTous
             ? el('div', { class: 'panneau annonce-enigme' },
