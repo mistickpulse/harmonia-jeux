@@ -489,7 +489,7 @@
     const minuteur = setInterval(() => { if (!bloc.isConnected || !maj()) clearInterval(minuteur); }, 1000);
     return bloc;
   }
-  const PROFONDEURS_A_VENIR = ['Le Réseau runique', 'Les Miroirs du Chant', 'Le Registre chiffré', 'L’Énigme des Profondeurs'];
+  const PROFONDEURS_A_VENIR = ['Le Registre chiffré', 'L’Énigme des Profondeurs'];
   S.enregistrerEpreuve = (def) => { S.epreuves.push(def); };
   const cleProfondeurs = () => 'profondeurs:' + etat.code;
   const reussites = () => lire(cleProfondeurs()) || {};

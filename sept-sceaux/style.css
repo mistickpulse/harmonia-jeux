@@ -751,3 +751,37 @@ select {
 .quantite-ecluse { font: 700 1.05rem var(--titre); font-variant-numeric: tabular-nums; }
 .contenance-ecluse { font-size: .78rem; opacity: .7; }
 @media (max-width: 480px) { .cuve-ecluse { height: 230px; } .salle-ecluses { gap: 4px; padding: 12px 6px 8px; } .verre-ecluse { width: 80%; } }
+
+/* Le Réseau runique */
+.cadre-reseau { max-width: 520px; margin: 18px auto 8px; padding: 10px; border-radius: 12px; background: radial-gradient(circle at 50% 50%, #2a2218, #120e0a 80%); border: 1px solid #5a4630; box-shadow: inset 0 0 30px rgba(0,0,0,.7); }
+.grille-reseau { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 2px; }
+.dalle-reseau { aspect-ratio: 1; min-width: 0; min-height: 0; height: auto; padding: 0; border: 1px solid #3c2f22; border-radius: 4px; background: linear-gradient(145deg, #4a3d30, #33291f); cursor: pointer; }
+.dalle-reseau:hover { filter: brightness(1.15); }
+.dalle-reseau .canaux { display: block; width: 100%; height: 100%; transition: transform .15s; }
+.dalle-reseau .canaux line { stroke: #7a6a58; stroke-width: 16; stroke-linecap: square; }
+.dalle-reseau .canaux circle { fill: #7a6a58; }
+.dalle-reseau .canaux .coeur { fill: #c8452e; stroke: #ffb38a; stroke-width: 4; }
+.dalle-reseau.allumee .canaux line { stroke: #f0c060; filter: drop-shadow(0 0 3px rgba(255,200,90,.8)); }
+.dalle-reseau.allumee .canaux circle:not(.coeur) { fill: #ffd98a; }
+.grille-reseau.complet .dalle-reseau { animation: pulsation-reseau 1.2s ease-in-out 2; }
+@keyframes pulsation-reseau { 50% { filter: brightness(1.6); } }
+
+/* Les Miroirs du Chant */
+.cadre-miroirs { max-width: 500px; margin: 18px auto 8px; padding: 10px; border-radius: 12px; background: #0c0b14; border: 1px solid #3c3560; box-shadow: inset 0 0 30px rgba(0,0,0,.8); }
+.grille-miroirs { position: relative; display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); }
+.case-miroir { aspect-ratio: 1; min-width: 0; min-height: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(120,110,170,.12); font-size: clamp(1rem, 5vw, 1.7rem); color: #cfc8ff; line-height: 1; }
+.case-miroir.mur { background: linear-gradient(145deg, #4b4038, #2c251f); border-color: #1c1713; }
+.case-miroir.mobile { padding: 0; background: rgba(160,150,230,.16); border: 1px solid rgba(190,180,255,.4); border-radius: 4px; color: #eeeaff; font: inherit; font-size: clamp(1.2rem, 6vw, 2rem); cursor: pointer; }
+.case-miroir.mobile:hover { background: rgba(160,150,230,.3); }
+.case-miroir.fixe { background: rgba(0,0,0,.45); color: #8a82b8; }
+.case-miroir.source { color: #ffd98a; text-shadow: 0 0 10px #ffd98a; }
+.case-miroir.prisme { color: #9fe8ff; text-shadow: 0 0 8px #5fc8f0; }
+.case-miroir.cible { color: #6a6490; }
+.case-miroir.cible.allumee { color: #fff6c8; text-shadow: 0 0 10px #ffe08a, 0 0 20px #ffb040; }
+.case-miroir.piege { color: #c85a5a; }
+.case-miroir.piege.brise { color: #ff3b3b; animation: secousse-piege .4s; }
+@keyframes secousse-piege { 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
+.rayon-miroirs { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.rayon-miroirs line { stroke: #ffe9a0; stroke-width: 1.1; stroke-linecap: round; filter: drop-shadow(0 0 1.5px #ffc850); opacity: .9; }
+.rayon-miroirs .eclat-piege { fill: rgba(255,60,60,.45); }
+.grille-miroirs.complet .rayon-miroirs line { stroke: #fff; stroke-width: 1.6; }

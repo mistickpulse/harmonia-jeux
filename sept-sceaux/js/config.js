@@ -28,7 +28,9 @@ window.SCEAUX_CONFIG = {
     lanternes: '87fec1f1729fed676dc9f7efec22c0a61731f8650bb8d9ce312455181c7dec46',
     glaces: 'beabf7432bcf3ef757bd7ccc4a7cb4e991f176cc315a8abcc75c668c455b77ff',
     golem: 'f8c0a6a5dd1bb10a08b5b03e164990e8ad4232e344e4fc76a18a00ff1f7bb0f9',
-    ecluses: '48ddf88cd5464abf207205093ba8890603cca15b85f4ce5ceceb74ceeced2e2d'
+    ecluses: '48ddf88cd5464abf207205093ba8890603cca15b85f4ce5ceceb74ceeced2e2d',
+    reseau: '2c28b0a3f338599deb2b826f10fbf0b1988f1805935edebec2bb4122d83b92b3',
+    miroirs: '8bfe697174927418587fe3383301d4ef8a9db290c0e035461c429b39c5eb496a'
   },
   // Clés du gardien des jeux bonus qui en ont une.
   solutionsBonus: {
