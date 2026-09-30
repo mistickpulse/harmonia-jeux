@@ -50,6 +50,8 @@
     ['Les grands moments', 'Qu’a fait Kagé devant le monolithe ?', 'Ses besoins', 'Une prière', 'Un serment', 'Il l’a brisé'],
     ['Les grands moments', 'Quelle faction a attaqué le Train Frelon ?', 'La Branche Obsidienne', 'Les Arches du Renouveau', 'Le Cercle des Veilleurs', 'Les Lueurs Vaines']
   ];
+  // Indice de l’Énigme des Profondeurs : cette question n’apparaît qu’une fois l’Énigme ouverte à tous.
+  if ((window.SCEAUX_CONFIG.enigme || {}).ouverteATous) QUESTIONS.push(JSON.parse(Sceaux.voile('WyJMZXMgUHJvZm9uZGV1cnMiLCJDb21tZW50IGxlcyBuYWlucyBub21tZW50LWlscyBjZSBxdWkgYmF0IHNvdXMgbGEgcGllcnJlID8iLCJMZSBDxZN1ciBWaWJyYW50IiwiTGUgU291ZmZsZSBBbmNpZW4iLCJMYSBGb3JnZSBNdWV0dGUiLCJMZSBEb3JtZXVyIl0=')));
   const N = QUESTIONS.length;
   const TITRES = [
     [0, 'Voyageur égaré', 'Harmonia t’a-t-elle seulement vu passer ?'],

@@ -785,3 +785,61 @@ select {
 .rayon-miroirs line { stroke: #ffe9a0; stroke-width: 1.1; stroke-linecap: round; filter: drop-shadow(0 0 1.5px #ffc850); opacity: .9; }
 .rayon-miroirs .eclat-piege { fill: rgba(255,60,60,.45); }
 .grille-miroirs.complet .rayon-miroirs line { stroke: #fff; stroke-width: 1.6; }
+
+/* Le Registre chiffré */
+.registre .texte-chiffre, .lecture-registre { white-space: pre-wrap; word-break: break-word; font: 600 1.05rem/1.7 ui-monospace, 'Cascadia Mono', Consolas, monospace; letter-spacing: .08em; margin: 0; padding: 12px 14px; border-radius: 8px; }
+.registre .texte-chiffre { background: #efe2c4; color: #3a2a18; border: 1px solid #b89a68; box-shadow: inset 0 0 20px rgba(120,80,30,.25); }
+.lecture-registre { background: rgba(0,0,0,.3); color: #ffe0a0; border: 1px dashed var(--bord); margin-top: 8px; }
+.lecture-registre.vide { color: inherit; opacity: .6; font-style: italic; letter-spacing: 0; }
+.atelier input[type=text] { max-width: none; }
+.soustracteur { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.soustracteur input[type=text] { font-size: 1rem; }
+.resultat-sous { min-height: 1.4em; font: 600 1.05rem ui-monospace, Consolas, monospace; color: #ffe0a0; text-align: center; }
+.commande-reglette { display: flex; align-items: center; justify-content: center; gap: 10px; text-align: center; }
+.defile-reglette { overflow-x: auto; padding-bottom: 4px; }
+.rangee-reglette { display: grid; grid-template-columns: repeat(26, 1.6em); font: 600 1rem ui-monospace, Consolas, monospace; text-align: center; width: max-content; margin: 0 auto; }
+.rangee-reglette.decalee { color: #ffe0a0; border-top: 1px solid var(--bord); }
+@media (max-width: 480px) { .soustracteur { grid-template-columns: 1fr; } .registre .texte-chiffre, .lecture-registre { font-size: .92rem; } }
+.indices-registre { padding-left: 1.4em; margin: 0; }
+.indices-registre li { margin: .5em 0; }
+.indices-registre .source { display: block; font: 600 .82rem var(--titre); letter-spacing: .08em; text-transform: uppercase; color: var(--bronze-clair); }
+.indices-registre .verrouille { opacity: .55; font-style: italic; }
+.outil-resultat ul { padding-left: 1.2em; font: .92rem ui-monospace, Consolas, monospace; }
+.choix-longueur { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.choix-longueur button { min-width: 2.4em; padding: .3em .5em; }
+.table-freq { width: 100%; border-collapse: collapse; margin: 8px 0; font: .92rem ui-monospace, Consolas, monospace; }
+.table-freq th, .table-freq td { border-bottom: 1px solid var(--bord); padding: 3px 6px; text-align: center; }
+.sceau.sous-boss { border-color: #9c2a22; box-shadow: 0 0 14px rgba(156,42,34,.35); }
+.souvenir-registre { text-align: center; }
+.code-registre { font: 700 1.6rem var(--titre); letter-spacing: .12em; color: #ffd98a; }
+.retour-accueil { display: inline-block; margin-bottom: 12px; padding: .4em .9em; border: 1px solid var(--bord); border-radius: 6px; color: var(--bronze-clair); text-decoration: none; font-size: .95rem; }
+.retour-accueil:hover { background: rgba(212,160,90,.1); }
+
+/* L’Énigme des Profondeurs */
+.sceau.boss { border-color: #e8c070; box-shadow: 0 0 18px rgba(232,192,112,.35), inset 0 0 20px rgba(0,0,0,.6); }
+.porte-enigme { text-align: center; }
+.salle-enigme { min-height: 60vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 30px 8px; }
+.question-enigme { font: 600 clamp(1.4rem, 5.5vw, 2.1rem)/1.4 var(--titre); color: #efe2c4; max-width: 18em; margin: 0 auto 28px; text-shadow: 0 0 18px rgba(0,0,0,.9); }
+.salle-enigme .form-mot { width: 100%; }
+.murmure-enigme { margin-top: 40px; font-style: italic; font-size: .92rem; opacity: .55; max-width: 26em; }
+.annonce-enigme { border-color: #e8c070; text-align: center; }
+
+/* Indices de l’Énigme */
+.priere .lettre-pointee { color: #ffc861; font-weight: 700; text-shadow: 0 0 6px rgba(255,200,97,.45); }
+.murmure-cache { margin: 10px 0 0; font-size: .8rem; font-style: italic; color: inherit; opacity: .09; }
+.murmure-souvenir { font-style: italic; text-align: center; opacity: .85; margin: 14px auto; max-width: 30em; }
+.murmure-enigme.exemple { margin-top: 12px; opacity: .75; }
+
+/* Les trois étages des Profondeurs */
+.etage { margin: 22px 0 6px; }
+.titre-etage { text-align: center; font: 700 1.15rem var(--titre); letter-spacing: .14em; text-transform: uppercase; color: var(--bronze-clair); margin: 0 0 4px; }
+.etage-sous-boss .titre-etage { color: #ff8a6b; }
+.etage-boss .titre-etage { color: #ffd98a; text-shadow: 0 0 12px rgba(255,217,138,.4); }
+.descente { text-align: center; font-size: 1.2rem; opacity: .4; margin: 6px 0; }
+.porte.porte-seule { grid-template-columns: minmax(0, 320px); justify-content: center; }
+.porte-seule .sceau { padding: 18px 12px; }
+.porte-seule .sceau .medaillon { transform: scale(1.25); }
+.etage-sous-boss, .etage-boss { padding: 14px 10px; border-radius: 12px; }
+.etage-sous-boss { background: radial-gradient(ellipse at 50% 0%, rgba(156,42,34,.18), transparent 70%); }
+.etage-boss { background: radial-gradient(ellipse at 50% 30%, rgba(232,192,112,.14), transparent 70%); }
+.message.nain::before { content: "Le nain gardien ricane : "; font-style: normal; font-weight: 700; color: #ff8a6b; }

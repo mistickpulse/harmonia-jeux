@@ -30,8 +30,15 @@ window.SCEAUX_CONFIG = {
     golem: 'f8c0a6a5dd1bb10a08b5b03e164990e8ad4232e344e4fc76a18a00ff1f7bb0f9',
     ecluses: '48ddf88cd5464abf207205093ba8890603cca15b85f4ce5ceceb74ceeced2e2d',
     reseau: '2c28b0a3f338599deb2b826f10fbf0b1988f1805935edebec2bb4122d83b92b3',
-    miroirs: '8bfe697174927418587fe3383301d4ef8a9db290c0e035461c429b39c5eb496a'
+    miroirs: '8bfe697174927418587fe3383301d4ef8a9db290c0e035461c429b39c5eb496a',
+    enigme: '727db832eebdbccc926180bbc719b99449b0ec7750e90916c5ef1b5bc9d80f6c',
+    registre: '500a46958784007b4b3acb03a4357bc549f6c27bfbcbd2980ff4acc97e2da77a'
   },
+  // L’Énigme des Profondeurs. `reponse` : empreinte SHA-256 de « reponse-enigme: » + la réponse
+  // normalisée (majuscules, sans article, accents, espaces ni tiret). `ouverteATous` : passer à true, puis remettre le site en ligne, quand un
+  // premier joueur a déchiffré le Registre : l’Énigme s’ouvre alors à tous, sans code d’accès, même après
+  // la date limite des Profondeurs.
+  enigme: { reponse: '1600aa196ae0ef41cd12dc6180cbbf5c9fe7c8cf0e7398f790d6d87e3bb1febf', ouverteATous: false },
   // Clés du gardien des jeux bonus qui en ont une.
   solutionsBonus: {
     chambres: 'e4f1f25d915e5db31098475c318d14ca297db2b6e88dc72d5ffaa12e1bc89a3d'

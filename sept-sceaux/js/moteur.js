@@ -94,6 +94,9 @@
   // Demande au navigateur de ne pas vider ce stockage quand il manque de place.
   try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (e) { /* facultatif */ }
 
+  S.sha256 = (txt) => sha256(txt);
+  // Décode un texte gardé en base64 (pour ne pas laisser certains secrets lisibles dans le code source).
+  S.voile = (b) => new TextDecoder().decode(Uint8Array.from(atob(b), (c) => c.charCodeAt(0)));
   async function sha256(txt) {
     const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(txt));
     return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('');
@@ -315,6 +318,31 @@
     'Ce n’est pas une mélodie figée, ni un simple vestige du passé. C’est un murmure vivant, un fil ténu entre hier et demain. Chaque pierre, chaque feuille frissonne sous ses fréquences, effleurée par la mémoire d’un monde qui refuse de s’éteindre.',
     'Une question murmurée à l’ombre des étoiles. Et peut-être que la réponse apparaîtra.'
   ];
+  // Indice de l’Énigme des Profondeurs : cinq lettres de la prière, réparties sur tout le texte,
+  // sont très légèrement dorées et épellent C, O, E, U, R.
+  function prierePointee() {
+    const cibles = [];
+    const total = PRIERE.join('').length;
+    let depuis = 0;
+    [...'coeur'].forEach((l, k) => {
+      let i = Math.max(depuis, Math.floor(total * (k + 0.4) / 5));
+      const texte = PRIERE.join('');
+      while (i < total && texte[i] !== l) i++;
+      cibles.push(i); depuis = i + 1;
+    });
+    let base = 0;
+    return PRIERE.map((p) => {
+      const morceaux = [];
+      let dernier = 0;
+      for (const c of cibles) if (c >= base && c < base + p.length) {
+        morceaux.push(p.slice(dernier, c - base), el('span', { class: 'lettre-pointee', text: p[c - base] }));
+        dernier = c - base + 1;
+      }
+      morceaux.push(p.slice(dernier));
+      base += p.length;
+      return el('p', {}, morceaux);
+    });
+  }
   // Les trois secrets du coffre, annoncés avant d'entrer (sans rien dévoiler de leur contenu).
   const SECRETS = [
     { etoiles: 1, titre: 'Le premier secret', quand: 'Après le sceau II', texte: 'Un secret qui ne parle que de toi.' },
@@ -351,8 +379,9 @@
     }, champ, el('button', { type: 'submit', text: 'Poser la main sur la porte' }), msg);
 
     afficher(el('section', { class: 'accueil' },
+      el('a', { class: 'retour-accueil', href: '../index.html', text: '← Retour à l’accueil' }),
       el('h1', { text: 'Les Sept Sceaux' }),
-      el('blockquote', { class: 'priere' }, PRIERE.map((p) => el('p', { text: p }))),
+      el('blockquote', { class: 'priere' }, prierePointee()),
       el('p', { class: 'intro', text: 'Une porte de chambre forte naine, fermée par sept sceaux. Chacun garde une énigme, et chacune est plus cruelle que la précédente. Ce coffre-fort magique renferme trois secrets.' }),
       el('ol', { class: 'secrets' }, SECRETS.map((s) => el('li', { class: 'secret' },
         el('span', { class: 'etoiles-secret', 'aria-label': `${s.etoiles} étoile${s.etoiles > 1 ? 's' : ''}`, text: '★'.repeat(s.etoiles) }),
@@ -400,7 +429,7 @@
       liste.append(r
         ? el('button', {
           type: 'button', class: 'fragment', text: eclat(n), 'aria-label': `Éclat ${eclat(n)} : lire la gravure`,
-          onclick: () => { lecture.textContent = `${eclat(n)} (${S.ECLAT_DE[n - 1]}) : « ${S.ordreDuMaitre(etat.code).gravures[n - 1]} »`; }
+          onclick: () => { lecture.textContent = `${eclat(n)} (${S.ECLAT_DE[n - 1]}) : « ${S.ordreDuMaitre(etat.code).gravures[n - 1]} ». Au dos, une lettre minuscule : ${S.voile('ViBJIEIgUiBBIE5U').split(' ')[n - 1]}.`; }
         })
         : el('span', { class: 'fragment vide', text: '·' }));
     }
@@ -489,49 +518,72 @@
     const minuteur = setInterval(() => { if (!bloc.isConnected || !maj()) clearInterval(minuteur); }, 1000);
     return bloc;
   }
-  const PROFONDEURS_A_VENIR = ['Le Registre chiffré', 'L’Énigme des Profondeurs'];
+  // Quand le MJ ouvre l’Énigme à tous (config : enigme.ouverteATous), elle échappe aux deux verrous.
+  const enigmePourTous = (e) => e.id === 'enigme' && !!(window.SCEAUX_CONFIG.enigme || {}).ouverteATous;
+  const PROFONDEURS_A_VENIR = [];
   S.enregistrerEpreuve = (def) => { S.epreuves.push(def); };
   const cleProfondeurs = () => 'profondeurs:' + etat.code;
   const reussites = () => lire(cleProfondeurs()) || {};
   function contenuProfondeurs() {
     const faites = reussites();
-    const nb = S.epreuves.filter((e) => faites[e.id]).length;
+    const simples = S.epreuves.filter((e) => !e.rang);
+    const nbIndices = simples.filter((e) => faites[e.id]).length;
+    const carte = (e) => {
+      const ouverte = (PROFONDEURS_OUVERTES && !tempsEcoule()) || etat.mj || enigmePourTous(e);
+      const classe = faites[e.id] ? 'brise' : ouverte ? 'ouvert' : 'ferme';
+      const reussi = e.rang ? 'Réussie' : 'Indice obtenu';
+      return el('button', {
+        // Une épreuve réussie reste consultable même fermée (ses souvenirs servent d’indices à l’Énigme).
+        type: 'button', class: 'sceau ' + classe + (e.rang ? ' ' + e.rang : ''), disabled: !ouverte && !faites[e.id], onclick: () => ecranEpreuve(e),
+        'aria-label': `${e.nom}, ${faites[e.id] ? reussi : ouverte ? 'à faire' : 'pas encore ouverte'}`
+      },
+        el('span', { class: 'medaillon', text: faites[e.id] ? '✓' : e.icone || '⛏' }),
+        el('span', { class: 'nom', text: e.nom }),
+        el('span', { class: 'etoiles', text: '★'.repeat(e.etoiles) }),
+        el('span', { class: 'etat', text: faites[e.id] ? reussi : ouverte ? e.resume : tempsEcoule() ? 'Refermée' : 'Pas encore ouverte' }));
+    };
     return [
       el('div', { class: 'avertissement-profondeurs' },
         el('p', { class: 'titre-avert', text: '⚠ Épreuves très difficiles' }),
-        el('p', { text: 'Sous la porte s’ouvrent les Profondeurs. Ces épreuves sont bien plus dures que les sceaux : certaines demanderont des heures, du papier, et beaucoup de patience. Fais-les dans l’ordre que tu veux, à ton rythme.' }),
-        el('p', {}, 'Chacune réussie te laisse un fragment d’une dernière énigme. Au bout, un code secret à donner au MJ, et pour ceux qui iront jusque-là, ',
-          el('strong', { text: 'une récompense spéciale en jeu, vraiment, vraiment précieuse.' }))),
+        el('p', { text: 'Sous la porte s’ouvrent les Profondeurs. Ces épreuves sont bien plus dures que les sceaux : certaines demanderont des heures, du papier, et beaucoup de patience. Jusqu’au Registre chiffré, chacun joue seul : tes épreuves ne sont pas celles des autres.' }),
+        el('p', {}, 'Le premier voyageur qui déchiffre le Registre ouvre l’Énigme des Profondeurs pour tout le monde. Si l’Énigme est ensuite résolue, c’est lui qui recevra ',
+          el('strong', { text: 'une récompense spéciale en jeu, vraiment, vraiment précieuse.' })),
+        el('p', { class: 'murmure-cache', text: 'Les nains ne l’appellent pas l’Entité.' })),
       compteARebours(),
       PROFONDEURS_OUVERTES && !tempsEcoule() ? null : el('p', { class: 'centre doux', text: etat.mj
         ? 'Les Profondeurs sont fermées aux joueurs (énigme finale pas prête ou temps écoulé). Le MJ, lui, peut entrer.'
         : tempsEcoule() ? 'Les Profondeurs se sont refermées.' : 'Les Profondeurs ne sont pas encore ouvertes. Reviens plus tard…' }),
-      el('p', { class: 'centre doux', text: `Épreuves réussies : ${nb} / ${S.epreuves.length + PROFONDEURS_A_VENIR.length}` }),
-      el('div', { class: 'porte' }, S.epreuves.map((e) => {
-        const ouverte = (PROFONDEURS_OUVERTES && !tempsEcoule()) || etat.mj;
-        const classe = faites[e.id] ? 'brise' : ouverte ? 'ouvert' : 'ferme';
-        return el('button', {
-          type: 'button', class: 'sceau ' + classe, disabled: !ouverte, onclick: () => ecranEpreuve(e),
-          'aria-label': `${e.nom}, ${faites[e.id] ? 'réussie' : ouverte ? 'à faire' : 'pas encore ouverte'}`
-        },
-          el('span', { class: 'medaillon', text: faites[e.id] ? '✓' : e.icone || '⛏' }),
-          el('span', { class: 'nom', text: e.nom }),
-          el('span', { class: 'etoiles', text: '★'.repeat(e.etoiles) }),
-          el('span', { class: 'etat', text: faites[e.id] ? 'Réussie' : ouverte ? e.resume : tempsEcoule() ? 'Refermée' : 'Pas encore ouverte' }));
-      }).concat(PROFONDEURS_A_VENIR.map((nom) => el('button', { type: 'button', class: 'sceau ferme', disabled: true, 'aria-label': `${nom}, en préparation` },
-        el('span', { class: 'medaillon', text: '?' }),
-        el('span', { class: 'nom', text: nom }),
-        el('span', { class: 'etat', text: 'En préparation' })))))
+      el('section', { class: 'etage' },
+        el('h3', { class: 'titre-etage', text: 'I. Les épreuves' }),
+        el('p', { class: 'centre doux', text: `Chacune réussie te donne un indice pour le Registre chiffré. Plus l’épreuve est dure, plus l’indice est précieux. Indices obtenus : ${nbIndices} / ${simples.length}` }),
+        el('div', { class: 'porte' }, simples.map(carte).concat(PROFONDEURS_A_VENIR.map((nom) => el('button', { type: 'button', class: 'sceau ferme', disabled: true, 'aria-label': `${nom}, en préparation` },
+          el('span', { class: 'medaillon', text: '?' }),
+          el('span', { class: 'nom', text: nom }),
+          el('span', { class: 'etat', text: 'En préparation' })))))),
+      el('div', { class: 'descente', 'aria-hidden': 'true', text: '▼' }),
+      el('section', { class: 'etage etage-sous-boss' },
+        el('h3', { class: 'titre-etage', text: 'II. Le gardien de la porte' }),
+        el('p', { class: 'centre doux', text: 'Le sous-boss. Ouvert à tout moment, chacun le sien. Tes indices t’aident à le déchiffrer, et le premier qui y parvient ouvre l’Énigme pour tous.' }),
+        el('div', { class: 'porte porte-seule' }, S.epreuves.filter((e) => e.rang === 'sous-boss').map(carte))),
+      el('div', { class: 'descente', 'aria-hidden': 'true', text: '▼' }),
+      el('section', { class: 'etage etage-boss' },
+        el('h3', { class: 'titre-etage', text: 'III. Le cœur des Profondeurs' }),
+        el('p', { class: 'centre doux', text: 'Le boss final. Une seule question, la même pour tous : on la résout ensemble.' }),
+        el('div', { class: 'porte porte-seule' }, S.epreuves.filter((e) => e.rang === 'boss').map(carte)))
     ];
   }
   function ecranEpreuve(e) {
-    if ((!PROFONDEURS_OUVERTES || tempsEcoule()) && !etat.mj) { ecranPorte('profondeurs'); return; }
+    const fermee = (!PROFONDEURS_OUVERTES || tempsEcoule()) && !etat.mj && !enigmePourTous(e);
+    if (fermee && !reussites()[e.id]) { ecranPorte('profondeurs'); return; }
     const zone = el('div', { class: 'zone-sceau' });
     const faites = reussites();
     const ctx = {
       hasard: S.hasard(etat.code + ':prof:' + e.id),
       code: etat.code,
       mj: etat.mj,
+      // Mémoire qui survit à la réussite (ex. : la réponse de l’Énigme, pour réafficher le code final).
+      garde: { lire: () => lire(`prof-garde:${etat.code}:${e.id}`), ecrire: (v) => ecrire(`prof-garde:${etat.code}:${e.id}`, v) },
+      faites, // épreuves des Profondeurs déjà réussies (le Registre en tire ses indices)
       memoire: { lire: () => lire(`prof-encours:${etat.code}:${e.id}`), ecrire: (v) => ecrire(`prof-encours:${etat.code}:${e.id}`, v) },
       secouer: (noeud) => { noeud.classList.remove('secousse'); void noeud.getBoundingClientRect(); noeud.classList.add('secousse'); },
       reussir: () => {
@@ -549,13 +601,14 @@
       el('div', { class: 'entete' },
         el('button', { class: 'discret', type: 'button', text: '← Les Profondeurs', onclick: () => ecranPorte('profondeurs') }),
         etat.mj && !faites[e.id] ? el('button', { class: 'discret', type: 'button', text: 'MJ : passer', onclick: ctx.reussir }) : null,
-        faites[e.id] ? el('button', { class: 'discret', type: 'button', text: '↺ Rejouer', onclick: () => { const f = reussites(); delete f[e.id]; ecrire(cleProfondeurs(), f); ecranEpreuve(e); } }) : null),
+        faites[e.id] && !fermee ? el('button', { class: 'discret', type: 'button', text: '↺ Rejouer', onclick: () => { const f = reussites(); delete f[e.id]; ecrire(cleProfondeurs(), f); ecranEpreuve(e); } }) : null),
       el('div', { class: 'titre-sceau' },
         el('div', { class: 'numero', text: 'LES PROFONDEURS · ' + '★'.repeat(e.etoiles) }),
         el('h2', { text: e.nom })),
       zone);
     if (faites[e.id]) {
-      zone.append(el('p', { class: 'consigne', text: 'Tu as déjà réussi cette épreuve. Tu peux la rejouer si tu veux (ta réussite est conservée tant que tu ne cliques pas sur « Rejouer »).' }));
+      if (e.souvenir) zone.append(e.souvenir(ctx));
+      zone.append(el('p', { class: 'consigne', text: fermee ? 'Tu as déjà réussi cette épreuve.' : 'Tu as déjà réussi cette épreuve. Tu peux la rejouer si tu veux (ta réussite est conservée tant que tu ne cliques pas sur « Rejouer »).' }));
       return;
     }
     const api = e.monter(zone, ctx) || {};

@@ -209,5 +209,5 @@
     };
   }
 
-  Sceaux.enregistrerEpreuve({ id: 'reseau', nom: 'Le Réseau runique', icone: '᛭', etoiles: 5, resume: 'Canaux à tourner', monter });
+  Sceaux.enregistrerEpreuve({ id: 'reseau', nom: 'Le Réseau runique', icone: '᛭', etoiles: 5, resume: 'Canaux à tourner', monter, souvenir: () => Sceaux.el('p', { class: 'murmure-souvenir', text: 'Le réseau est réparé, et pourtant, au centre, le Cœur n’a pas cessé : sous tes doigts, quelque chose continue de battre.' }) });
 })();

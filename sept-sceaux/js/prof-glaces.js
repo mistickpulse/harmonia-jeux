@@ -305,5 +305,5 @@
     };
   }
 
-  Sceaux.enregistrerEpreuve({ id: 'glaces', nom: 'Les Glaces du Col', icone: '❄', etoiles: 5, resume: 'Planification', monter });
+  Sceaux.enregistrerEpreuve({ id: 'glaces', nom: 'Les Glaces du Col', icone: '❄', etoiles: 5, resume: 'Planification', monter, souvenir: () => Sceaux.el('p', { class: 'murmure-souvenir', text: 'Le col est franchi. En posant la main sur la glace, tu sens quelque chose vibrer, très loin dessous, lentement.' }) });
 })();

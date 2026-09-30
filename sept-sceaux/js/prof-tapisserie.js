@@ -178,5 +178,5 @@
     };
   }
 
-  Sceaux.enregistrerEpreuve({ id: 'tapisserie', nom: 'La Tapisserie effacée', icone: '▦', etoiles: 4, resume: 'Picross', monter });
+  Sceaux.enregistrerEpreuve({ id: 'tapisserie', nom: 'La Tapisserie effacée', icone: '▦', etoiles: 4, resume: 'Picross', monter, souvenir: () => Sceaux.el('p', { class: 'murmure-souvenir', text: 'Maintenant que la tapisserie est entière, tu remarques un détail : tout au centre, les tisserands avaient brodé un cœur de pierre.' }) });
 })();
