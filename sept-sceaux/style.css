@@ -736,3 +736,18 @@ select {
 .golem.saute .corps { animation: saut-golem .26s ease; }
 @keyframes saut-golem { 50% { transform: scale(1.35); box-shadow: 0 12px 10px rgba(0,0,0,.5); } }
 @media (max-width: 480px) { .palette-golem { grid-template-columns: repeat(4, 1fr); } }
+
+/* Les Écluses */
+.salle-ecluses { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; align-items: end; max-width: 520px; margin: 18px auto 8px; padding: 16px 12px 12px; border-radius: 12px; background: radial-gradient(ellipse at 50% 0%, #22303a, #0d1216 75%); border: 1px solid #3a4a52; box-shadow: inset 0 0 30px rgba(0,0,0,.6); }
+.cuve-ecluse { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 6px; height: 280px; padding: 6px 2px; background: none; border: 2px solid transparent; border-radius: 10px; cursor: pointer; color: inherit; font: inherit; transition: border-color .2s, transform .2s; }
+.cuve-ecluse:hover { transform: translateY(-2px); }
+.cuve-ecluse.choisie { border-color: var(--bronze-clair); background: rgba(212,160,90,.1); }
+.rune-ecluse { font-size: 1.5rem; color: var(--bronze-clair); line-height: 1; }
+.cuve-ecluse.objectif .rune-ecluse { color: #ffd98a; text-shadow: 0 0 8px rgba(255,217,138,.6); }
+.verre-ecluse { position: relative; width: 70%; max-width: 70px; border: 3px solid #8a6a3c; border-top: none; border-radius: 0 0 10px 10px; background: linear-gradient(90deg, rgba(255,255,255,.04), rgba(255,255,255,.1) 30%, rgba(255,255,255,.03)); overflow: hidden; box-shadow: inset 0 -4px 10px rgba(0,0,0,.5); }
+.eau-ecluse { position: absolute; left: 0; right: 0; bottom: 0; background: linear-gradient(#5fb4d6, #2b6f93); transition: height .6s ease-in-out; box-shadow: inset 0 3px 0 rgba(200,240,255,.5); }
+.reperes-ecluse span { position: absolute; left: 0; width: 22%; border-top: 1px solid rgba(230,210,170,.45); }
+.cible-ecluse { position: absolute; left: -2px; right: -2px; border-top: 3px dashed #ffd98a; filter: drop-shadow(0 0 3px rgba(255,217,138,.8)); }
+.quantite-ecluse { font: 700 1.05rem var(--titre); font-variant-numeric: tabular-nums; }
+.contenance-ecluse { font-size: .78rem; opacity: .7; }
+@media (max-width: 480px) { .cuve-ecluse { height: 230px; } .salle-ecluses { gap: 4px; padding: 12px 6px 8px; } .verre-ecluse { width: 80%; } }
