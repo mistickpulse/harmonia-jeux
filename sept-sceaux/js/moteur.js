@@ -544,8 +544,8 @@
         don('🔥', 'Transcendance doublée.', 'Ton maximum de points de Transcendance (tes points ', el('strong', { text: 'MAX' }), ') est doublé : tu pourras lancer bien plus souvent tes sorts de Transcendance.'),
         don('💎', 'Un objet unique.', 'Une pierre venue des Profondeurs, liée à une compétence hors combat de ton choix : cette compétence est ', el('u', { text: 'toujours' }), ' lancée avec avantage.')),
       el('p', { class: 'doux petit', text: 'Un seul don, à choisir. Et seulement si l’Énigme est résolue avant la fin : celui qui ouvre la porte a donc tout intérêt à aider les autres.' }),
-      el('h4', { text: 'Pour tous ceux qui auront aidé' }),
-      el('ul', { class: 'dons' }, don('⭐', '+10 points de Transcendance MAX', 'pour chaque voyageur qui a trouvé la réponse sans avoir ouvert la porte : ton maximum de points de Transcendance augmente de 10.')));
+      el('h4', { text: 'Pour tous ceux qui auront collaboré à résoudre l’Énigme' }),
+      el('ul', { class: 'dons' }, don('⭐', '+10 points de Transcendance MAX', 'pour chaque voyageur qui a aidé les autres et participé à la résolution de l’Énigme, sans avoir ouvert la porte : ton maximum de points de Transcendance augmente de 10.')));
   }
   function contenuProfondeurs() {
     const faites = reussites();
