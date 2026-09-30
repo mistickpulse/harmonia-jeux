@@ -36,8 +36,8 @@ window.SCEAUX_CONFIG = {
   },
   // L’Énigme des Profondeurs. `reponse` : empreinte SHA-256 de « reponse-enigme: » + la réponse
   // normalisée (majuscules, sans article, accents, espaces ni tiret). `ouverteATous` : passer à true, puis remettre le site en ligne, quand un
-  // premier joueur a déchiffré le Registre : l’Énigme s’ouvre alors à tous, sans code d’accès, même après
-  // la date limite des Profondeurs.
+  // premier joueur a déchiffré le Registre : l’Énigme s’ouvre alors à tous, sans code d’accès, jusqu’à
+  // la date limite des Profondeurs (fin du défi).
   enigme: { reponse: '1600aa196ae0ef41cd12dc6180cbbf5c9fe7c8cf0e7398f790d6d87e3bb1febf', ouverteATous: false },
   // Clés du gardien des jeux bonus qui en ont une.
   solutionsBonus: {

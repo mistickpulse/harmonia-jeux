@@ -518,8 +518,9 @@
     const minuteur = setInterval(() => { if (!bloc.isConnected || !maj()) clearInterval(minuteur); }, 1000);
     return bloc;
   }
-  // Quand le MJ ouvre l’Énigme à tous (config : enigme.ouverteATous), elle échappe aux deux verrous.
-  const enigmePourTous = (e) => e.id === 'enigme' && !!(window.SCEAUX_CONFIG.enigme || {}).ouverteATous;
+  // Quand le MJ ouvre l’Énigme à tous (config : enigme.ouverteATous), elle échappe au verrou
+  // PROFONDEURS_OUVERTES, mais pas à la date limite : tout le défi s’arrête au début de la campagne.
+  const enigmePourTous = (e) => e.id === 'enigme' && !!(window.SCEAUX_CONFIG.enigme || {}).ouverteATous && !tempsEcoule();
   const PROFONDEURS_A_VENIR = [];
   S.enregistrerEpreuve = (def) => { S.epreuves.push(def); };
   const cleProfondeurs = () => 'profondeurs:' + etat.code;
