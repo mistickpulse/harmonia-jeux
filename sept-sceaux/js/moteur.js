@@ -587,7 +587,11 @@
   }
   function contenuProfondeurs() {
     const faites = reussites();
-    const simples = S.epreuves.filter((e) => !e.rang);
+    // De la plus simple à la plus dure : par nombre d’étoiles, puis selon l’ordre de difficulté du MJ
+    // (le même que celui des indices du Registre, du Conseil des Clans, le plus dur, aux Ponts).
+    const DIFFICULTE = ['ponts', 'glaces', 'reseau', 'miroirs', 'tapisserie', 'lanternes', 'ecluses', 'golem', 'clans'];
+    const simples = S.epreuves.filter((e) => !e.rang)
+      .sort((a, b) => a.etoiles - b.etoiles || DIFFICULTE.indexOf(a.id) - DIFFICULTE.indexOf(b.id));
     const nbIndices = simples.filter((e) => faites[e.id]).length;
     const carte = (e) => {
       const ouverte = (PROFONDEURS_OUVERTES && !tempsEcoule()) || etat.mj || enigmePourTous(e);
