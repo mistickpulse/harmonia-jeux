@@ -64,15 +64,15 @@
     const candidats = mots.map((m, i) => ({ m, i })).filter((x) => x.m.length >= 7 && !motsCode.has(x.m) && x.i > 5 && x.m !== 'PROFONDEURS');
     const repere = h.choisir(candidats);
     const indices = {
-      clans: `Quatre lettres de la clé, à leur place : ${cle.split('').map((l, i) => (quatre.includes(i) ? l : '▢')).join(' ')}`,
+      clans: `Quatre lettres du mot-clé, à leur place : ${cle.split('').map((l, i) => (quatre.includes(i) ? l : '▢')).join(' ')}`,
       golem: `Le ${repere.i + 1}e mot du texte (en comptant chaque mot, même les petits comme « L » ou « A ») est « ${repere.m} ».`,
-      ecluses: `La clé est le nom d’une pierre ou d’un métal, et elle compte ${cle.length} lettres.`,
+      ecluses: `Le mot-clé est le nom d’une pierre ou d’un métal, et il compte ${cle.length} lettres.`,
       lanternes: `Le texte se termine par les mots « ${FIN.split(' ').slice(-3).join(' ')} ».`,
-      tapisserie: `La ${eme(une + 1)} lettre de la clé est ${cle[une]}.`,
-      miroirs: 'Le mot « PROFONDEURS » apparaît dans le texte, juste avant le code.',
-      ponts: 'Quand un même groupe de lettres chiffrées revient plusieurs fois, la distance entre deux apparitions est souvent un multiple de la longueur de la clé (outil « Répétitions »).',
-      glaces: 'Toutes les lettres chiffrées par la même lettre de clé sont décalées d’un seul bloc : dans chacune de ces colonnes, la lettre la plus fréquente est sans doute un E (outil « Fréquences »).',
-      reseau: 'Le code est écrit en toutes lettres : deux mots, qu’on peut donner séparés par un espace ou par un tiret.'
+      tapisserie: `La ${eme(une + 1)} lettre du mot-clé est ${cle[une]}.`,
+      miroirs: 'Le mot « PROFONDEURS » apparaît dans le texte, juste avant le code d’accès.',
+      ponts: 'Quand un même groupe de lettres chiffrées revient plusieurs fois, la distance entre deux apparitions est souvent un multiple de la longueur du mot-clé (outil « Répétitions »).',
+      glaces: 'Toutes les lettres chiffrées par la même lettre du mot-clé sont décalées d’un seul bloc : dans chacune de ces colonnes, la lettre la plus fréquente est sans doute un E (outil « Fréquences »).',
+      reseau: 'Le code d’accès est écrit en toutes lettres : deux mots, qu’on peut donner séparés par un espace ou par un tiret.'
     };
     return { cle, code, clair, chiffre, indices };
   }
@@ -117,11 +117,11 @@
 
     // Lecture avec une clé
     const essai = el('pre', { class: 'lecture-registre' });
-    const champCle = el('input', { type: 'text', class: 'champ-cle', placeholder: 'Clé (« ? » = lettre inconnue)', autocomplete: 'off', autocapitalize: 'characters', spellcheck: 'false', 'aria-label': 'Clé à essayer', value: garde.cle || '' });
+    const champCle = el('input', { type: 'text', class: 'champ-cle', placeholder: 'Mot-clé (« ? » = lettre inconnue)', autocomplete: 'off', autocapitalize: 'characters', spellcheck: 'false', 'aria-label': 'Mot-clé à essayer', value: garde.cle || '' });
     const cleEssayee = () => normaliser(champCle.value).replace(/[^A-Z?]/g, '');
     function lire() {
       const k = cleEssayee();
-      essai.textContent = k ? vigenere(chiffre, k, -1) : '(tape une clé pour lire le registre avec ; mets « ? » pour une lettre que tu ne connais pas encore)';
+      essai.textContent = k ? vigenere(chiffre, k, -1) : '(tape un mot-clé pour lire le rapport avec ; mets « ? » pour une lettre que tu ne connais pas encore)';
       essai.classList.toggle('vide', !k);
       ctx.memoire.ecrire({ ...(ctx.memoire.lire() || {}), cle: champCle.value });
     }
@@ -134,7 +134,7 @@
     function soustraire() {
       const c = normaliser(sousChiffre.value).split('').filter(estLettre), p = normaliser(sousClair.value).split('').filter(estLettre);
       const n = Math.min(c.length, p.length);
-      sousResultat.textContent = n ? 'Lettres de la clé : ' + Array.from({ length: n }, (x, i) => lettre(val(c[i]) - val(p[i]))).join(' ') : '';
+      sousResultat.textContent = n ? 'Lettres du mot-clé : ' + Array.from({ length: n }, (x, i) => lettre(val(c[i]) - val(p[i]))).join(' ') : '';
     }
     sousChiffre.addEventListener('input', soustraire); sousClair.addEventListener('input', soustraire);
 
@@ -160,11 +160,11 @@
           el('thead', {}, el('tr', {}, el('th', { text: 'Col.' }), el('th', { text: 'Lettres les plus fréquentes' }))),
           el('tbody', {}, lignes)));
     }
-    const choixLongueur = el('div', { class: 'choix-longueur' }, el('span', { text: 'Longueur de clé supposée : ' }),
+    const choixLongueur = el('div', { class: 'choix-longueur' }, el('span', { text: 'Longueur du mot-clé supposée : ' }),
       Array.from({ length: 11 }, (x, i) => el('button', { type: 'button', class: 'discret', text: `${i + 2}`, onclick: () => frequences(i + 2) })));
 
     // Réponse
-    const champReponse = el('input', { type: 'text', placeholder: 'Le code', autocomplete: 'off', autocapitalize: 'characters', spellcheck: 'false', 'aria-label': 'Le code qui ouvre l’Énigme des Profondeurs' });
+    const champReponse = el('input', { type: 'text', placeholder: 'Code d’accès', autocomplete: 'off', autocapitalize: 'characters', spellcheck: 'false', 'aria-label': 'Code d’accès à l’Énigme des Profondeurs' });
     const msg = el('p', { class: 'message' });
     let tentatives = 0;
     function valider(ev) {
@@ -179,18 +179,20 @@
       } else {
         tentatives++; ctx.secouer(champReponse);
         msg.className = 'message erreur';
-        msg.textContent = `Ce n’est pas le code caché dans le registre (essai ${tentatives}).`;
+        msg.textContent = `Ce n’est pas le code d’accès caché dans le rapport (essai ${tentatives}).`;
       }
     }
 
     zone.append(
       el('div', { class: 'panneau consigne-epreuve sous-boss' },
         el('h3', { text: 'La règle' }),
-        el('p', { text: 'Voici le dernier obstacle avant l’Énigme des Profondeurs. L’archiviste de Gravathor a chiffré son rapport avec le chiffre des scribes (le même que celui de ton initiation : chaque lettre avancée du décalage de la lettre de clé placée dessous). Le rapport cache le code qui ouvre l’Énigme.' }),
-        el('p', {}, 'Cette fois, ', el('strong', { text: 'aucune formule connue' }), ', et une clé bien plus longue. Chaque autre épreuve des Profondeurs réussie te donne un indice ; plus l’épreuve est dure, plus l’indice est précieux. On peut aussi tenter de casser le chiffre sans aide, avec les outils de l’atelier.'),
+        el('p', { text: 'Voici le dernier obstacle avant l’Énigme des Profondeurs. L’archiviste de Gravathor a chiffré son rapport avec le chiffre des scribes de Karak-Durn. Le rapport cache ton code d’accès à l’Énigme.' }),
+        el('p', {}, 'Cette fois, ', el('strong', { text: 'aucune formule connue' }), ', et un long mot-clé. Chaque autre épreuve des Profondeurs réussie te donne un indice ; plus l’épreuve est dure, plus l’indice est précieux. On peut aussi tenter de casser le chiffre sans aide, avec les outils de l’atelier.'),
         el('ul', {},
-          el('li', { text: 'Chiffrer : A = 0, B = 1… Z = 25 ; lettre du texte + lettre de clé (après Z, on repart à A). Déchiffrer : on soustrait.' }),
-          el('li', { text: 'Seules les lettres comptent : espaces et ponctuation sont laissés tels quels, et la clé n’avance pas dessus.' }))),
+          el('li', { text: 'Chaque lettre vaut un décalage : A = 0, B = 1, C = 2… Z = 25.' }),
+          el('li', { text: 'On écrit un mot-clé sous le texte, en le répétant autant qu’il faut. Chaque lettre du texte est avancée du décalage de la lettre du mot-clé placée dessous (après Z, on repart à A).' }),
+          el('li', {}, 'Exemple avec le mot-clé ', el('strong', { text: 'CLE' }), ' : ', el('code', { text: 'NAIN' }), ' → N+C = P, A+L = L, I+E = M, N+C = P → ', el('code', { text: 'PLMP' }), '. Pour déchiffrer, on recule au lieu d’avancer.'),
+          el('li', { text: 'Seules les lettres comptent : espaces et ponctuation sont laissés tels quels, et le mot-clé n’avance pas dessus.' }))),
       el('div', { class: 'panneau' },
         el('h3', { text: `Tes indices (${nbIndices} / 9)` }),
         listeIndices),
@@ -199,15 +201,15 @@
         el('pre', { class: 'texte-chiffre', text: chiffre })),
       el('div', { class: 'panneau atelier' },
         el('h3', { text: 'L’atelier du scribe' }),
-        el('p', { class: 'doux', text: 'Lire le rapport avec une clé :' }),
+        el('p', { class: 'doux', text: 'Lire le rapport avec un mot-clé :' }),
         champCle, essai,
-        el('p', { class: 'doux', text: 'Le soustracteur (lettre chiffrée − lettre claire = lettre de clé) :' }),
+        el('p', { class: 'doux', text: 'Le soustracteur (lettre chiffrée − lettre claire = lettre du mot-clé) :' }),
         el('div', { class: 'soustracteur' }, sousChiffre, sousClair), sousResultat,
         el('p', { class: 'doux', text: 'Répétitions : les groupes de lettres chiffrées qui reviennent, et leurs distances.' }),
         boutonRep, blocRep,
-        el('p', { class: 'doux', text: 'Fréquences : choisis une longueur de clé, le texte est découpé en colonnes (une par lettre de clé).' }),
+        el('p', { class: 'doux', text: 'Fréquences : choisis une longueur de mot-clé, le texte est découpé en colonnes (une par lettre du mot-clé).' }),
         choixLongueur, blocFreq),
-      el('form', { class: 'form-mot', onsubmit: valider }, champReponse, el('button', { type: 'submit', text: 'Donner le code' })),
+      el('form', { class: 'form-mot', onsubmit: valider }, champReponse, el('button', { type: 'submit', text: 'Donner le code d’accès' })),
       msg);
     lire();
 
@@ -215,10 +217,10 @@
       solution: () => {
         const g = generer(tirage(ctx.code));
         return {
-          reponse: [`Code d’accès à l’Énigme : ${g.code.join('-')}`, `Clé du rapport : ${g.cle}`],
+          reponse: [`Code d’accès à l’Énigme : ${g.code.join('-')}`, `Mot-clé du rapport : ${g.cle}`],
           pourquoi: [
-            `Avec la clé ${g.cle}, le rapport se lit : « ${g.clair} »`,
-            'Méthode sans indice : l’outil « Répétitions » montre des distances qui ont presque toutes la longueur de la clé comme diviseur commun ; l’outil « Fréquences » avec cette longueur donne la lettre la plus fréquente de chaque colonne : en supposant que c’est un E, le soustracteur donne presque toute la clé ; on corrige les dernières lettres à la main en lisant le texte.'
+            `Avec le mot-clé ${g.cle}, le rapport se lit : « ${g.clair} »`,
+            'Méthode sans indice : l’outil « Répétitions » montre des distances qui ont presque toutes la longueur du mot-clé comme diviseur commun ; l’outil « Fréquences » avec cette longueur donne la lettre la plus fréquente de chaque colonne : en supposant que c’est un E, le soustracteur donne presque tout le mot-clé ; on corrige les dernières lettres à la main en lisant le texte.'
           ]
         };
       }
