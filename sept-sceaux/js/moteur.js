@@ -494,7 +494,7 @@
   S.epreuves = [];
   // Tant que l’énigme finale n’est pas prête, les joueurs voient les épreuves sans pouvoir y entrer
   // (le code MJ, lui, garde l’accès pour tester). Passer à true pour ouvrir les Profondeurs.
-  const PROFONDEURS_OUVERTES = false;
+  const PROFONDEURS_OUVERTES = true;
   // Épreuves annoncées mais pas encore écrites : cases vides, fermées.
   // Date limite des Profondeurs : samedi 10/10/2026 à 23h59 (heure de Paris). Passé ce moment,
   // les épreuves se referment pour les joueurs.
