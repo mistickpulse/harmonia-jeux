@@ -858,3 +858,13 @@ select {
 .carte-indices-mj li { margin: .7em 0; }
 .carte-indices-mj .quoi { color: #ffd98a; }
 .confirmation .actions { display: flex; gap: 12px; justify-content: center; margin-top: 16px; }
+
+/* Les 9 épreuves à indices : toujours une grille de 3 × 3 */
+.porte.grille-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); max-width: 640px; margin: 0 auto; }
+@media (max-width: 480px) {
+  .porte.grille-3 { gap: 6px; }
+  .porte.grille-3 .sceau { padding: 10px 3px; }
+  .porte.grille-3 .sceau .medaillon { width: 44px; height: 44px; }
+  .porte.grille-3 .sceau .nom { font-size: .78rem; }
+  .porte.grille-3 .sceau .etat { font-size: .7rem; }
+}

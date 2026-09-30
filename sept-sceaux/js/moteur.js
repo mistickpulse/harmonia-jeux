@@ -616,7 +616,7 @@
       el('section', { class: 'etage' },
         el('h3', { class: 'titre-etage', text: 'I. Les épreuves' }),
         el('p', { class: 'centre doux', text: `Chacune réussie te donne un indice pour le Registre chiffré. Plus l’épreuve est dure, plus l’indice est précieux. Indices obtenus : ${nbIndices} / ${simples.length}` }),
-        el('div', { class: 'porte' }, simples.map(carte).concat(PROFONDEURS_A_VENIR.map((nom) => el('button', { type: 'button', class: 'sceau ferme', disabled: true, 'aria-label': `${nom}, en préparation` },
+        el('div', { class: 'porte grille-3' }, simples.map(carte).concat(PROFONDEURS_A_VENIR.map((nom) => el('button', { type: 'button', class: 'sceau ferme', disabled: true, 'aria-label': `${nom}, en préparation` },
           el('span', { class: 'medaillon', text: '?' }),
           el('span', { class: 'nom', text: nom }),
           el('span', { class: 'etat', text: 'En préparation' })))))),
