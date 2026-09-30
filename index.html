@@ -2,23 +2,206 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Harmonia — Jeux</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Alegreya+Sans:wght@400;500&family=Noto+Sans+Runic&display=swap">
 <style>
-  :root { --bg:#14110d; --fg:#e9dcc3; --accent:#c9973f; }
-  body { margin:0; min-height:100vh; display:grid; place-items:center; background:var(--bg); color:var(--fg); font-family:Georgia, serif; padding:16px; box-sizing:border-box; }
-  main { max-width:32rem; text-align:center; }
-  h1 { color:var(--accent); letter-spacing:.08em; }
-  p { line-height:1.6; opacity:.85; }
-  a { color:var(--accent); font-family:Georgia, serif; font-size:1.3rem; letter-spacing:.06em; }
+/* Mise en page : le seuil d'une porte naine. Un anneau de runes qui tourne derrière le titre, deux portes à pousser, le temps qui reste. */
+:root {
+  --nuit: #0d0b10;
+  --pierre: #17141a;
+  --parchemin: #efe4cf;
+  --cendre: #a79d8c;
+  --laiton: #d6a44a;
+  --laiton-sombre: #7a5a22;
+  --f-titre: "IM Fell English SC", "IM Fell English", Georgia, serif;
+  --f-recit: "IM Fell English", Georgia, serif;
+  --f-ui: "Alegreya Sans", "Segoe UI", system-ui, sans-serif;
+  --f-rune: "Noto Sans Runic", "Segoe UI Historic", serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body {
+  margin: 0;
+  background: radial-gradient(ellipse at 50% 30%, #1d1720 0%, var(--nuit) 65%) fixed, var(--nuit);
+  color: var(--parchemin);
+  font-family: var(--f-recit);
+  overflow-x: hidden;
+}
+#toile { position: fixed; inset: 0; width: 100%; height: 100%; display: block; pointer-events: none; }
+.vignette { position: fixed; inset: 0; pointer-events: none; background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,.7) 100%); }
+
+main {
+  position: relative;
+  min-height: 100vh; min-height: 100dvh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2.4rem;
+  padding: calc(env(safe-area-inset-top, 0px) + 3rem) 16px calc(env(safe-area-inset-bottom, 0px) + 3rem);
+  text-align: center;
+}
+
+/* En-tête : anneau de runes + titre */
+.sceau { position: relative; display: grid; place-items: center; width: min(560px, 92vw); aspect-ratio: 1 / .62; }
+.anneau {
+  position: absolute; left: 50%; top: 50%;
+  width: min(460px, 86vw); aspect-ratio: 1; translate: -50% -50%;
+  animation: tourne 120s linear infinite;
+  opacity: .55;
+}
+.anneau text { font-family: var(--f-rune); font-size: 15px; letter-spacing: 7px; fill: var(--laiton); }
+.anneau circle { fill: none; stroke: var(--laiton-sombre); stroke-width: 1; }
+@keyframes tourne { to { rotate: 360deg; } }
+.titre { position: relative; display: flex; flex-direction: column; align-items: center; gap: .6rem; }
+.lieu { font-family: var(--f-ui); font-weight: 500; font-size: clamp(.7rem, 1.8vw, .85rem); letter-spacing: .38em; text-transform: uppercase; color: var(--laiton); }
+h1 {
+  margin: 0; font-family: var(--f-titre); font-weight: 400;
+  font-size: clamp(3.2rem, 13vw, 7.5rem); line-height: .95;
+  background: linear-gradient(180deg, var(--parchemin) 30%, var(--laiton));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 0 30px rgba(214,164,74,.25));
+}
+.accroche { margin: 0; font-style: italic; color: var(--cendre); font-size: clamp(1.05rem, 2.6vw, 1.35rem); }
+
+/* Les deux portes */
+.portes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.2rem; width: min(760px, 100%); }
+@media (max-width: 620px) { .portes { grid-template-columns: 1fr; } }
+.porte {
+  position: relative; display: flex; flex-direction: column; gap: .55rem; align-items: flex-start; text-align: left;
+  padding: 1.5rem 1.5rem 1.3rem;
+  background: linear-gradient(160deg, rgba(40,33,38,.85), rgba(20,17,22,.9));
+  border: 1px solid rgba(214,164,74,.28); border-radius: 3px;
+  color: var(--parchemin); text-decoration: none;
+  box-shadow: inset 0 1px 0 rgba(239,228,207,.05), 0 12px 40px rgba(0,0,0,.45);
+  transition: border-color .3s ease, transform .3s ease, box-shadow .3s ease;
+}
+.porte::before, .porte::after {
+  content: ""; position: absolute; width: 10px; height: 10px; border: 1px solid var(--laiton); opacity: .7;
+}
+.porte::before { top: 6px; left: 6px; border-right: 0; border-bottom: 0; }
+.porte::after { bottom: 6px; right: 6px; border-left: 0; border-top: 0; }
+.porte:hover, .porte:focus-visible {
+  border-color: var(--laiton); transform: translateY(-3px);
+  box-shadow: inset 0 1px 0 rgba(239,228,207,.08), 0 16px 50px rgba(0,0,0,.5), 0 0 40px rgba(214,164,74,.14);
+}
+.porte:focus-visible { outline: 2px solid var(--parchemin); outline-offset: 4px; }
+.porte .rune { font-family: var(--f-rune); font-size: 1.6rem; color: var(--laiton); line-height: 1; }
+.porte .genre { font-family: var(--f-ui); font-size: .72rem; letter-spacing: .28em; text-transform: uppercase; color: var(--cendre); }
+.porte h2 { margin: 0; font-family: var(--f-titre); font-weight: 400; font-size: clamp(1.45rem, 3.4vw, 1.8rem); line-height: 1.1; }
+.porte p { margin: 0; color: var(--cendre); font-size: 1.05rem; line-height: 1.45; }
+.porte .entrer { margin-top: .4rem; font-family: var(--f-ui); font-size: .85rem; letter-spacing: .14em; text-transform: uppercase; color: var(--laiton); }
+.porte .entrer::after { content: " →"; transition: margin .3s ease; }
+.porte:hover .entrer::after { margin-left: .35rem; }
+
+/* Compte à rebours */
+.reprise { display: flex; flex-direction: column; align-items: center; gap: .8rem; }
+.reprise .lieu { color: var(--cendre); }
+.decompte { display: flex; gap: clamp(.9rem, 4vw, 2.2rem); }
+.decompte div { display: flex; flex-direction: column; align-items: center; gap: .3rem; min-width: 3rem; }
+.decompte b { font-family: var(--f-titre); font-weight: 400; color: var(--laiton); font-size: clamp(1.9rem, 6vw, 3rem); line-height: 1; font-variant-numeric: tabular-nums; }
+.decompte span { font-family: var(--f-ui); font-size: .68rem; letter-spacing: .26em; text-transform: uppercase; color: var(--cendre); }
+.decompte.fini { font-family: var(--f-titre); font-size: 1.6rem; color: var(--laiton); }
+
+/* Entrée en scène */
+.monte { opacity: 0; transform: translateY(12px); animation: monte 1.2s cubic-bezier(.2,.7,.2,1) forwards; animation-delay: var(--d, 0s); }
+@keyframes monte { to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .monte { animation: none; opacity: 1; transform: none; }
+  .anneau { animation: none; }
+}
 </style>
 </head>
 <body>
+<canvas id="toile" aria-hidden="true"></canvas>
+<div class="vignette"></div>
+
 <main>
-  <h1>HARMONIA</h1>
-  <p>Quelque chose se prépare sous la montagne.</p>
-  <p><a href="recap/">Précédemment dans Harmonia</a></p>
-  <p><a href="sept-sceaux/">Les Sept Sceaux</a></p>
+  <header class="sceau">
+    <svg class="anneau" viewBox="0 0 400 400" aria-hidden="true">
+      <defs><path id="cercle" d="M200,200 m-170,0 a170,170 0 1,1 340,0 a170,170 0 1,1 -340,0"/></defs>
+      <circle cx="200" cy="200" r="188"/>
+      <circle cx="200" cy="200" r="152"/>
+      <text><textPath href="#cercle">ᚺᚨᚱᛗᛟᚾᛁᚨ ᛫ ᚲᚨᚱᚨᚲ ᛞᚢᚱᚾ ᛫ ᚷᚱᚨᚢᚨᚦᛟᚱ ᛫ ᛋᛖᛈᛏ ᛋᚲᛖᚨᚢᛪ ᛫ ᚺᚨᚱᛗᛟᚾᛁᚨ ᛫ ᚲᚨᚱᚨᚲ ᛞᚢᚱᚾ ᛫</textPath></text>
+    </svg>
+    <div class="titre">
+      <div class="lieu monte" style="--d:.1s">Karak-Durn · Gravathor</div>
+      <h1 class="monte" style="--d:.35s">Harmonia</h1>
+      <p class="accroche monte" style="--d:.8s">Quelque chose se prépare sous la montagne.</p>
+    </div>
+  </header>
+
+  <nav class="portes" aria-label="Les jeux">
+    <a class="porte monte" style="--d:1.1s" href="recap/">
+      <span class="rune" aria-hidden="true">ᛉ</span>
+      <span class="genre">Récit · Saison 1</span>
+      <h2>Précédemment dans Harmonia</h2>
+      <p>De Valperce au Train Frelon : tout ce qui s'est passé avant la reprise.</p>
+      <span class="entrer">Revoir le récit</span>
+    </a>
+    <a class="porte monte" style="--d:1.3s" href="sept-sceaux/">
+      <span class="rune" aria-hidden="true">ᛟ</span>
+      <span class="genre">Énigmes · Teaser saison 2</span>
+      <h2>Les Sept Sceaux</h2>
+      <p>Une porte de chambre forte naine, sept sceaux à briser. Chacun plus coriace que le précédent.</p>
+      <span class="entrer">Approcher la porte</span>
+    </a>
+  </nav>
+
+  <section class="reprise monte" style="--d:1.6s">
+    <div class="lieu">La saison 2 reprend dans</div>
+    <div class="decompte" id="decompte" role="timer" aria-label="Temps restant avant la saison 2">
+      <div><b id="dj">--</b><span>jours</span></div>
+      <div><b id="dh">--</b><span>heures</span></div>
+      <div><b id="dm">--</b><span>minutes</span></div>
+      <div><b id="ds">--</b><span>secondes</span></div>
+    </div>
+  </section>
 </main>
+
+<script>
+(() => {
+  // Compte à rebours : samedi 10/10/2026 à 23h59, heure de Paris (même échéance que les Profondeurs des Sept Sceaux)
+  const REPRISE = new Date('2026-10-10T23:59:00+02:00');
+  const boite = document.getElementById('decompte');
+  const deux = n => String(n).padStart(2, '0');
+  (function decompte() {
+    const reste = REPRISE - Date.now();
+    if (reste <= 0) { boite.classList.add('fini'); boite.textContent = 'La saison 2 a commencé'; return; }
+    const s = Math.floor(reste / 1000);
+    document.getElementById('dj').textContent = Math.floor(s / 86400);
+    document.getElementById('dh').textContent = deux(Math.floor(s / 3600) % 24);
+    document.getElementById('dm').textContent = deux(Math.floor(s / 60) % 60);
+    document.getElementById('ds').textContent = deux(s % 60);
+    setTimeout(decompte, 1000 - (Date.now() % 1000));
+  })();
+
+  // Braises qui montent
+  const cv = document.getElementById('toile'), cx = cv.getContext('2d');
+  const calme = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let W, H, dpr;
+  const taille = () => { dpr = Math.min(devicePixelRatio || 1, 2); W = cv.width = innerWidth * dpr; H = cv.height = innerHeight * dpr; };
+  addEventListener('resize', taille); taille();
+  const neuve = (p = {}) => Object.assign(p, { x: Math.random() * W, y: Math.random() * H, r: (Math.random() * 1.7 + .4) * dpr, v: Math.random() * .6 + .2, a: Math.random(), ph: Math.random() * 6.28 });
+  const parts = Array.from({ length: calme ? 30 : 110 }, () => neuve());
+  let t0 = 0;
+  function dessin(t) {
+    const dt = Math.min(50, t - t0) / 16.7; t0 = t;
+    cx.clearRect(0, 0, W, H);
+    const vit = calme ? .2 : 1;
+    for (const p of parts) {
+      p.ph += .02 * dt;
+      p.y -= p.v * 1.1 * dt * dpr * vit; p.x += Math.sin(p.ph) * .35 * dpr * vit;
+      if (p.y < -10) { neuve(p); p.y = H + 5; }
+      const c = .45 + .55 * Math.sin(p.ph * 1.7 + p.a * 6);
+      cx.fillStyle = `rgba(214,164,74,${(.2 + .6 * p.a) * c})`;
+      cx.beginPath(); cx.arc(p.x, p.y, p.r, 0, 6.283); cx.fill();
+    }
+    requestAnimationFrame(dessin);
+  }
+  requestAnimationFrame(dessin);
+})();
+</script>
 </body>
 </html>
