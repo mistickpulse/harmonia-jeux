@@ -543,7 +543,8 @@
   // La « carotte » : ce que le MJ attend des joueurs, et ce qu’ils peuvent gagner.
   function panneauRecompenses() {
     const don = (icone, titre, ...texte) => el('li', { class: 'don' }, el('span', { class: 'icone-don', text: icone }), el('span', {}, el('strong', { text: titre }), ' ', ...texte));
-    return el('details', { class: 'panneau recompenses-profondeurs', open: true },
+    // Replié ou déplié : le choix du joueur est gardé (stockage local + cookie de secours).
+    return el('details', { class: 'panneau recompenses-profondeurs', open: !lire('recompenses-repliees'), ontoggle: (ev) => ecrire('recompenses-repliees', !ev.target.open) },
       el('summary', { text: '🏆 Ce qui vous attend au fond des Profondeurs' }),
       el('h4', { text: 'Ce que le MJ attend de vous' }),
       el('ol', { class: 'etapes' },
