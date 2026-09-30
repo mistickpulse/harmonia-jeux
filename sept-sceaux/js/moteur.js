@@ -91,6 +91,19 @@
     try { localStorage.removeItem(PREFIXE + cle); } catch (e) { /* tant pis */ }
     ecrireCookie(cle, '', 0);
   }
+  function effacerPrefixe(debut) {
+    try {
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith(PREFIXE + debut)) localStorage.removeItem(k);
+      }
+    } catch (e) { /* tant pis */ }
+    try {
+      const nom = encodeURIComponent(PREFIXE + debut);
+      document.cookie.split('; ').map((c) => c.split('=')[0]).filter((n) => n.startsWith(nom))
+        .forEach((n) => { document.cookie = `${n}=; max-age=0; path=${CHEMIN}`; });
+    } catch (e) { /* tant pis */ }
+  }
   // Demande au navigateur de ne pas vider ce stockage quand il manque de place.
   try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (e) { /* facultatif */ }
 
@@ -547,6 +560,29 @@
       el('h4', { text: 'Pour tous ceux qui auront collaboré à résoudre l’Énigme' }),
       el('ul', { class: 'dons' }, don('⭐', '+10 points de Transcendance MAX', 'pour chaque voyageur qui a aidé les autres et participé à la résolution de l’Énigme, sans avoir ouvert la porte : ton maximum de points de Transcendance augmente de 10.')));
   }
+  function confirmer(titre, texte, surOui) {
+    const voile = el('div', { class: 'brisure confirmation', role: 'dialog', 'aria-modal': 'true', 'aria-label': titre });
+    const fermer = () => voile.remove();
+    voile.append(el('div', { class: 'contenu' },
+      el('h2', { text: titre }),
+      el('p', { class: 'doux', text: texte }),
+      el('div', { class: 'actions' },
+        el('button', { type: 'button', text: 'Oui', onclick: () => { fermer(); surOui(); } }),
+        el('button', { type: 'button', class: 'discret', text: 'Non', onclick: fermer }))));
+    voile.addEventListener('click', (ev) => { if (ev.target === voile) fermer(); });
+    document.body.append(voile);
+    voile.querySelector('.discret').focus();
+  }
+  function recommencerProfondeurs() {
+    confirmer('Recommencer les Profondeurs ?',
+      'Toutes tes épreuves des Profondeurs seront remises à zéro : épreuves réussies, indices obtenus, parties en cours, Registre chiffré et Énigme. Tes sceaux et tes Bonus ne bougent pas. Les énigmes, elles, restent les mêmes.',
+      () => {
+        effacer(cleProfondeurs());
+        effacerPrefixe(`prof-encours:${etat.code}:`);
+        effacerPrefixe(`prof-garde:${etat.code}:`);
+        ecranPorte('profondeurs');
+      });
+  }
   function contenuProfondeurs() {
     const faites = reussites();
     const simples = S.epreuves.filter((e) => !e.rang);
@@ -593,7 +629,8 @@
       el('section', { class: 'etage etage-boss' },
         el('h3', { class: 'titre-etage', text: 'III. Le cœur des Profondeurs' }),
         el('p', { class: 'centre doux', text: 'Le boss final. Une seule question, la même pour tous : on la résout ensemble.' }),
-        el('div', { class: 'porte porte-seule' }, S.epreuves.filter((e) => e.rang === 'boss').map(carte)))
+        el('div', { class: 'porte porte-seule' }, S.epreuves.filter((e) => e.rang === 'boss').map(carte))),
+      el('p', { class: 'centre' }, el('button', { type: 'button', class: 'discret', text: '↺ Recommencer les épreuves', onclick: recommencerProfondeurs }))
     ];
   }
   function ecranEpreuve(e) {

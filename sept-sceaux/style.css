@@ -857,3 +857,4 @@ select {
 .carte-indices-mj ol { padding-left: 1.3em; }
 .carte-indices-mj li { margin: .7em 0; }
 .carte-indices-mj .quoi { color: #ffd98a; }
+.confirmation .actions { display: flex; gap: 12px; justify-content: center; margin-top: 16px; }
