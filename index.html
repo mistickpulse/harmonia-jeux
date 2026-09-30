@@ -4,6 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Harmonia — Jeux</title>
+<script>
+  // Bande-annonce obligatoire : tant que le joueur n'a pas vu CETTE version, l'accueil l'y envoie.
+  // Changer VERSION_TEASER (et VERSION dans teaser/index.html) la fait revoir à tout le monde.
+  (function () {
+    var VERSION_TEASER = 's2-v1';
+    var vue = (document.cookie.match(/(?:^|;\s*)harmonia_teaser=([^;]*)/) || [])[1];
+    if (vue !== VERSION_TEASER) { try { vue = localStorage.getItem('harmonia_teaser'); } catch (e) {} }
+    if (vue !== VERSION_TEASER) location.replace('teaser/index.html');
+  })();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Alegreya+Sans:wght@400;500&family=Noto+Sans+Runic&display=swap">
@@ -66,8 +76,8 @@ h1 {
 .accroche { margin: 0; font-style: italic; color: var(--cendre); font-size: clamp(1.05rem, 2.6vw, 1.35rem); }
 
 /* Les deux portes */
-.portes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.2rem; width: min(760px, 100%); }
-@media (max-width: 620px) { .portes { grid-template-columns: 1fr; } }
+.portes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.2rem; width: min(1040px, 100%); }
+@media (max-width: 900px) { .portes { grid-template-columns: 1fr; width: min(520px, 100%); } }
 .porte {
   position: relative; display: flex; flex-direction: column; gap: .55rem; align-items: flex-start; text-align: left;
   padding: 1.5rem 1.5rem 1.3rem;
@@ -147,9 +157,16 @@ h1 {
       <p>Une porte de chambre forte naine, sept sceaux à briser. Chacun plus coriace que le précédent.</p>
       <span class="entrer">Approcher la porte</span>
     </a>
+    <a class="porte monte" style="--d:1.5s" href="teaser/index.html">
+      <span class="rune" aria-hidden="true">ᚷ</span>
+      <span class="genre">Bande-annonce · Saison 2</span>
+      <h2>Gravathor</h2>
+      <p>Le Train Frelon entre en gare. Les portes vont se fermer.</p>
+      <span class="entrer">Revoir la bande-annonce</span>
+    </a>
   </nav>
 
-  <section class="reprise monte" style="--d:1.6s">
+  <section class="reprise monte" style="--d:1.8s">
     <div class="lieu">La saison 2 reprend dans</div>
     <div class="decompte" id="decompte" role="timer" aria-label="Temps restant avant la saison 2">
       <div><b id="dj">--</b><span>jours</span></div>

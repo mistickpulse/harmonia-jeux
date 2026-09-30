@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Harmonia Saison 2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Alegreya+Sans:wght@400;500;700&display=swap">
+<style>
+/* Mise en page : une bande-annonce au cinéma. Bandes noires, coupes sèches, une phrase à la fois sur une toile de vapeur et de poussière. */
+:root {
+  --nuit: #0b0a0d;
+  --parchemin: #efe4cf;
+  --cendre: #a79d8c;
+  --laiton: #d6a44a;
+  --braise: #e0703a;
+  --f-titre: "IM Fell English SC", "IM Fell English", Georgia, "Times New Roman", serif;
+  --f-recit: "IM Fell English", Georgia, "Times New Roman", serif;
+  --f-ui: "Alegreya Sans", "Segoe UI", system-ui, sans-serif;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body { margin: 0; background: var(--nuit); color: var(--parchemin); font-family: var(--f-recit); overflow: hidden; }
+#toile { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+.vignette { position: fixed; inset: 0; pointer-events: none; background: radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,.82) 100%); }
+.bande { position: fixed; left: 0; right: 0; height: 8vh; background: #000; z-index: 3; pointer-events: none; }
+.bande.haut { top: 0; } .bande.bas { bottom: 0; }
+.flash { position: fixed; inset: 0; background: var(--parchemin); opacity: 0; pointer-events: none; z-index: 2; }
+.flash.go { animation: flash .55s ease-out; }
+@keyframes flash { 0% { opacity: .75; } 100% { opacity: 0; } }
+
+#scenes { position: fixed; inset: 0; }
+#scenes.tremble { animation: tremble 2.6s ease-out; }
+@keyframes tremble {
+  0%, 100% { transform: none; }
+  10% { transform: translate(-3px, 2px); } 20% { transform: translate(3px, -2px); }
+  30% { transform: translate(-2px, -3px); } 40% { transform: translate(2px, 3px); }
+  55% { transform: translate(-1px, 1px); } 70% { transform: translate(1px, -1px); }
+}
+
+.scene {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 1.1rem; padding: 10vh max(16px, 6vw);
+  text-align: center;
+  opacity: 0; visibility: hidden;
+  transition: opacity .5s ease, visibility 0s linear .5s;
+}
+.scene.active { opacity: 1; visibility: visible; transition: opacity .5s ease, visibility 0s; }
+.kicker { font-family: var(--f-ui); font-weight: 500; font-size: clamp(.72rem, 1.6vw, .95rem); letter-spacing: .34em; text-transform: uppercase; color: var(--laiton); }
+.grand {
+  margin: 0; font-family: var(--f-titre); font-weight: 400;
+  font-size: clamp(2.1rem, 7vw, 5.4rem); line-height: 1.02; text-wrap: balance; max-width: 16ch;
+  text-shadow: 0 0 40px rgba(214,164,74,.22);
+}
+.moyen { margin: 0; font-size: clamp(1.25rem, 3.2vw, 2rem); line-height: 1.3; max-width: 30ch; text-wrap: balance; }
+.petit { margin: 0; font-size: clamp(1.02rem, 2.2vw, 1.35rem); line-height: 1.45; color: var(--cendre); font-style: italic; max-width: 34ch; text-wrap: balance; }
+.cri { margin: 0; font-family: var(--f-titre); font-size: clamp(1.5rem, 4.4vw, 3.1rem); line-height: 1.15; max-width: 22ch; text-wrap: balance; color: var(--parchemin); }
+.cri::before { content: "« "; color: var(--laiton); } .cri::after { content: " »"; color: var(--laiton); }
+.braise { color: var(--braise); }
+b { color: var(--laiton); font-weight: 400; }
+
+.r { opacity: 0; transform: scale(1.04); filter: blur(8px); }
+.scene.active .r { animation: entre 1s cubic-bezier(.2,.7,.2,1) forwards; animation-delay: calc(var(--i, 0) * 1s + .15s); }
+@keyframes entre { to { opacity: 1; transform: none; filter: blur(0); } }
+.scene.active .r.lent { animation-duration: 2.2s; }
+
+/* Écran titre et carton final */
+.ouverture h1, .fin h1 {
+  margin: 0; font-family: var(--f-titre); font-weight: 400;
+  font-size: clamp(3.2rem, 13vw, 9.5rem); line-height: .95;
+  background: linear-gradient(180deg, var(--parchemin) 30%, var(--laiton));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.saison { font-family: var(--f-titre); font-size: clamp(1.3rem, 3.6vw, 2.2rem); color: var(--laiton); letter-spacing: .12em; }
+.lancer {
+  margin-top: 1.2rem; font-family: var(--f-ui); font-size: 1rem; font-weight: 500; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--nuit); background: var(--laiton); border: 0; border-radius: 2px; padding: .85rem 1.8rem; cursor: pointer;
+  box-shadow: 0 0 0 1px var(--laiton), 0 0 30px rgba(214,164,74,.35);
+}
+.lancer:hover { filter: brightness(1.1); }
+.note-son { font-family: var(--f-ui); font-size: .8rem; color: var(--cendre); letter-spacing: .06em; }
+.decompte { display: flex; gap: clamp(.9rem, 4vw, 2.2rem); justify-content: center; margin-top: .4rem; }
+.decompte div { display: flex; flex-direction: column; align-items: center; gap: .3rem; min-width: 3rem; }
+.decompte b { font-family: var(--f-titre); color: var(--laiton); font-size: clamp(1.9rem, 6vw, 3.2rem); line-height: 1; font-variant-numeric: tabular-nums; }
+.decompte span { font-family: var(--f-ui); font-size: .68rem; letter-spacing: .26em; text-transform: uppercase; color: var(--cendre); }
+.decompte.fini { font-family: var(--f-titre); font-size: 1.6rem; color: var(--laiton); }
+
+.passer {
+  position: fixed; z-index: 4; right: 16px; top: calc(env(safe-area-inset-top, 0px) + 8vh + 12px);
+  font-family: var(--f-ui); font-size: .85rem; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--parchemin); background: rgba(11,10,13,.7); border: 1px solid rgba(239,228,207,.25); border-radius: 2px;
+  padding: .5rem 1rem; cursor: pointer; transition: border-color .3s ease, color .3s ease;
+}
+.passer::after { content: " ›"; }
+.passer:hover { border-color: var(--laiton); color: var(--laiton); }
+.passer:focus-visible { outline: 2px solid var(--parchemin); outline-offset: 3px; }
+.commandes {
+  position: fixed; left: 50%; transform: translateX(-50%); z-index: 4;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 1.5vh);
+  display: flex; gap: .4rem; align-items: center;
+  padding: .3rem; background: rgba(11,10,13,.8); border: 1px solid rgba(239,228,207,.1); border-radius: 999px;
+  transition: opacity .6s ease;
+}
+body.cache-ui .commandes { opacity: 0; }
+.ctl { font-family: var(--f-ui); font-size: .85rem; color: var(--parchemin); background: transparent; border: 0; border-radius: 999px; min-width: 2.4rem; height: 2.4rem; padding: 0 .8rem; cursor: pointer; }
+.ctl:hover { background: rgba(239,228,207,.1); }
+.ctl svg { width: 1.05rem; height: 1.05rem; vertical-align: middle; fill: currentColor; }
+.lancer:focus-visible, .ctl:focus-visible { outline: 2px solid var(--parchemin); outline-offset: 3px; }
+.compteur { font-family: var(--f-ui); font-size: .78rem; color: var(--cendre); font-variant-numeric: tabular-nums; padding: 0 .4rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  .scene.active .r { animation: none; opacity: 1; transform: none; filter: none; }
+  #scenes.tremble, .flash.go { animation: none; }
+}
+</style>
+</head>
+<body>
+<canvas id="toile" aria-hidden="true"></canvas>
+<div class="vignette"></div>
+<div class="flash" id="flash"></div>
+<div class="bande haut"></div><div class="bande bas"></div>
+
+<main id="scenes">
+  <section class="scene ouverture active" data-mode="poussiere" data-duree="0">
+    <div class="kicker r">Bande-annonce</div>
+    <h1 class="r lent" style="--i:.4">Harmonia</h1>
+    <div class="saison r" style="--i:1.2">Saison 2</div>
+    <button class="lancer r" style="--i:1.8" id="lancer" type="button">Lancer la bande-annonce</button>
+    <div class="note-son r" style="--i:2.2">Avec le son, c'est mieux.</div>
+  </section>
+
+  <section class="scene" data-mode="vapeur" data-duree="5200" data-fx="grondement">
+    <div class="kicker r">Gare des Contreforts</div>
+    <p class="grand r" style="--i:.6">Le Train Frelon entre en gare.</p>
+  </section>
+
+  <section class="scene" data-mode="vapeur" data-duree="5200">
+    <p class="moyen r">Tôles éventrées. Vitres étoilées.</p>
+    <p class="moyen r" style="--i:1.2">Et un wagon blindé, <span class="braise">porte arrachée</span>.</p>
+  </section>
+
+  <section class="scene" data-mode="vapeur" data-duree="5000">
+    <p class="petit r">Sur le quai, une escorte naine attendait quelque chose.</p>
+    <p class="moyen r" style="--i:1.4">Elle ne sait pas encore que c'est vide.</p>
+  </section>
+
+  <section class="scene" data-mode="poussiere" data-duree="4600" data-fx="choc">
+    <div class="kicker r">Karak-Durn</div>
+    <p class="grand r" style="--i:.5">Gravathor</p>
+  </section>
+
+  <section class="scene" data-mode="poussiere" data-duree="5600">
+    <p class="moyen r">La montagne n'est pas une paroi.</p>
+    <p class="grand r" style="--i:1.3">C'est une façade.</p>
+  </section>
+
+  <section class="scene" data-mode="poussiere" data-duree="5200">
+    <p class="petit r">Des rois de pierre, haches croisées. Des balistes qui pivotent seules.</p>
+    <p class="moyen r" style="--i:1.4">On s'y sent si petit.</p>
+  </section>
+
+  <section class="scene" data-mode="braises" data-duree="5600" data-fx="cor">
+    <div class="kicker r">Par décret du Haut-Maréchal</div>
+    <p class="cri r" style="--i:.6">Les portes de Gravathor seront scellées !</p>
+  </section>
+
+  <section class="scene" data-mode="braises" data-duree="4200">
+    <p class="petit r">Des créatures attaquent les murailles chaque nuit.</p>
+    <p class="moyen r" style="--i:1.1">Du moins, c'est ce qu'on dit.</p>
+  </section>
+
+  <section class="scene" data-mode="braises" data-duree="4200" data-fx="choc">
+    <p class="cri r"><span class="braise">Fermeture immédiate !</span></p>
+  </section>
+
+  <section class="scene" data-mode="poussiere" data-duree="5200">
+    <p class="moyen r">Vous avez un coffre à livrer.</p>
+    <p class="petit r" style="--i:1.3">Et quelqu'un vient de noter vos noms.</p>
+  </section>
+
+  <section class="scene" data-mode="chute" data-duree="7200" data-fx="porte">
+    <p class="moyen r">Quand la Porte chante…</p>
+    <p class="grand r" style="--i:2.4">il est déjà trop tard.</p>
+  </section>
+
+  <section class="scene" data-mode="lueurs" data-duree="5400">
+    <p class="petit r">Sous la montagne, une ville entière.</p>
+    <p class="grand r" style="--i:1.3">Une cathédrale sans soleil.</p>
+  </section>
+
+  <section class="scene" data-mode="lueurs" data-duree="5000" data-fx="grondement">
+    <p class="moyen r">Et plus bas encore…</p>
+    <p class="grand r" style="--i:1.5">les Profondeurs.</p>
+  </section>
+
+  <section class="scene fin" data-mode="poussiere" data-duree="0" data-fx="choc">
+    <h1 class="r lent">Harmonia</h1>
+    <div class="saison r" style="--i:1">Saison 2 · Gravathor</div>
+    <div class="decompte r" style="--i:1.8" id="decompte" role="timer" aria-label="Temps restant avant la saison 2">
+      <div><b id="dj">--</b><span>jours</span></div>
+      <div><b id="dh">--</b><span>heures</span></div>
+      <div><b id="dm">--</b><span>minutes</span></div>
+      <div><b id="ds">--</b><span>secondes</span></div>
+    </div>
+    <button class="lancer r" style="--i:2.8" id="entrer" type="button" hidden>Entrer</button>
+  </section>
+</main>
+
+<button class="passer" id="passer" type="button">Passer</button>
+
+<nav class="commandes" aria-label="Commandes de la bande-annonce">
+  <button class="ctl" id="prec" type="button" aria-label="Plan précédent"><svg viewBox="0 0 24 24"><path d="M15.5 5 8.5 12l7 7-1.4 1.4L5.7 12l8.4-8.4z"/></svg></button>
+  <button class="ctl" id="lecture" type="button" aria-label="Lecture"><svg viewBox="0 0 24 24" id="icoLecture"><path d="M7 4.5v15l12-7.5z"/></svg></button>
+  <button class="ctl" id="suiv" type="button" aria-label="Plan suivant"><svg viewBox="0 0 24 24"><path d="M8.5 5l7 7-7 7 1.4 1.4 8.4-8.4-8.4-8.4z"/></svg></button>
+  <span class="compteur" id="compteur">1 / 16</span>
+  <button class="ctl" id="son" type="button" aria-label="Couper le son">Son</button>
+  <button class="ctl" id="plein" type="button" aria-label="Plein écran"><svg viewBox="0 0 24 24"><path d="M4 9V4h5v2H6v3zm11-5h5v5h-2V6h-3zM6 15v3h3v2H4v-5zm12 0h2v5h-5v-2h3z"/></svg></button>
+</nav>
+
+<script>
+(() => {
+  const scenes = [...document.querySelectorAll('.scene')];
+  const compteur = document.getElementById('compteur');
+  const btnLecture = document.getElementById('lecture');
+  const ico = document.getElementById('icoLecture');
+  const flash = document.getElementById('flash');
+  const conteneur = document.getElementById('scenes');
+  const calme = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let idx = 0, enLecture = false, ecoule = 0, dernier = 0;
+
+  // Sur le site des mini-jeux : page où revenir après la bande-annonce, et version enregistrée comme « vue ».
+  // Dans le coffre, RETOUR reste vide : « Passer » saute simplement au carton final.
+  const RETOUR = '../index.html';
+  const VERSION = 's2-v1'; // doit être la même que VERSION_TEASER dans l'accueil du site
+  function marquerVue() {
+    document.cookie = 'harmonia_teaser=' + VERSION + '; max-age=31536000; path=/; SameSite=Lax';
+    try { localStorage.setItem('harmonia_teaser', VERSION); } catch (e) {}
+  }
+  function sortir() { marquerVue(); if (RETOUR) location.href = RETOUR; else montrer(scenes.length - 1); }
+  document.getElementById('passer').addEventListener('click', sortir);
+  const btnEntrer = document.getElementById('entrer');
+  if (RETOUR) { btnEntrer.hidden = false; btnEntrer.addEventListener('click', sortir); }
+
+  /* ---------- Son, entièrement synthétisé ---------- */
+  let ac = null, maitre = null, coupe = false, nappe = null;
+  function audio() {
+    if (ac) return;
+    try {
+      ac = new (window.AudioContext || window.webkitAudioContext)();
+      maitre = ac.createGain(); maitre.gain.value = .8; maitre.connect(ac.destination);
+      // Nappe grave continue, à peine audible
+      nappe = ac.createGain(); nappe.gain.value = 0; nappe.connect(maitre);
+      const f = ac.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 180; f.connect(nappe);
+      [41, 61.5].forEach(hz => { const o = ac.createOscillator(); o.type = 'triangle'; o.frequency.value = hz; o.connect(f); o.start(); });
+      nappe.gain.linearRampToValueAtTime(.12, ac.currentTime + 4);
+    } catch (e) { ac = null; }
+  }
+  function bruit(duree) {
+    const b = ac.createBuffer(1, ac.sampleRate * duree, ac.sampleRate), d = b.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    const s = ac.createBufferSource(); s.buffer = b; return s;
+  }
+  const FX = {
+    choc() {
+      const t = ac.currentTime, o = ac.createOscillator(), g = ac.createGain();
+      o.frequency.setValueAtTime(95, t); o.frequency.exponentialRampToValueAtTime(32, t + .9);
+      g.gain.setValueAtTime(.9, t); g.gain.exponentialRampToValueAtTime(.001, t + 1.4);
+      o.connect(g); g.connect(maitre); o.start(t); o.stop(t + 1.5);
+      const n = bruit(.5), f = ac.createBiquadFilter(), gn = ac.createGain();
+      f.type = 'lowpass'; f.frequency.value = 500;
+      gn.gain.setValueAtTime(.5, t); gn.gain.exponentialRampToValueAtTime(.001, t + .45);
+      n.connect(f); f.connect(gn); gn.connect(maitre); n.start(t);
+    },
+    grondement() {
+      const t = ac.currentTime, n = bruit(4), f = ac.createBiquadFilter(), g = ac.createGain();
+      f.type = 'lowpass'; f.frequency.value = 140;
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.7, t + 1); g.gain.linearRampToValueAtTime(0, t + 4);
+      n.connect(f); f.connect(g); g.connect(maitre); n.start(t);
+    },
+    cor() {
+      const t = ac.currentTime, f = ac.createBiquadFilter(), g = ac.createGain();
+      f.type = 'lowpass'; f.frequency.value = 900; f.connect(g); g.connect(maitre);
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.22, t + .25); g.gain.setValueAtTime(.22, t + 1.6); g.gain.linearRampToValueAtTime(0, t + 2.4);
+      [174.6, 261.6].forEach(hz => {
+        const o = ac.createOscillator(); o.type = 'sawtooth';
+        o.frequency.setValueAtTime(hz * .94, t); o.frequency.linearRampToValueAtTime(hz, t + .3);
+        o.connect(f); o.start(t); o.stop(t + 2.5);
+      });
+    },
+    porte() {
+      // La voix de la Porte : un accord grave immense, puis le métal qui touche la pierre
+      const t = ac.currentTime, f = ac.createBiquadFilter(), g = ac.createGain();
+      f.type = 'lowpass'; f.frequency.setValueAtTime(120, t); f.frequency.linearRampToValueAtTime(420, t + 2.5); f.frequency.linearRampToValueAtTime(150, t + 6.5);
+      f.connect(g); g.connect(maitre);
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.45, t + 1.8); g.gain.setValueAtTime(.45, t + 4.2); g.gain.linearRampToValueAtTime(0, t + 6.8);
+      [49, 73.4, 98, 146.8].forEach((hz, i) => {
+        const o = ac.createOscillator(); o.type = 'sawtooth'; o.frequency.value = hz; o.detune.value = (i - 1.5) * 6;
+        o.connect(f); o.start(t); o.stop(t + 7);
+      });
+      setTimeout(() => { if (ac && !coupe) FX.choc(); }, 4400);
+    }
+  };
+  function effet(nom) {
+    if (nom === 'choc' || nom === 'porte') {
+      if (!calme) {
+        const tardif = nom === 'porte' ? 4400 : 0;
+        setTimeout(() => { flash.classList.remove('go'); flash.offsetWidth; flash.classList.add('go'); }, tardif);
+        if (nom === 'porte') { conteneur.classList.remove('tremble'); conteneur.offsetWidth; conteneur.classList.add('tremble'); }
+      }
+    }
+    if (ac && !coupe && FX[nom]) { try { FX[nom](); } catch (e) {} }
+  }
+
+  /* ---------- Déroulé ---------- */
+  function montrer(n, avecFx = true) {
+    idx = Math.max(0, Math.min(scenes.length - 1, n));
+    scenes.forEach((s, i) => {
+      s.classList.toggle('active', i === idx);
+      if (i === idx) s.querySelectorAll('.r').forEach(el => { el.style.animation = 'none'; el.offsetHeight; el.style.animation = ''; });
+    });
+    compteur.textContent = (idx + 1) + ' / ' + scenes.length;
+    ecoule = 0;
+    mode = scenes[idx].dataset.mode || 'poussiere';
+    if (avecFx && scenes[idx].dataset.fx) effet(scenes[idx].dataset.fx);
+  }
+  function lecture(v, garderSon = false) {
+    enLecture = v;
+    ico.innerHTML = v ? '<path d="M6 4.5h4v15H6zm8 0h4v15h-4z"/>' : '<path d="M7 4.5v15l12-7.5z"/>';
+    btnLecture.setAttribute('aria-label', v ? 'Pause' : 'Lecture');
+    if (ac && !garderSon) { v ? ac.resume() : ac.suspend(); }
+  }
+  function tic(t) {
+    if (enLecture) {
+      ecoule += t - dernier;
+      const d = +scenes[idx].dataset.duree;
+      if (d && ecoule >= d && idx < scenes.length - 1) montrer(idx + 1);
+      if (idx === scenes.length - 1) { lecture(false, true); marquerVue(); }
+    }
+    dernier = t;
+    requestAnimationFrame(tic);
+  }
+  requestAnimationFrame(tic);
+
+  function demarrer() { audio(); montrer(1); lecture(true); }
+  document.getElementById('lancer').addEventListener('click', demarrer);
+  btnLecture.addEventListener('click', () => {
+    if (!enLecture && (idx === 0 || idx === scenes.length - 1)) return demarrer();
+    audio(); lecture(!enLecture);
+  });
+  document.getElementById('prec').addEventListener('click', () => { audio(); montrer(idx - 1); });
+  document.getElementById('suiv').addEventListener('click', () => { audio(); montrer(idx + 1); });
+  document.getElementById('son').addEventListener('click', e => {
+    coupe = !coupe;
+    e.currentTarget.textContent = coupe ? 'Muet' : 'Son';
+    e.currentTarget.setAttribute('aria-label', coupe ? 'Remettre le son' : 'Couper le son');
+    if (maitre) maitre.gain.value = coupe ? 0 : .8;
+  });
+  document.getElementById('plein').addEventListener('click', () => {
+    const p = document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.();
+    p?.catch?.(() => {});
+  });
+  addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight') { audio(); montrer(idx + 1); }
+    else if (e.key === 'ArrowLeft') { audio(); montrer(idx - 1); }
+    else if (e.key === ' ' && e.target.tagName !== 'BUTTON') { e.preventDefault(); btnLecture.click(); }
+    else if (e.key === 'f' || e.key === 'F') document.getElementById('plein').click();
+  });
+  let minuteur;
+  const reveil = () => { document.body.classList.remove('cache-ui'); clearTimeout(minuteur); minuteur = setTimeout(() => { if (enLecture) document.body.classList.add('cache-ui'); }, 2000); };
+  ['mousemove', 'touchstart', 'keydown'].forEach(ev => addEventListener(ev, reveil, { passive: true }));
+
+  // Compte à rebours : samedi 10/10/2026 à 23h59, heure de Paris (même échéance que les Profondeurs des Sept Sceaux)
+  const REPRISE = new Date('2026-10-10T23:59:00+02:00');
+  const boite = document.getElementById('decompte');
+  const deux = n => String(n).padStart(2, '0');
+  (function decompte() {
+    const reste = REPRISE - Date.now();
+    if (reste <= 0) { boite.classList.add('fini'); boite.textContent = 'La saison 2 a commencé'; return; }
+    const s = Math.floor(reste / 1000);
+    document.getElementById('dj').textContent = Math.floor(s / 86400);
+    document.getElementById('dh').textContent = deux(Math.floor(s / 3600) % 24);
+    document.getElementById('dm').textContent = deux(Math.floor(s / 60) % 60);
+    document.getElementById('ds').textContent = deux(s % 60);
+    setTimeout(decompte, 1000 - (Date.now() % 1000));
+  })();
+
+  /* ---------- Toile : vapeur, poussière, braises, lueurs ---------- */
+  const cv = document.getElementById('toile'), cx = cv.getContext('2d');
+  let W, H, dpr, mode = 'poussiere';
+  const taille = () => { dpr = Math.min(devicePixelRatio || 1, 2); W = cv.width = innerWidth * dpr; H = cv.height = innerHeight * dpr; };
+  addEventListener('resize', taille); taille();
+  const neuve = (p = {}) => Object.assign(p, { x: Math.random() * W, y: Math.random() * H, r: (Math.random() * 1.8 + .4) * dpr, v: Math.random() * .6 + .2, a: Math.random(), ph: Math.random() * 6.28 });
+  const parts = Array.from({ length: calme ? 40 : 170 }, () => neuve());
+  const COUL = { vapeur: [200, 196, 190], poussiere: [214, 164, 74], chute: [214, 164, 74], braises: [224, 112, 58], lueurs: [230, 190, 110] };
+  let coul = COUL.poussiere.slice(), t0 = 0;
+  function dessin(t) {
+    const dt = Math.min(50, t - t0) / 16.7; t0 = t;
+    const cible = COUL[mode] || COUL.poussiere;
+    for (let k = 0; k < 3; k++) coul[k] += (cible[k] - coul[k]) * .04;
+    const [r, g, b] = coul.map(Math.round);
+    cx.globalCompositeOperation = 'source-over';
+    cx.fillStyle = 'rgba(11,10,13,.24)'; cx.fillRect(0, 0, W, H);
+    cx.globalCompositeOperation = 'lighter';
+    const vit = calme ? .25 : 1;
+    for (const p of parts) {
+      p.ph += .02 * dt;
+      if (mode === 'vapeur') { p.y -= p.v * .5 * dt * dpr * vit; p.x += (Math.sin(p.ph * .5) * .5 + .6) * dpr * vit; }
+      else if (mode === 'poussiere') { p.y += p.v * .25 * dt * dpr * vit; p.x += Math.sin(p.ph) * .25 * dpr * vit; }
+      else if (mode === 'chute') { p.y += p.v * 3.2 * dt * dpr * vit; }
+      else if (mode === 'braises') { p.y -= p.v * 1.4 * dt * dpr * vit; p.x += Math.sin(p.ph) * .45 * dpr * vit; }
+      else { p.y -= p.v * .3 * dt * dpr * vit; p.x += Math.cos(p.ph * .7) * .3 * dpr * vit; }
+      if (p.y < -30 || p.y > H + 30 || p.x < -60 || p.x > W + 60) {
+        neuve(p);
+        if (mode === 'braises' || mode === 'lueurs' || mode === 'vapeur') p.y = H + 20;
+        if (mode === 'poussiere' || mode === 'chute') p.y = -20;
+        if (mode === 'vapeur') p.x = Math.random() * W * .7;
+      }
+      const c = .45 + .55 * Math.sin(p.ph * 1.7 + p.a * 6);
+      if (mode === 'vapeur') {
+        const rr = p.r * 16;
+        const gr = cx.createRadialGradient(p.x, p.y, 0, p.x, p.y, rr);
+        gr.addColorStop(0, `rgba(${r},${g},${b},${.035 * (.5 + p.a)})`); gr.addColorStop(1, `rgba(${r},${g},${b},0)`);
+        cx.fillStyle = gr; cx.fillRect(p.x - rr, p.y - rr, rr * 2, rr * 2);
+      } else if (mode === 'chute') {
+        cx.fillStyle = `rgba(${r},${g},${b},${(.2 + .5 * p.a) * c})`;
+        cx.fillRect(p.x, p.y, p.r * .6, p.v * 26 * dpr);
+      } else {
+        cx.fillStyle = `rgba(${r},${g},${b},${(.22 + .6 * p.a) * c})`;
+        cx.beginPath(); cx.arc(p.x, p.y, p.r, 0, 6.283); cx.fill();
+      }
+    }
+    requestAnimationFrame(dessin);
+  }
+  requestAnimationFrame(dessin);
+
+  montrer(0, false);
+})();
+</script>
+</body>
+</html>
