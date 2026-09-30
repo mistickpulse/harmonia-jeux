@@ -843,3 +843,13 @@ select {
 .etage-sous-boss { background: radial-gradient(ellipse at 50% 0%, rgba(156,42,34,.18), transparent 70%); }
 .etage-boss { background: radial-gradient(ellipse at 50% 30%, rgba(232,192,112,.14), transparent 70%); }
 .message.nain::before { content: "Le nain gardien ricane : "; font-style: normal; font-weight: 700; color: #ff8a6b; }
+
+/* La carotte : récompenses des Profondeurs */
+.recompenses-profondeurs { max-width: 36em; margin: 0 auto 16px; border-color: #e8c070; }
+.recompenses-profondeurs summary { cursor: pointer; font: 700 1.05rem var(--titre); letter-spacing: .08em; text-transform: uppercase; color: #ffd98a; text-align: center; }
+.recompenses-profondeurs h4 { font: 700 .95rem var(--titre); letter-spacing: .06em; color: var(--bronze-clair); margin: 16px 0 6px; }
+.recompenses-profondeurs .etapes { padding-left: 1.3em; margin: 0; }
+.recompenses-profondeurs .etapes li { margin: .45em 0; }
+.recompenses-profondeurs .dons { list-style: none; padding: 0; margin: 0; }
+.recompenses-profondeurs .don { display: flex; gap: 10px; align-items: flex-start; padding: 8px 10px; margin: 6px 0; border: 1px solid var(--bord); border-radius: 8px; background: rgba(232,192,112,.06); }
+.recompenses-profondeurs .icone-don { font-size: 1.4rem; line-height: 1.2; }

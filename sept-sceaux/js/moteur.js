@@ -525,6 +525,28 @@
   S.enregistrerEpreuve = (def) => { S.epreuves.push(def); };
   const cleProfondeurs = () => 'profondeurs:' + etat.code;
   const reussites = () => lire(cleProfondeurs()) || {};
+  // La « carotte » : ce que le MJ attend des joueurs, et ce qu’ils peuvent gagner.
+  function panneauRecompenses() {
+    const don = (icone, titre, texte) => el('li', { class: 'don' }, el('span', { class: 'icone-don', text: icone }), el('span', {}, el('strong', { text: titre }), ' ' + texte));
+    return el('details', { class: 'panneau recompenses-profondeurs', open: true },
+      el('summary', { text: '🏆 Ce qui vous attend au fond des Profondeurs' }),
+      el('h4', { text: 'Ce que le MJ attend de vous' }),
+      el('ol', { class: 'etapes' },
+        el('li', {}, el('strong', { text: 'Chacun pour soi, d’abord.' }), ' Réussis les épreuves des Profondeurs : chacune te donne un indice pour le Registre chiffré. Tes épreuves ne sont pas celles des autres.'),
+        el('li', {}, el('strong', { text: 'Déchiffre le Registre.' }), ' Il cache ton code d’accès personnel à l’Énigme des Profondeurs.'),
+        el('li', {}, el('strong', { text: 'Le premier qui y parvient envoie aussitôt son code d’accès au MJ.' }), ' C’est lui qui ouvre la porte : le MJ ouvre alors l’Énigme à tout le monde.'),
+        el('li', {}, el('strong', { text: 'Ensuite, tous ensemble.' }), ' L’Énigme est la même pour tous. Mettez vos indices en commun, cherchez partout sur le site, parlez-vous : seul, personne n’y arrivera.'),
+        el('li', {}, el('strong', { text: 'Chacun entre la réponse.' }), ' Qui donne la bonne réponse reçoit son code final personnel : envoie-le au MJ, c’est la preuve que tu as participé.'),
+        el('li', {}, el('strong', { text: 'Avant le samedi 10 octobre à 23h59.' }), ' Au début de la campagne, les Profondeurs se referment pour de bon.')),
+      el('h4', { text: 'Pour celui qui a ouvert la porte : un don des Profondeurs, au choix' }),
+      el('ul', { class: 'dons' },
+        don('✨', 'Intervention divine.', 'Une fois, changer le cours du destin sur un instant : un coup de pouce divin au moment où tout bascule.'),
+        don('🔥', 'Transcendance doublée.', 'Tes points de Transcendance sont doublés : tu pourras lancer bien plus souvent tes sorts de Transcendance.'),
+        don('💎', 'Un objet unique.', 'Une pierre venue des Profondeurs, liée à une compétence hors combat de ton choix : cette compétence est toujours lancée avec avantage.')),
+      el('p', { class: 'doux petit', text: 'Un seul don, à choisir. Et seulement si l’Énigme est résolue avant la fin : celui qui ouvre la porte a donc tout intérêt à aider les autres.' }),
+      el('h4', { text: 'Pour tous ceux qui auront aidé' }),
+      el('ul', { class: 'dons' }, don('⭐', '+10 points de Transcendance', 'pour chaque voyageur qui a trouvé la réponse sans avoir ouvert la porte.')));
+  }
   function contenuProfondeurs() {
     const faites = reussites();
     const simples = S.epreuves.filter((e) => !e.rang);
@@ -550,6 +572,7 @@
         el('p', {}, 'Le premier voyageur qui déchiffre le Registre ouvre l’Énigme des Profondeurs pour tout le monde. Si l’Énigme est ensuite résolue, c’est lui qui recevra ',
           el('strong', { text: 'une récompense spéciale en jeu, vraiment, vraiment précieuse.' })),
         el('p', { class: 'murmure-cache', text: 'Les nains ne l’appellent pas l’Entité.' })),
+      panneauRecompenses(),
       compteARebours(),
       PROFONDEURS_OUVERTES && !tempsEcoule() ? null : el('p', { class: 'centre doux', text: etat.mj
         ? 'Les Profondeurs sont fermées aux joueurs (énigme finale pas prête ou temps écoulé). Le MJ, lui, peut entrer.'
