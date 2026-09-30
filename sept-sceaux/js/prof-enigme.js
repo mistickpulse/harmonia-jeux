@@ -101,9 +101,7 @@
           ev.preventDefault();
           if (normaliser(champ.value) === Sceaux.codeRegistre(ctx.code)) {
             ctx.garde.ecrire({ ...souvenirs(), porte: true });
-            if (ctx.mj) { question(); return; }
-            msg.className = 'message ok';
-            msg.textContent = `La porte a reconnu ta voix. Envoie vite ce code au MJ : ${Sceaux.codeRegistreLisible(ctx.code)}. S’il est le premier à lui parvenir, c’est toi qui ouvres l’Énigme pour tout le monde.`;
+            question();
           } else { ctx.secouer(champ); msg.className = 'message erreur'; msg.textContent = 'La porte ne répond pas.'; }
         } }, champ, el('button', { type: 'submit', text: 'Prononcer' })),
         msg);
@@ -117,8 +115,12 @@
       champ.addEventListener('input', () => ctx.memoire.ecrire({ ouverte: true, essai: champ.value }));
       zone.replaceChildren(
         el('div', { class: 'salle-enigme' },
-          el('div', { class: 'panneau annonce-enigme' },
-            el('p', {}, el('strong', { text: 'Un voyageur a déchiffré le Registre et ouvert cette porte pour tous.' }), ' L’Énigme est commune : mettez vos indices en commun, cherchez ensemble, parlez-vous. Seul, personne n’y arrivera. Si elle est résolue, celui qui a ouvert la porte recevra la grande récompense.')),
+          pourTous
+            ? el('div', { class: 'panneau annonce-enigme' },
+              el('p', {}, el('strong', { text: 'Un voyageur a déchiffré le Registre et ouvert cette porte pour tous.' }), ' L’Énigme est commune : mettez vos indices en commun, cherchez ensemble, parlez-vous. Seul, personne n’y arrivera. Si elle est résolue, celui qui a ouvert la porte recevra la grande récompense.'))
+            : el('div', { class: 'panneau annonce-enigme' },
+              el('p', {}, el('strong', { text: 'La porte a reconnu ta voix.' }), ` Envoie tout de suite ton code d’accès au MJ : ${Sceaux.codeRegistreLisible(ctx.code)}. S’il est le premier à lui parvenir, c’est toi qui ouvres l’Énigme pour tout le monde, et la grande récompense sera pour toi si elle est résolue.`),
+              el('p', { class: 'doux', text: 'Tu peux déjà chercher. Mais cette énigme est faite pour être résolue à plusieurs : dès que le MJ l’aura ouverte à tous, aidez-vous.' })),
           el('p', { class: 'doux petit', text: 'Énigme commune à tous les voyageurs' }),
           el('p', { class: 'question-enigme', text: QUESTION }),
           el('form', { class: 'form-mot', onsubmit: async (ev) => {
@@ -137,12 +139,12 @@
             } else { ctx.secouer(champ); msg.className = 'message erreur nain'; msg.textContent = reponseDuNain(champ.value, essais++); }
           } }, champ, el('button', { type: 'submit', text: 'Répondre' })),
           msg, resultat,
-          el('p', { class: 'murmure-enigme', text: 'La réponse n’est pas ici. Des indices sont disséminés un peu partout sur le site : l’accueil, les Sept Sceaux, les Profondeurs, et même les Bonus. Ceux qui savent regarder les trouveront.' }),
+          el('p', { class: 'murmure-enigme', text: 'La réponse n’est pas ici. Des indices sont disséminés partout dans les pages du site, et sur n’importe quelle page. Ceux qui savent regarder les trouveront.' }),
           el('p', { class: 'murmure-enigme' }, el('strong', { text: 'Depuis que le Registre a été déchiffré, certaines épreuves du site ont changé.' }), ' Retourne les voir, même celles que tu crois connaître par cœur.'),
           el('p', { class: 'murmure-enigme exemple' }, el('strong', { text: 'Un premier murmure, pour l’exemple : ' }), 'quand tu as réussi une épreuve des Profondeurs, reviens la voir. Certaines ont encore quelque chose à te dire.')));
     }
 
-    if (pourTous || (ctx.mj && souvenirs().porte)) question(); else porte();
+    if (pourTous || souvenirs().porte) question(); else porte();
     return {
       solution: () => JSON.parse(Sceaux.voile('eyJyZXBvbnNlIjpbIkxlIEPFk3VyIFZpYnJhbnQgKGzigJlvcnRob2dyYXBoZSBuZSBjb21wdGUgcGFzIDogbGEgcsOpcG9uc2UgZXN0IGNvbXBhcsOpZSDCqyDDoCBs4oCZb3JlaWxsZSDCuykiXSwicG91cnF1b2kiOlsiQ+KAmWVzdCBsZSBub20gcXVlIGxlcyBuYWlucyBkb25uZW50IMOgIGzigJlFbnRpdMOpLiBRdWFuZCBwbHVzIHBlcnNvbm5lIG5lIGNoYW50ZSwgbGEgcGllcnJlIGVudGVuZCBjZSBxdWkgYmF0IGRlc3NvdXMuIiwiTGVzIGluZGljZXMgOiBsYSBwcmnDqHJlIGRlIGzigJnDqWNyYW4gZOKAmWFjY3VlaWwgKGNpbnEgbGV0dHJlcyBkb3LDqWVzIDogQywgTywgRSwgVSwgUikgOyBsZSBkb3MgZGVzIMOpY2xhdHMgZGVzIHNjZWF1eCAoViwgSSwgQiwgUiwgQSwgTlQpIDsgbGEgcGhyYXNlIHByZXNxdWUgaW52aXNpYmxlIHNvdXMgbOKAmWF2ZXJ0aXNzZW1lbnQgZGVzIFByb2ZvbmRldXJzICjCqyBMZXMgbmFpbnMgbmUgbOKAmWFwcGVsbGVudCBwYXMgbOKAmUVudGl0w6kgwrspIDsgbGVzIMOpcHJldXZlcyByw6l1c3NpZXMgZGUgbGEgVGFwaXNzZXJpZSwgZHUgUsOpc2VhdSBydW5pcXVlIGV0IGRlcyBHbGFjZXMgZHUgQ29sLCBxdWFuZCBvbiByZXZpZW50IGxlcyB2b2lyIDsgZXQsIHVuZSBmb2lzIGzigJnDiW5pZ21lIG91dmVydGUgw6AgdG91cywgdW5lIHF1ZXN0aW9uIGR1IHF1aXogwqsgTOKAmcOJcHJldXZlIGRlIGxhIE3DqW1vaXJlIMK7IChCb251cykuIl19'))
     };
