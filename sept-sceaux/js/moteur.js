@@ -527,7 +527,7 @@
   const reussites = () => lire(cleProfondeurs()) || {};
   // La « carotte » : ce que le MJ attend des joueurs, et ce qu’ils peuvent gagner.
   function panneauRecompenses() {
-    const don = (icone, titre, texte) => el('li', { class: 'don' }, el('span', { class: 'icone-don', text: icone }), el('span', {}, el('strong', { text: titre }), ' ' + texte));
+    const don = (icone, titre, ...texte) => el('li', { class: 'don' }, el('span', { class: 'icone-don', text: icone }), el('span', {}, el('strong', { text: titre }), ' ', ...texte));
     return el('details', { class: 'panneau recompenses-profondeurs', open: true },
       el('summary', { text: '🏆 Ce qui vous attend au fond des Profondeurs' }),
       el('h4', { text: 'Ce que le MJ attend de vous' }),
@@ -541,11 +541,11 @@
       el('h4', { text: 'Pour celui qui a ouvert la porte : un don des Profondeurs, au choix' }),
       el('ul', { class: 'dons' },
         don('✨', 'Intervention divine.', 'Une fois, changer le cours du destin sur un instant : un coup de pouce divin au moment où tout bascule.'),
-        don('🔥', 'Transcendance doublée.', 'Tes points de Transcendance sont doublés : tu pourras lancer bien plus souvent tes sorts de Transcendance.'),
-        don('💎', 'Un objet unique.', 'Une pierre venue des Profondeurs, liée à une compétence hors combat de ton choix : cette compétence est toujours lancée avec avantage.')),
+        don('🔥', 'Transcendance doublée.', 'Ton maximum de points de Transcendance (tes points ', el('strong', { text: 'MAX' }), ') est doublé : tu pourras lancer bien plus souvent tes sorts de Transcendance.'),
+        don('💎', 'Un objet unique.', 'Une pierre venue des Profondeurs, liée à une compétence hors combat de ton choix : cette compétence est ', el('u', { text: 'toujours' }), ' lancée avec avantage.')),
       el('p', { class: 'doux petit', text: 'Un seul don, à choisir. Et seulement si l’Énigme est résolue avant la fin : celui qui ouvre la porte a donc tout intérêt à aider les autres.' }),
       el('h4', { text: 'Pour tous ceux qui auront aidé' }),
-      el('ul', { class: 'dons' }, don('⭐', '+10 points de Transcendance', 'pour chaque voyageur qui a trouvé la réponse sans avoir ouvert la porte.')));
+      el('ul', { class: 'dons' }, don('⭐', '+10 points de Transcendance MAX', 'pour chaque voyageur qui a trouvé la réponse sans avoir ouvert la porte : ton maximum de points de Transcendance augmente de 10.')));
   }
   function contenuProfondeurs() {
     const faites = reussites();
