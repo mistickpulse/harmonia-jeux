@@ -870,3 +870,4 @@ select {
 }
 .sceau.verrouillee { filter: grayscale(.75) brightness(.8); }
 .sceau.verrouillee .medaillon { font-size: 1.6rem; }
+.priere.priere-porte { font-size: .9rem; max-width: 40em; margin: 0 auto 18px; opacity: .92; }

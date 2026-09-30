@@ -494,6 +494,8 @@
         el('span', { class: 'code', text: etat.mj ? 'Code MJ' : 'Porte scellée' }),
         el('button', { class: 'discret', type: 'button', text: 'Changer de code', onclick: () => ecranCode() })),
       el('h1', { text: 'La Porte' }),
+      // La prière reste visible sur la porte (ses lettres dorées sont un indice de l’Énigme).
+      el('blockquote', { class: 'priere priere-porte' }, prierePointee()),
       etat.mj ? el('div', { class: 'actions barre-mj' },
         el('button', { type: 'button', class: 'discret', text: '📜 Tableau du MJ : ce que reçoit chaque joueur', onclick: ecranTableau }),
         el('button', { type: 'button', class: 'discret', text: '🎲 Tester le lutrin', onclick: ecranDe })) : null,
