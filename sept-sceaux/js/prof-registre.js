@@ -174,7 +174,7 @@
       if (!r) return;
       if (r === code.join('')) {
         fini = true; msg.className = 'message ok';
-        msg.textContent = `Le registre se referme de lui-même. Ton code d’accès : ${code.join('-')}. Envoie-le tout de suite au MJ : si tu es le premier, c’est toi qui ouvres l’Énigme des Profondeurs pour tout le monde, et la grande récompense sera pour toi si elle est résolue. Ensuite, aidez-vous : l’Énigme se résout ensemble.`;
+        msg.textContent = `Le registre se referme de lui-même. Ton code d’accès : ${code.join('-')}. Il t’ouvre dès maintenant la porte de l’Énigme des Profondeurs. Envoie-le tout de suite au MJ : si tu es le premier, c’est toi qui ouvres l’Énigme pour tout le monde, et la grande récompense sera pour toi si elle est résolue. Ensuite, aidez-vous : l’Énigme se résout ensemble.`;
         setTimeout(ctx.reussir, 6000);
       } else {
         tentatives++; ctx.secouer(champReponse);

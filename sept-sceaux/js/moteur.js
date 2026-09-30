@@ -603,7 +603,7 @@
         el('span', { class: 'medaillon', text: faites[e.id] ? '✓' : cadenas ? '🔒' : e.icone || '⛏' }),
         el('span', { class: 'nom', text: e.nom }),
         el('span', { class: 'etoiles', text: '★'.repeat(e.etoiles) }),
-        el('span', { class: 'etat', text: faites[e.id] ? reussi : cadenas ? 'Code d’accès requis' : ouverte ? e.resume : tempsEcoule() ? 'Refermée' : 'Pas encore ouverte' }));
+        el('span', { class: 'etat', text: faites[e.id] ? reussi : cadenas ? 'Code d’accès requis' : enigmePourTous(e) ? 'Ouverte à tous : cherchez ensemble' : ouverte ? e.resume : tempsEcoule() ? 'Refermée' : 'Pas encore ouverte' }));
     };
     return [
       el('div', { class: 'avertissement-profondeurs' },
