@@ -675,6 +675,8 @@
       zone);
     if (faites[e.id]) {
       if (e.souvenir) zone.append(e.souvenir(ctx));
+      const cache = (e.monter(el('div'), ctx) || {});
+      if (cache.solution) app().append(accesSolution(0, cache.solution, { titre: e.nom, attendu: (window.SCEAUX_CONFIG.solutionsProfondeurs || {})[e.id], id: 'prof-' + e.id }));
       zone.append(el('p', { class: 'consigne', text: fermee ? 'Tu as déjà réussi cette épreuve.' : 'Tu as déjà réussi cette épreuve. Tu peux la rejouer si tu veux (ta réussite est conservée tant que tu ne cliques pas sur « Rejouer »).' }));
       return;
     }
@@ -808,6 +810,9 @@
       zone.append(el('div', {}, el('p', { class: 'consigne', text: 'Ce sceau est déjà brisé.' + (n <= 6 ? ' Son éclat est à toi.' : '') }),
         n <= 6 ? el('div', { class: 'fragment', style: 'margin:0 auto;width:72px;height:84px;font-size:2.4rem', text: eclat(n) }) : null,
         n <= 6 ? el('p', { class: 'gravure', text: '« ' + S.ordreDuMaitre(etat.code).gravures[n - 1] + ' »' }) : null));
+      // La solution reste consultable avec la clé du gardien : on monte l’énigme hors de l’écran pour la calculer.
+      const cache = (def.monter(el('div'), ctx) || {});
+      if (cache.solution) app().append(accesSolution(n, cache.solution));
       return;
     }
     const api = def.monter(zone, ctx) || {};
