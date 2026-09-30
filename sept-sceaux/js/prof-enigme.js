@@ -89,6 +89,26 @@
     const pourTous = !!(window.SCEAUX_CONFIG.enigme || {}).ouverteATous;
     const souvenirs = () => (typeof ctx.garde.lire() === 'object' && ctx.garde.lire()) || {};
 
+    // Code MJ : la carte complète des indices de l’Énigme (contenu encodé, pour ne pas la laisser lisible dans le code).
+    function carteMJ() {
+      if (!ctx.mj) return null;
+      const bloc = el('div', { class: 'carte-indices-mj' });
+      return el('div', { class: 'panneau carte-mj' },
+        el('button', { type: 'button', class: 'discret', text: 'MJ : voir où se trouve chaque indice', onclick: (ev) => {
+          if (bloc.childNodes.length) { bloc.replaceChildren(); ev.target.textContent = 'MJ : voir où se trouve chaque indice'; return; }
+          const c = JSON.parse(Sceaux.voile('eyJyZXBvbnNlIjoiTGUgQ8WTdXIgVmlicmFudCIsImluZGljZXMiOltbIkFjY3VlaWwgZGVzIFNlcHQgU2NlYXV4ICjDqWNyYW4gZHUgY29kZSkiLCJMYSBwcmnDqHJlLCBlbiBoYXV0IDogY2lucSBsZXR0cmVzIGzDqWfDqHJlbWVudCBkb3LDqWVzIGV0IGVuIGdyYXMsIGRhbnMgbOKAmW9yZHJlIGR1IHRleHRlLiIsIkMsIE8sIEUsIFUsIFIiLCJUb3Vqb3VycyB2aXNpYmxlLiJdLFsiUG9ydGUgZGVzIFNlcHQgU2NlYXV4LCBzZWN0aW9uIMKrIMOJY2xhdHMgwrsiLCJUb3VjaGVyIHVuIMOpY2xhdCA6IHNhIGdyYXZ1cmUgc+KAmWFmZmljaGUsIHN1aXZpZSBkZSDCqyBBdSBkb3MsIHVuZSBsZXR0cmUgbWludXNjdWxlIDog4oCmIMK7LiIsIlYgKHNjZWF1IEkpLCBJIChJSSksIEIgKElJSSksIFIgKElWKSwgQSAoViksIE5UIChWSSkiLCJTZXVsZW1lbnQgcG91ciBsZXMgc2NlYXV4IGTDqWrDoCBicmlzw6lzIHBhciBsZSBqb3VldXIuIl0sWyJPbmdsZXQgUHJvZm9uZGV1cnMsIHNvdXMgbOKAmWF2ZXJ0aXNzZW1lbnQiLCJVbmUgcGhyYXNlIHByZXNxdWUgaW52aXNpYmxlICh0csOocyBmYWlibGUgY29udHJhc3RlKSwgZW4gZGVzc291cyBkdSB0ZXh0ZSBk4oCZYXZlcnRpc3NlbWVudC4iLCLCqyBMZXMgbmFpbnMgbmUgbOKAmWFwcGVsbGVudCBwYXMgbOKAmUVudGl0w6kuIMK7IChsYSByw6lwb25zZSBlc3QgdW4gbm9tIG5haW4pIiwiVG91am91cnMgdmlzaWJsZSwgc2kgb24gcmVnYXJkZSBiaWVuLiJdLFsiUHJvZm9uZGV1cnMgOiBMYSBUYXBpc3NlcmllIGVmZmFjw6llIiwiUmV2ZW5pciBzdXIgbOKAmcOpcHJldXZlIHVuZSBmb2lzIHLDqXVzc2llIDogdW5lIHBocmFzZSBhcHBhcmHDrnQuIiwiwqsg4oCmIHRvdXQgYXUgY2VudHJlLCBsZXMgdGlzc2VyYW5kcyBhdmFpZW50IGJyb2TDqSB1biBjxZN1ciBkZSBwaWVycmUuIMK7IiwiQXByw6hzIHLDqXVzc2l0ZSBkZSBs4oCZw6lwcmV1dmUuIl0sWyJQcm9mb25kZXVycyA6IExlIFLDqXNlYXUgcnVuaXF1ZSIsIlJldmVuaXIgc3VyIGzigJnDqXByZXV2ZSB1bmUgZm9pcyByw6l1c3NpZSA6IHVuZSBwaHJhc2UgYXBwYXJhw650LiIsIsKrIOKApiBhdSBjZW50cmUsIGxlIEPFk3VyIG7igJlhIHBhcyBjZXNzw6kgOiBzb3VzIHRlcyBkb2lndHMsIHF1ZWxxdWUgY2hvc2UgY29udGludWUgZGUgYmF0dHJlLiDCuyIsIkFwcsOocyByw6l1c3NpdGUgZGUgbOKAmcOpcHJldXZlLiJdLFsiUHJvZm9uZGV1cnMgOiBMZXMgR2xhY2VzIGR1IENvbCIsIlJldmVuaXIgc3VyIGzigJnDqXByZXV2ZSB1bmUgZm9pcyByw6l1c3NpZSA6IHVuZSBwaHJhc2UgYXBwYXJhw650LiIsIsKrIOKApiB0dSBzZW5zIHF1ZWxxdWUgY2hvc2UgdmlicmVyLCB0csOocyBsb2luIGRlc3NvdXMsIGxlbnRlbWVudC4gwrsiLCJBcHLDqHMgcsOpdXNzaXRlIGRlIGzigJnDqXByZXV2ZS4iXSxbIk9uZ2xldCBCb251cyA6IEzigJnDiXByZXV2ZSBkZSBsYSBNw6ltb2lyZSAocXVpeikiLCJVbmUgNDBlIHF1ZXN0aW9uLCBjYXTDqWdvcmllIMKrIExlcyBQcm9mb25kZXVycyDCuy4iLCLCqyBDb21tZW50IGxlcyBuYWlucyBub21tZW50LWlscyBjZSBxdWkgYmF0IHNvdXMgbGEgcGllcnJlID8gwrsg4oaSIExlIEPFk3VyIFZpYnJhbnQgKGxldXJyZXMgOiBsZSBTb3VmZmxlIEFuY2llbiwgbGEgRm9yZ2UgTXVldHRlLCBsZSBEb3JtZXVyKSIsIlNldWxlbWVudCBxdWFuZCBs4oCZw4luaWdtZSBlc3Qgb3V2ZXJ0ZSDDoCB0b3VzIChvdXZlcnRlQVRvdXM6IHRydWUpLiBVbmUgcGFydGllIGRlIHF1aXogZW4gY291cnMgcmVjb21tZW5jZSBhbG9ycy4iXSxbIlBhZ2UgZGUgbOKAmcOJbmlnbWUiLCJMYSDCqyBwcmVtacOocmUgcGlzdGUgwrssIHNvdXMgbGEgcXVlc3Rpb24uIiwiwqsgUXVhbmQgdHUgYXMgcsOpdXNzaSB1bmUgw6lwcmV1dmUgZGVzIFByb2ZvbmRldXJzLCByZXZpZW5zIGxhIHZvaXIuIMK7IiwiVG91am91cnMgdmlzaWJsZSBkYW5zIGzigJnDiW5pZ21lLiJdLFsiUGFnZSBkZSBs4oCZw4luaWdtZSA6IGxlIG5haW4gZ2FyZGllbiIsIlNlcyByw6lwb25zZXMgYXV4IG1hdXZhaXMgZXNzYWlzIG1ldHRlbnQgc3VyIGxhIHZvaWUuIiwiwqsgY8WTdXIgwrsgc2V1bCwgwqsgdmlicmFudCDCuyBzZXVsLCDCqyBsZSBjxZN1ciBxdWkgdmlicmUgwrsgKHByZXNxdWUpLCBiYXR0ZW1lbnQsIEVudGl0w6ksIMOpY2hvLCBzaWxlbmNlLCBjaGFudCwgZm9yZ2UuIiwiw4AgY2hhcXVlIG1hdXZhaXNlIHLDqXBvbnNlLiJdXX0='));
+          ev.target.textContent = 'MJ : masquer la carte des indices';
+          bloc.replaceChildren(
+            el('p', {}, el('strong', { text: 'Réponse : ' }), c.reponse),
+            el('ol', {}, c.indices.map(([ou, comment, quoi, quand]) => el('li', {},
+              el('strong', { text: ou }), el('br'),
+              el('span', { text: comment }), el('br'),
+              el('span', { class: 'quoi', text: quoi }), el('br'),
+              el('span', { class: 'doux petit', text: quand })))));
+        } }),
+        bloc);
+    }
+
     function porte() {
       const champ = el('input', { type: 'text', placeholder: 'Code d’accès', autocomplete: 'off', autocapitalize: 'characters', spellcheck: 'false', 'aria-label': 'Code d’accès aux Profondeurs' });
       const msg = el('p', { class: 'message' });
@@ -104,7 +124,8 @@
             question();
           } else { ctx.secouer(champ); msg.className = 'message erreur'; msg.textContent = 'La porte ne répond pas.'; }
         } }, champ, el('button', { type: 'submit', text: 'Prononcer' })),
-        msg);
+        msg,
+        carteMJ());
     }
 
     let essais = 0;
@@ -141,7 +162,8 @@
           msg, resultat,
           el('p', { class: 'murmure-enigme', text: 'La réponse n’est pas ici. Des indices sont disséminés partout dans les pages du site, et sur n’importe quelle page. Ceux qui savent regarder les trouveront.' }),
           el('p', { class: 'murmure-enigme' }, el('strong', { text: 'Depuis que le Registre a été déchiffré, certaines épreuves du site ont changé.' }), ' Retourne les voir, même celles que tu crois connaître par cœur.'),
-          el('p', { class: 'murmure-enigme exemple' }, el('strong', { text: 'Un premier murmure, pour l’exemple : ' }), 'quand tu as réussi une épreuve des Profondeurs, reviens la voir. Certaines ont encore quelque chose à te dire.')));
+          el('p', { class: 'murmure-enigme exemple' }, el('strong', { text: 'Un premier murmure, pour l’exemple : ' }), 'quand tu as réussi une épreuve des Profondeurs, reviens la voir. Certaines ont encore quelque chose à te dire.')),
+        carteMJ());
     }
 
     if (pourTous || souvenirs().porte) question(); else porte();

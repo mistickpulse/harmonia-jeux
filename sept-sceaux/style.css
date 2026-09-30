@@ -853,3 +853,7 @@ select {
 .recompenses-profondeurs .dons { list-style: none; padding: 0; margin: 0; }
 .recompenses-profondeurs .don { display: flex; gap: 10px; align-items: flex-start; padding: 8px 10px; margin: 6px 0; border: 1px solid var(--bord); border-radius: 8px; background: rgba(232,192,112,.06); }
 .recompenses-profondeurs .icone-don { font-size: 1.4rem; line-height: 1.2; }
+.carte-mj { margin-top: 24px; border-color: #7a9cc6; text-align: left; }
+.carte-indices-mj ol { padding-left: 1.3em; }
+.carte-indices-mj li { margin: .7em 0; }
+.carte-indices-mj .quoi { color: #ffd98a; }
