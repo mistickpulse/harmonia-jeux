@@ -871,3 +871,10 @@ select {
 .sceau.verrouillee { filter: grayscale(.75) brightness(.8); }
 .sceau.verrouillee .medaillon { font-size: 1.6rem; }
 .priere.priere-porte { font-size: .9rem; max-width: 40em; margin: 0 auto 18px; opacity: .92; }
+
+/* Le trésor des Chambres Fortes : la table de l’alphabet runique */
+.tresor-runes { margin: 12px 0; }
+.grille-runes { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; margin: 10px auto; max-width: 22em; }
+.case-rune { display: flex; flex-direction: column; align-items: center; padding: 4px 0; border: 1px solid var(--bord); border-radius: 6px; background: rgba(232,192,112,.06); }
+.case-rune b { font-family: "Noto Sans Runic", "Segoe UI Historic", serif; font-size: 1.4rem; color: var(--bronze-clair); font-weight: 400; line-height: 1.2; }
+.case-rune small { font: 600 .8rem var(--titre); letter-spacing: .05em; }

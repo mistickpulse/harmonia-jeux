@@ -61,7 +61,7 @@ main {
   animation: tourne 120s linear infinite;
   opacity: .55;
 }
-.anneau text { font-family: var(--f-rune); font-size: 15px; letter-spacing: 7px; fill: var(--laiton); }
+.anneau text { font-family: var(--f-rune); font-size: 15px; fill: var(--laiton); }
 .anneau circle { fill: none; stroke: var(--laiton-sombre); stroke-width: 1; }
 @keyframes tourne { to { rotate: 360deg; } }
 .titre { position: relative; display: flex; flex-direction: column; align-items: center; gap: .6rem; }
@@ -133,7 +133,8 @@ h1 {
       <defs><path id="cercle" d="M200,200 m-170,0 a170,170 0 1,1 340,0 a170,170 0 1,1 -340,0"/></defs>
       <circle cx="200" cy="200" r="188"/>
       <circle cx="200" cy="200" r="152"/>
-      <text><textPath href="#cercle">ᚺᚨᚱᛗᛟᚾᛁᚨ ᛫ ᚲᚨᚱᚨᚲ ᛞᚢᚱᚾ ᛫ ᚷᚱᚨᚢᚨᚦᛟᚱ ᛫ ᛋᛖᛈᛏ ᛋᚲᛖᚨᚢᛪ ᛫ ᚺᚨᚱᛗᛟᚾᛁᚨ ᛫ ᚲᚨᚱᚨᚲ ᛞᚢᚱᚾ ᛫</textPath></text>
+      <!-- Alphabet runique propre au site : la table se trouve ailleurs sur le site. -->
+      <text><textPath href="#cercle" textLength="1060" lengthAdjust="spacing">ᚦᛂ ᛫ ᛅᚫᛅ ᛫ ᛦᛣ ᛫ ᛅᚾ ᛫ ᛩ ᛫ ᚬᛦᚦᛅ ᛫ ᛦᛜᛦ ᛭ ᛁᛑᚱᛌᛣ ᛫ ᚽᛂᛕᛣᛊ ᛫ ᚿᛂᛁᛈᛡᚬ ᛫ ᛅᚬᚬᛂᛊ ᛫ ᛡᚬᛜᚿᛟᛅ ᛫ ᛅᛑᛈᛐ ᛫ ᛜᛟᛐ ᛫ ᛜᚽᛈᚱ ᛫ ᛌᛣᛈ ᛭</textPath></text>
     </svg>
     <div class="titre">
       <div class="lieu monte" style="--d:.1s">Karak-Durn · Gravathor</div>

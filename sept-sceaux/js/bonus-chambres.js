@@ -237,10 +237,21 @@
     };
   }
 
+  // Le trésor du coffre : la table de l’alphabet runique du site (celui de l’anneau de l’accueil).
+  const ALPHABET_RUNIQUE = {'A': 'ᛩ', 'B': 'ᛑ', 'C': 'ᛜ', 'D': 'ᛟ', 'E': 'ᚦ', 'F': 'ᛁ', 'G': 'ᛊ', 'H': 'ᛂ', 'I': 'ᛦ', 'J': 'ᛈ', 'K': 'ᛡ', 'L': 'ᛣ', 'M': 'ᚿ', 'N': 'ᛅ', 'O': 'ᚫ', 'P': 'ᛕ', 'Q': 'ᛐ', 'R': 'ᚬ', 'S': 'ᚢ', 'T': 'ᛌ', 'U': 'ᚩ', 'V': 'ᚽ', 'W': 'ᛇ', 'X': 'ᛪ', 'Y': 'ᚾ', 'Z': 'ᚱ'};
+  function tresor() {
+    return el('div', { class: 'tresor-runes' },
+      el('p', { text: 'Au fond du coffre, sous la poussière, tu trouves une vieille table de scribe : un alphabet runique que tu n’as jamais vu.' }),
+      el('div', { class: 'grille-runes' }, Object.entries(ALPHABET_RUNIQUE).map(([lettre, rune]) =>
+        el('span', { class: 'case-rune' }, el('b', { text: rune }), el('small', { text: lettre })))),
+      el('p', { class: 'doux petit', text: 'Les espaces entre les mots sont marqués ᛫. Peut-être que ça servira quelque part…' }));
+  }
+
   Sceaux.enregistrerBonus({
     id: 'chambres', titre: 'Les Chambres Fortes',
     description: 'Un démineur sans hasard, 81 salles, 16 pièges… et 8run0 qui fait sa ronde en déplaçant les runes.',
     resume: (reussi) => (reussi ? 'Réussi ✓' : null),
-    monter
+    monter,
+    tresor
   });
 })();

@@ -701,8 +701,18 @@
           el('h3', { text: b.titre }),
           el('p', { class: 'doux', text: b.description }),
           meilleur != null && b.resume ? el('p', { class: 'petit', text: b.resume(meilleur) }) : null,
-          el('button', { type: 'button', text: 'Jouer', onclick: () => ecranBonus(b) }));
+          el('button', { type: 'button', text: 'Jouer', onclick: () => ecranBonus(b) }),
+          meilleur === true && b.tresor ? el('button', { type: 'button', class: 'discret', text: '📜 Ce que tu as trouvé dans le coffre', onclick: () => voirTresor(b) }) : null);
       }))];
+  }
+  function voirTresor(b) {
+    const voile = el('div', { class: 'brisure', role: 'dialog', 'aria-label': b.titre },
+      el('div', { class: 'contenu' },
+        el('h2', { text: b.titre }),
+        b.tresor(),
+        el('button', { type: 'button', text: 'Fermer', onclick: () => voile.remove() })));
+    voile.addEventListener('click', (ev) => { if (ev.target === voile) voile.remove(); });
+    document.body.append(voile);
   }
   function ecranBonus(b) {
     const zone = el('div', { class: 'zone-bonus' });
@@ -727,6 +737,7 @@
           el('div', { class: 'contenu' },
             el('h2', { text: 'Réussi !' }),
             el('p', { class: 'doux', text: `${b.titre} : bravo.` }),
+            b.tresor ? b.tresor() : null,
             el('button', { type: 'button', text: 'Retour aux bonus', onclick: () => { voile.remove(); ecranPorte('bonus'); } })));
         document.body.append(voile);
       }
